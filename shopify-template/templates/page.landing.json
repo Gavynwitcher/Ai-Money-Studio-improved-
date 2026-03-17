@@ -1,0 +1,73 @@
+{
+  "sections": {
+    "main": {
+      "type": "landing-page",
+      "settings": {
+        "eyebrow": "New release",
+        "heading": "Build a landing page that converts without touching code",
+        "subheading": "Use this Shopify template as a starting point for campaigns, product launches, or seasonal promotions.",
+        "primary_button_label": "Shop now",
+        "primary_button_link": "/collections/all",
+        "secondary_button_label": "Learn more",
+        "secondary_button_link": "/pages/about",
+        "panel_heading": "Why this template works",
+        "panel_body": "It gives you a clean hero, social proof, feature cards, and a final call to action in one editable section.",
+        "cta_heading": "Ready to launch your next campaign?",
+        "cta_body": "Swap the text, connect the buttons, and publish.",
+        "cta_button_label": "Start customizing",
+        "cta_button_link": "/collections/all",
+        "background": "#f4efe7",
+        "surface": "#fffdf8",
+        "text_color": "#1f1a17",
+        "accent": "#b35c2e"
+      },
+      "blocks": {
+        "stat_1": {
+          "type": "stat",
+          "settings": {
+            "value": "4.8/5",
+            "label": "Average customer rating"
+          }
+        },
+        "stat_2": {
+          "type": "stat",
+          "settings": {
+            "value": "2 days",
+            "label": "Average launch time"
+          }
+        },
+        "feature_1": {
+          "type": "feature",
+          "settings": {
+            "title": "Flexible hero copy",
+            "body": "Update headings, description text, and button links directly in the theme editor."
+          }
+        },
+        "feature_2": {
+          "type": "feature",
+          "settings": {
+            "title": "Built-in proof points",
+            "body": "Add stats and feature cards without creating extra sections or templates."
+          }
+        },
+        "feature_3": {
+          "type": "feature",
+          "settings": {
+            "title": "Campaign-ready layout",
+            "body": "Use it for seasonal offers, product launches, lead capture, or brand storytelling."
+          }
+        }
+      },
+      "block_order": [
+        "stat_1",
+        "stat_2",
+        "feature_1",
+        "feature_2",
+        "feature_3"
+      ]
+    }
+  },
+  "order": [
+    "main"
+  ]
+}

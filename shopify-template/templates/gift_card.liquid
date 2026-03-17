@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+  <head>
+    {% render 'theme-seo' %}
+    {{ content_for_header }}
+    <style>
+      :root {
+        --color-bg: {{ settings.color_background }};
+        --color-text: {{ settings.color_text }};
+        --color-accent: {{ settings.color_accent }};
+      }
+    </style>
+    {{ 'theme.css' | asset_url | stylesheet_tag }}
+  </head>
+  <body>
+    <main class="section-shell">
+      <div class="page-width">
+        <div class="card stack" style="max-width: 42rem; margin: 0 auto;">
+          {% if settings.logo != blank %}
+            {{ settings.logo | image_url: width: settings.logo_width | image_tag: alt: shop.name }}
+          {% else %}
+            <h1>{{ shop.name }}</h1>
+          {% endif %}
+
+          <h2>Gift card</h2>
+          <p><strong>{{ gift_card.initial_value | money }}</strong></p>
+          <p>{{ gift_card.code | format_code }}</p>
+
+          <img
+            src="{{ gift_card.qr_identifier | gift_card_qr_code_url: 120 }}"
+            width="120"
+            height="120"
+            alt="QR code for the gift card"
+          >
+
+          {% if gift_card.pass_url %}
+            <a class="button button--primary" href="{{ gift_card.pass_url }}">Add to Apple Wallet</a>
+          {% endif %}
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

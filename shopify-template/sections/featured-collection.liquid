@@ -1,0 +1,55 @@
+<section class="section-shell">
+  <div class="page-width stack">
+    <div class="stack">
+      <h2>{{ section.settings.heading | escape }}</h2>
+      <p class="meta">{{ section.settings.body | escape }}</p>
+    </div>
+
+    {% if section.settings.collection != blank %}
+      <div class="collection-products">
+        {% for product in section.settings.collection.products limit: section.settings.products_to_show %}
+          {% render 'product-card', card_product: product %}
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Featured collection",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Featured collection"
+    },
+    {
+      "type": "textarea",
+      "id": "body",
+      "label": "Body",
+      "default": "Choose a collection and use this section to guide shoppers into product discovery."
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "label": "Products to show",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 4
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured collection"
+    }
+  ]
+}
+{% endschema %}

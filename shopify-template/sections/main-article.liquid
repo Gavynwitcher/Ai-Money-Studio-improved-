@@ -1,0 +1,60 @@
+<section class="section-shell">
+  <div class="page-width article-layout">
+    <article class="card stack rte">
+      <h1>{{ article.title }}</h1>
+      <p class="meta">{{ article.published_at | time_tag: format: 'date' }}</p>
+      {% if article.image %}
+        {{ article.image | image_url: width: 1400 | image_tag: loading: 'eager', alt: article.image.alt }}
+      {% endif %}
+      {{ article.content }}
+    </article>
+
+    <div class="card stack">
+      <h2>Comments ({{ article.comments_count }})</h2>
+
+      {% paginate article.comments by 10 %}
+        <ul class="article-comments stack">
+          {% for comment in article.comments %}
+            <li class="card">
+              <strong>{{ comment.author }}</strong>
+              <p class="meta">{{ comment.created_at | time_tag: format: 'date' }}</p>
+              <p>{{ comment.content }}</p>
+            </li>
+          {% endfor %}
+        </ul>
+
+        {% if paginate.pages > 1 %}
+          <nav class="pagination" aria-label="Comment pagination">
+            {{ paginate | default_pagination }}
+          </nav>
+        {% endif %}
+      {% endpaginate %}
+
+      {% form 'new_comment', article, class: 'stack' %}
+        {% if form.posted_successfully? %}
+          <p>Your comment was submitted successfully.</p>
+        {% endif %}
+
+        {{ form.errors | default_errors }}
+
+        <label for="CommentAuthor-{{ section.id }}">Name</label>
+        <input id="CommentAuthor-{{ section.id }}" type="text" name="comment[author]" value="{{ form.author }}" required>
+
+        <label for="CommentEmail-{{ section.id }}">Email</label>
+        <input id="CommentEmail-{{ section.id }}" type="email" name="comment[email]" value="{{ form.email }}" required>
+
+        <label for="CommentBody-{{ section.id }}">Comment</label>
+        <textarea id="CommentBody-{{ section.id }}" name="comment[body]" rows="6" required>{{ form.body }}</textarea>
+
+        <button type="submit">Post comment</button>
+      {% endform %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Main article",
+  "settings": []
+}
+{% endschema %}

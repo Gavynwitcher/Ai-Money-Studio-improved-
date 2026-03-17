@@ -1,0 +1,23 @@
+<section class="section-shell">
+  <div class="page-width">
+    <div class="card stack">
+      <h1>Page not found</h1>
+      <p class="meta">The page you were looking for does not exist or has moved.</p>
+      <div class="stack">
+        <a class="button button--primary" href="{{ routes.root_url }}">Go to homepage</a>
+        <form action="{{ routes.search_url }}" method="get" role="search" class="stack">
+          <label for="Search404-{{ section.id }}">Search the store</label>
+          <input id="Search404-{{ section.id }}" type="search" name="q">
+          <button type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Main 404",
+  "settings": []
+}
+{% endschema %}

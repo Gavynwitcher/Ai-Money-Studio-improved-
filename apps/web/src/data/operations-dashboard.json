@@ -1,0 +1,195 @@
+{
+  "period": "2025-08-01 to 2025-12-31",
+  "generatedFrom": "year_end_2025_*_no_overlap.csv",
+  "kpis": {
+    "incomeSales": 117629.1,
+    "expenseCandidate": 99763.1,
+    "operatingSpread": 17866.0,
+    "adjustments": -14797.4,
+    "transfers": -145208.83,
+    "estimatedAR": 14995.92,
+    "checkingBalanceDec31": 8381.47,
+    "cardLiabilitiesDec31": 33257.07
+  },
+  "monthly": [
+    {
+      "month": "2025-08",
+      "income": 602.71,
+      "expense": -55.98,
+      "adjustment": 0.01,
+      "transfer": 0.0,
+      "other": 0.0,
+      "netIncomeMinusExpense": 658.69
+    },
+    {
+      "month": "2025-09",
+      "income": 17632.98,
+      "expense": 34995.95,
+      "adjustment": -8735.64,
+      "transfer": -12638.99,
+      "other": 0.0,
+      "netIncomeMinusExpense": -17362.97
+    },
+    {
+      "month": "2025-10",
+      "income": 36714.68,
+      "expense": 30240.29,
+      "adjustment": -1741.12,
+      "transfer": -49878.64,
+      "other": 0.0,
+      "netIncomeMinusExpense": 6474.39
+    },
+    {
+      "month": "2025-11",
+      "income": 29238.46,
+      "expense": 21435.32,
+      "adjustment": -3193.82,
+      "transfer": -38289.24,
+      "other": 0.0,
+      "netIncomeMinusExpense": 7803.14
+    },
+    {
+      "month": "2025-12",
+      "income": 33440.27,
+      "expense": 13147.52,
+      "adjustment": -1126.83,
+      "transfer": -44401.96,
+      "other": 0.0,
+      "netIncomeMinusExpense": 20292.75
+    }
+  ],
+  "bucketTotals": [
+    {
+      "name": "income_sales",
+      "rowCount": 3075,
+      "amount": 117629.1
+    },
+    {
+      "name": "card_purchase_expense",
+      "rowCount": 710,
+      "amount": 106020.21
+    },
+    {
+      "name": "interest_expense",
+      "rowCount": 8,
+      "amount": 605.41
+    },
+    {
+      "name": "platform_adjustment",
+      "rowCount": 5,
+      "amount": 249.03
+    },
+    {
+      "name": "uncategorized",
+      "rowCount": 1,
+      "amount": 0.0
+    },
+    {
+      "name": "contra_income_refund",
+      "rowCount": 73,
+      "amount": -2331.88
+    },
+    {
+      "name": "other_negative_adjustment",
+      "rowCount": 12,
+      "amount": -5766.57
+    },
+    {
+      "name": "platform_fees_expense",
+      "rowCount": 909,
+      "amount": -6862.52
+    },
+    {
+      "name": "credit_or_refund",
+      "rowCount": 20,
+      "amount": -6947.98
+    },
+    {
+      "name": "card_payment_transfer",
+      "rowCount": 44,
+      "amount": -58093.72
+    },
+    {
+      "name": "transfer_or_payout",
+      "rowCount": 17,
+      "amount": -87115.11
+    }
+  ],
+  "topExpenses": [
+    {
+      "description": "PETSMART PHOENIX AZ",
+      "rowCount": 191,
+      "amount": 21769.14
+    },
+    {
+      "description": "AplPay PETSMART PHOENIX AZ",
+      "rowCount": 123,
+      "amount": 15645.75
+    },
+    {
+      "description": "AplPay BLAIN'S FARM & FLEET JANESVILLE WI",
+      "rowCount": 68,
+      "amount": 9364.04
+    },
+    {
+      "description": "HEARTLAND VETERINARY PHAR 00-080279896 HASTINGS NE",
+      "rowCount": 8,
+      "amount": 8172.37
+    },
+    {
+      "description": "BLAIN'S FARM & FLEET JANESVILLE WI",
+      "rowCount": 28,
+      "amount": 6159.84
+    },
+    {
+      "description": "HEARTLAND VETERINARY P HASTINGS NE",
+      "rowCount": 4,
+      "amount": 2895.6
+    },
+    {
+      "description": "Apple Online Store Cupertino CA",
+      "rowCount": 6,
+      "amount": 2484.0
+    },
+    {
+      "description": "RABBITPRODUCTDESIGN PALO ALTO CA",
+      "rowCount": 1,
+      "amount": 2475.0
+    },
+    {
+      "description": "PAYPAL *540614GPL 4029357733 CH",
+      "rowCount": 2,
+      "amount": 2445.0
+    },
+    {
+      "description": "AplPay CHEWY.COM (800)672-4399 FL",
+      "rowCount": 4,
+      "amount": 2174.21
+    },
+    {
+      "description": "SP FOUND MY ANIMAL INC KINGSTON NY",
+      "rowCount": 9,
+      "amount": 2044.0
+    },
+    {
+      "description": "PAYPAL *CHEWY INC 8006724399 FL",
+      "rowCount": 13,
+      "amount": 1835.54
+    }
+  ],
+  "balanceSnapshot": {
+    "checking": 8381.47,
+    "accountsReceivable": 14995.92,
+    "cardLiabilities": {
+      "Amex": 15278.54,
+      "Apple Card": 3839.88,
+      "STCU": 14138.65
+    },
+    "cardLiabilitiesTotal": 33257.07
+  },
+  "notes": [
+    "Expense candidate includes card purchases and Amazon fee outflows from selected sources.",
+    "Transfers are non-P&L movement and shown separately.",
+    "Amazon simple CSV excluded to avoid overlap with detailed custom report."
+  ]
+}

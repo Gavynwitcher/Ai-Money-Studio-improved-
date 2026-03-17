@@ -1,0 +1,46 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  company   CompanyProfile?
+  analyses  OpportunityAnalysis[]
+}
+
+model CompanyProfile {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id])
+  industry            String?
+  location            String?
+  teamSize            Int?
+  certifications      Json?
+  govExperienceLevel  String?
+  targetLevels        Json?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model OpportunityAnalysis {
+  id                  String   @id @default(cuid())
+  userId              String?
+  user                User?    @relation(fields: [userId], references: [id])
+  rawText             String
+  fitScore            Int
+  recommendation      String
+  risks               Json
+  requirementsSummary Json
+  createdAt           DateTime @default(now())
+}

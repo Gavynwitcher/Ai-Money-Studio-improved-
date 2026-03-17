@@ -1,0 +1,38 @@
+{% liquid
+  assign featured_media = card_product.featured_media | default: card_product.media.first
+  assign featured_variant = card_product.selected_or_first_available_variant
+%}
+
+<article class="product-card card">
+  <a class="product-card__media" href="{{ card_product.url }}">
+    {% if featured_media %}
+      {{ featured_media | image_url: width: 900 | image_tag: loading: 'lazy', alt: featured_media.alt }}
+    {% endif %}
+  </a>
+
+  {% if card_product.compare_at_price_max > card_product.price %}
+    <span class="badge">Sale</span>
+  {% endif %}
+
+  <h3><a href="{{ card_product.url }}">{{ card_product.title }}</a></h3>
+
+  <div class="price">
+    {% if card_product.price_varies %}
+      <span>{{ card_product.price_min | money }} - {{ card_product.price_max | money }}</span>
+    {% else %}
+      <span>{{ card_product.price | money }}</span>
+    {% endif %}
+
+    {% if card_product.compare_at_price_max > card_product.price %}
+      <span class="price--compare">{{ card_product.compare_at_price_max | money }}</span>
+    {% endif %}
+  </div>
+
+  {% if featured_variant.unit_price %}
+    <p class="meta">
+      {{ featured_variant.unit_price | money }}
+      /
+      {{ featured_variant.unit_price_measurement.reference_value }}{{ featured_variant.unit_price_measurement.reference_unit }}
+    </p>
+  {% endif %}
+</article>

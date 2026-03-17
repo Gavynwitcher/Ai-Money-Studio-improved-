@@ -1,0 +1,33 @@
+{
+  "name": "Header group",
+  "type": "header",
+  "sections": {
+    "announcement_bar": {
+      "type": "announcement-bar",
+      "blocks": {
+        "message": {
+          "type": "message",
+          "settings": {
+            "text": "Use this scaffold as a starting point for an original Theme Store submission.",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "message"
+      ]
+    },
+    "header": {
+      "type": "header",
+      "settings": {
+        "menu": "main-menu",
+        "show_search_link": true,
+        "show_localization": true
+      }
+    }
+  },
+  "order": [
+    "announcement_bar",
+    "header"
+  ]
+}

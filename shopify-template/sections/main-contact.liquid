@@ -1,0 +1,34 @@
+<section class="section-shell">
+  <div class="page-width">
+    <div class="card stack">
+      <h1>{{ page.title }}</h1>
+      <div class="rte">{{ page.content }}</div>
+
+      {% form 'contact', class: 'stack' %}
+        {% if form.posted_successfully? %}
+          <p>Thanks. Your message has been sent.</p>
+        {% endif %}
+
+        {{ form.errors | default_errors }}
+
+        <label for="ContactName-{{ section.id }}">Name</label>
+        <input id="ContactName-{{ section.id }}" type="text" name="contact[name]" value="{{ form.name }}">
+
+        <label for="ContactEmail-{{ section.id }}">Email</label>
+        <input id="ContactEmail-{{ section.id }}" type="email" name="contact[email]" value="{{ form.email }}" required>
+
+        <label for="ContactMessage-{{ section.id }}">Message</label>
+        <textarea id="ContactMessage-{{ section.id }}" name="contact[body]" rows="6">{{ form.body }}</textarea>
+
+        <button type="submit">Send</button>
+      {% endform %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Main contact",
+  "settings": []
+}
+{% endschema %}

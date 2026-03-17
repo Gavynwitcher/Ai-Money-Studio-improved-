@@ -1,0 +1,46 @@
+<section class="section-shell">
+  <div class="page-width">
+    <div class="card stack">
+      <h2>{{ section.settings.heading | escape }}</h2>
+      <p class="meta">{{ section.settings.body | escape }}</p>
+
+      {% form 'customer', class: 'stack' %}
+        <input type="hidden" name="contact[tags]" value="newsletter">
+        <label for="NewsletterEmail-{{ section.id }}">Email</label>
+        <input id="NewsletterEmail-{{ section.id }}" type="email" name="contact[email]" autocomplete="email" required>
+        <button type="submit">{{ section.settings.button_label | escape }}</button>
+      {% endform %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Newsletter",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Stay in the loop"
+    },
+    {
+      "type": "textarea",
+      "id": "body",
+      "label": "Body",
+      "default": "Use newsletter signup to capture customer intent and support email marketing."
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Sign up"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Newsletter"
+    }
+  ]
+}
+{% endschema %}

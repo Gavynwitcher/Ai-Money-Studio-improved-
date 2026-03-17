@@ -1,0 +1,8 @@
+<article class="collection-card card">
+  <a class="collection-card__media" href="{{ card_collection.url }}">
+    {% if card_collection.featured_image %}
+      {{ card_collection.featured_image | image_url: width: 900 | image_tag: loading: 'lazy', alt: card_collection.title }}
+    {% endif %}
+  </a>
+  <h3><a href="{{ card_collection.url }}">{{ card_collection.title }}</a></h3>
+</article>

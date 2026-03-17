@@ -1,0 +1,88 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "Canvas Commerce",
+    "theme_version": "0.1.0",
+    "theme_author": "Internal team",
+    "theme_documentation_url": "",
+    "theme_support_url": ""
+  },
+  {
+    "name": "Brand",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "logo",
+        "label": "Logo"
+      },
+      {
+        "type": "range",
+        "id": "logo_width",
+        "label": "Logo width",
+        "min": 80,
+        "max": 280,
+        "step": 10,
+        "unit": "px",
+        "default": 140
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon",
+        "label": "Favicon"
+      }
+    ]
+  },
+  {
+    "name": "Colors",
+    "settings": [
+      {
+        "type": "color",
+        "id": "color_background",
+        "label": "Background",
+        "default": "#f6f1ea"
+      },
+      {
+        "type": "color",
+        "id": "color_text",
+        "label": "Text",
+        "default": "#1f1a17"
+      },
+      {
+        "type": "color",
+        "id": "color_accent",
+        "label": "Accent",
+        "default": "#b35c2e"
+      }
+    ]
+  },
+  {
+    "name": "Social",
+    "settings": [
+      {
+        "type": "url",
+        "id": "social_instagram",
+        "label": "Instagram link"
+      },
+      {
+        "type": "url",
+        "id": "social_facebook",
+        "label": "Facebook link"
+      },
+      {
+        "type": "url",
+        "id": "social_tiktok",
+        "label": "TikTok link"
+      },
+      {
+        "type": "url",
+        "id": "social_youtube",
+        "label": "YouTube link"
+      },
+      {
+        "type": "url",
+        "id": "social_pinterest",
+        "label": "Pinterest link"
+      }
+    ]
+  }
+]

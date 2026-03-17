@@ -1,0 +1,32 @@
+{
+  "name": "options-research-discipline",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm --workspace apps/web run dev",
+    "build": "npm --workspace apps/web run build",
+    "lint": "npm --workspace apps/web run lint",
+    "test": "npm --workspace packages/core run test",
+    "bot:purchase:auth": "node ./scripts/purchase-bot/save-auth-state.mjs",
+    "bot:purchase:run": "node ./scripts/purchase-bot/run.mjs",
+    "bot:purchase:schedule": "node ./scripts/purchase-bot/schedule.mjs",
+    "seed:data": "node ./scripts/seed-data.mjs",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:reset": "prisma migrate reset",
+    "db:studio": "prisma studio",
+    "db:push": "prisma db push"
+  },
+  "dependencies": {
+    "dotenv": "^16.6.1",
+    "node-cron": "^4.2.1",
+    "playwright": "^1.58.2"
+  },
+  "devDependencies": {
+    "prisma": "^5.12.0"
+  }
+}

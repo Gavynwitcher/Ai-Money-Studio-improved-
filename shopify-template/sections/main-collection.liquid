@@ -1,0 +1,101 @@
+<section class="section-shell">
+  <div class="page-width stack">
+    <div class="card stack rte">
+      <h1>{{ collection.title }}</h1>
+      {% if collection.image %}
+        {{ collection.image | image_url: width: 1600 | image_tag: loading: 'eager', alt: collection.image.alt }}
+      {% endif %}
+      {{ collection.description }}
+    </div>
+
+    <div class="collection-layout">
+      <aside class="card stack">
+        <h2>Filter and sort</h2>
+
+        <form class="stack" method="get">
+          {% for filter in collection.filters %}
+            <div class="filter-group">
+              <strong>{{ filter.label }}</strong>
+
+              {% case filter.type %}
+                {% when 'price_range' %}
+                  <label for="FilterMinPrice-{{ filter.param_name }}">Minimum price</label>
+                  <input id="FilterMinPrice-{{ filter.param_name }}" type="number" name="{{ filter.min_value.param_name }}" value="{{ filter.min_value.value | money_without_currency | replace: ',', '' }}">
+
+                  <label for="FilterMaxPrice-{{ filter.param_name }}">Maximum price</label>
+                  <input id="FilterMaxPrice-{{ filter.param_name }}" type="number" name="{{ filter.max_value.param_name }}" value="{{ filter.max_value.value | money_without_currency | replace: ',', '' }}">
+                {% else %}
+                  <ul class="filters-list stack">
+                    {% for value in filter.values %}
+                      <li>
+                        <label for="Filter-{{ filter.param_name }}-{{ forloop.index }}">
+                          <input
+                            id="Filter-{{ filter.param_name }}-{{ forloop.index }}"
+                            type="checkbox"
+                            name="{{ value.param_name }}"
+                            value="{{ value.value }}"
+                            {% if value.active %}checked{% endif %}
+                          >
+                          {{ value.label }} ({{ value.count }})
+                        </label>
+                      </li>
+                    {% endfor %}
+                  </ul>
+              {% endcase %}
+            </div>
+          {% endfor %}
+
+          <label for="SortBy-{{ section.id }}">Sort by</label>
+          <select id="SortBy-{{ section.id }}" name="sort_by">
+            {% for option in collection.sort_options %}
+              <option value="{{ option.value }}" {% if option.value == collection.sort_by %}selected{% endif %}>
+                {{ option.name }}
+              </option>
+            {% endfor %}
+          </select>
+
+          <button type="submit">Apply</button>
+        </form>
+      </aside>
+
+      <div class="stack">
+        {% paginate collection.products by section.settings.products_per_page %}
+          {% if collection.products_count == 0 %}
+            <div class="card">
+              <p>No products found in this collection.</p>
+            </div>
+          {% else %}
+            <div class="collection-products">
+              {% for product in collection.products %}
+                {% render 'product-card', card_product: product %}
+              {% endfor %}
+            </div>
+          {% endif %}
+
+          {% if paginate.pages > 1 %}
+            <nav class="pagination" aria-label="Pagination">
+              {{ paginate | default_pagination }}
+            </nav>
+          {% endif %}
+        {% endpaginate %}
+      </div>
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Main collection",
+  "settings": [
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "label": "Products per page",
+      "min": 8,
+      "max": 36,
+      "step": 4,
+      "default": 12
+    }
+  ]
+}
+{% endschema %}

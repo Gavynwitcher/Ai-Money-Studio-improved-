@@ -1,0 +1,234 @@
+{% liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign product_form_id = 'ProductForm-' | append: section.id
+%}
+
+<section class="section-shell">
+  <div class="page-width product-layout">
+    <div class="card stack">
+      <div class="product-media-grid">
+        {% for media in product.media %}
+          <div class="card">
+            {% case media.media_type %}
+              {% when 'image' %}
+                {{ media | image_url: width: 1600 | image_tag: loading: 'lazy', alt: media.alt }}
+              {% when 'video' %}
+                {{ media | video_tag: controls: true }}
+              {% when 'external_video' %}
+                {{ media | external_video_tag }}
+              {% when 'model' %}
+                {{ media | model_viewer_tag }}
+              {% else %}
+                {{ media | media_tag }}
+            {% endcase %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card product-form-shell">
+      {% form 'product', product, id: product_form_id, class: 'stack' %}
+        <input type="hidden" name="id" value="{{ current_variant.id }}">
+
+        {% for block in section.blocks %}
+          {% case block.type %}
+            {% when '@app' %}
+              {% render block %}
+
+            {% when 'title' %}
+              <div {{ block.shopify_attributes }}>
+                <h1>{{ product.title }}</h1>
+                {% if section.settings.show_vendor and product.vendor != blank %}
+                  <p class="meta">{{ product.vendor }}</p>
+                {% endif %}
+              </div>
+
+            {% when 'price' %}
+              <div class="stack" {{ block.shopify_attributes }}>
+                <div class="price">
+                  <span>{{ current_variant.price | money }}</span>
+                  {% if current_variant.compare_at_price > current_variant.price %}
+                    <span class="price--compare">{{ current_variant.compare_at_price | money }}</span>
+                  {% endif %}
+                </div>
+                {% if current_variant.unit_price %}
+                  <p class="meta">
+                    {{ current_variant.unit_price | money }}
+                    /
+                    {{ current_variant.unit_price_measurement.reference_value }}{{ current_variant.unit_price_measurement.reference_unit }}
+                  </p>
+                {% endif %}
+                {% if cart.taxes_included %}
+                  <p class="meta">Taxes included where applicable.</p>
+                {% endif %}
+              </div>
+
+            {% when 'variant_picker' %}
+              <div class="stack" {{ block.shopify_attributes }}>
+                {% for option in product.options_with_values %}
+                  <div class="stack">
+                    <label for="Option-{{ section.id }}-{{ forloop.index0 }}">{{ option.name }}</label>
+                    <select id="Option-{{ section.id }}-{{ forloop.index0 }}" name="options[{{ option.name | escape }}]">
+                      {% for value in option.values %}
+                        <option value="{{ value | escape }}" {% if option.selected_value == value %}selected{% endif %}>
+                          {{ value }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                {% endfor %}
+              </div>
+
+            {% when 'quantity_selector' %}
+              <div class="stack" {{ block.shopify_attributes }}>
+                <label for="Quantity-{{ section.id }}">Quantity</label>
+                <input id="Quantity-{{ section.id }}" type="number" name="quantity" min="1" value="1">
+              </div>
+
+            {% when 'buy_buttons' %}
+              <div class="stack" {{ block.shopify_attributes }}>
+                <button type="submit" name="add" {% unless current_variant.available %}disabled{% endunless %}>
+                  {% if current_variant.available %}Add to cart{% else %}Sold out{% endif %}
+                </button>
+                {{ form | payment_button }}
+                {{ form | payment_terms }}
+              </div>
+
+            {% when 'description' %}
+              <div class="rte" {{ block.shopify_attributes }}>
+                {{ product.description }}
+              </div>
+
+            {% when 'pickup_availability' %}
+              <div class="stack" {{ block.shopify_attributes }}>
+                <h2>Pickup availability</h2>
+                {% if current_variant.store_availabilities.size > 0 %}
+                  <ul class="meta">
+                    {% for availability in current_variant.store_availabilities %}
+                      <li>
+                        {{ availability.location.name }}
+                        {% if availability.available %}available{% else %}unavailable{% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% else %}
+                  <p class="meta">Pickup information will appear when local pickup is enabled.</p>
+                {% endif %}
+              </div>
+
+            {% when 'follow_on_shop' %}
+              <div {{ block.shopify_attributes }}>
+                {{ shop | login_button: action: 'follow' }}
+              </div>
+
+            {% when 'custom_liquid' %}
+              <div {{ block.shopify_attributes }}>
+                {{ block.settings.custom_liquid }}
+              </div>
+          {% endcase %}
+        {% endfor %}
+      {% endform %}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Main product",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show vendor",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "title",
+      "name": "Title",
+      "limit": 1
+    },
+    {
+      "type": "price",
+      "name": "Price",
+      "limit": 1
+    },
+    {
+      "type": "variant_picker",
+      "name": "Variant picker",
+      "limit": 1
+    },
+    {
+      "type": "quantity_selector",
+      "name": "Quantity selector",
+      "limit": 1
+    },
+    {
+      "type": "buy_buttons",
+      "name": "Buy buttons",
+      "limit": 1
+    },
+    {
+      "type": "description",
+      "name": "Description",
+      "limit": 1
+    },
+    {
+      "type": "pickup_availability",
+      "name": "Pickup availability",
+      "limit": 1
+    },
+    {
+      "type": "follow_on_shop",
+      "name": "Follow on Shop",
+      "limit": 1
+    },
+    {
+      "type": "custom_liquid",
+      "name": "Custom liquid",
+      "settings": [
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "Custom liquid"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Main product",
+      "blocks": [
+        {
+          "type": "title"
+        },
+        {
+          "type": "price"
+        },
+        {
+          "type": "variant_picker"
+        },
+        {
+          "type": "quantity_selector"
+        },
+        {
+          "type": "buy_buttons"
+        },
+        {
+          "type": "pickup_availability"
+        },
+        {
+          "type": "description"
+        },
+        {
+          "type": "follow_on_shop"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

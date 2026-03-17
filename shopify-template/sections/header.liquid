@@ -1,0 +1,105 @@
+<header class="site-header">
+  <div class="page-width">
+    <div class="site-header__row">
+      <a class="site-header__brand" href="{{ routes.root_url }}">
+        {% if settings.logo != blank %}
+          {{ settings.logo | image_url: width: settings.logo_width | image_tag: alt: shop.name, widths: '120,160,200,240,280' }}
+        {% else %}
+          {{ shop.name }}
+        {% endif %}
+      </a>
+
+      <nav class="site-nav" aria-label="Primary">
+        <ul class="site-nav__list">
+          {% for link in linklists[section.settings.menu].links %}
+            <li class="site-nav__item">
+              {% if link.links != blank %}
+                <details>
+                  <summary>{{ link.title }}</summary>
+                  <ul class="site-nav__submenu">
+                    {% for child_link in link.links %}
+                      <li>
+                        <a href="{{ child_link.url }}">{{ child_link.title }}</a>
+                        {% if child_link.links != blank %}
+                          <ul>
+                            {% for grandchild_link in child_link.links %}
+                              <li><a href="{{ grandchild_link.url }}">{{ grandchild_link.title }}</a></li>
+                            {% endfor %}
+                          </ul>
+                        {% endif %}
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </details>
+              {% else %}
+                <a href="{{ link.url }}">{{ link.title }}</a>
+              {% endif %}
+            </li>
+          {% endfor %}
+          {% if section.settings.show_search_link %}
+            <li><a href="{{ routes.search_url }}">Search</a></li>
+          {% endif %}
+          <li><a href="{{ routes.cart_url }}">Cart ({{ cart.item_count }})</a></li>
+        </ul>
+      </nav>
+
+      {% if section.settings.show_localization %}
+        {% if localization.available_countries.size > 1 or localization.available_languages.size > 1 %}
+          <div class="localization-shell">
+            {% form 'localization', id: 'HeaderLocalizationForm' %}
+              {% if localization.available_countries.size > 1 %}
+                <label for="HeaderCountry">Country</label>
+                <select id="HeaderCountry" name="country_code">
+                  {% for country in localization.available_countries %}
+                    <option value="{{ country.iso_code }}" {% if country.iso_code == localization.country.iso_code %}selected{% endif %}>
+                      {{ country.name }} ({{ country.currency.iso_code }})
+                    </option>
+                  {% endfor %}
+                </select>
+              {% endif %}
+
+              {% if localization.available_languages.size > 1 %}
+                <label for="HeaderLanguage">Language</label>
+                <select id="HeaderLanguage" name="locale_code">
+                  {% for language in localization.available_languages %}
+                    <option value="{{ language.iso_code }}" {% if language.iso_code == localization.language.iso_code %}selected{% endif %}>
+                      {{ language.endonym_name }}
+                    </option>
+                  {% endfor %}
+                </select>
+              {% endif %}
+
+              <button type="submit">Update</button>
+            {% endform %}
+          </div>
+        {% endif %}
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+{% schema %}
+{
+  "name": "Header",
+  "settings": [
+    {
+      "type": "link_list",
+      "id": "menu",
+      "label": "Menu",
+      "default": "main-menu"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_search_link",
+      "label": "Show search link",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_localization",
+      "label": "Show localization selectors",
+      "default": true
+    }
+  ]
+}
+{% endschema %}

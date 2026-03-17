@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}">
+  <head>
+    {% render 'theme-seo' %}
+    {{ content_for_header }}
+    <style>
+      :root {
+        --color-bg: {{ settings.color_background }};
+        --color-text: {{ settings.color_text }};
+        --color-accent: {{ settings.color_accent }};
+      }
+    </style>
+    {{ 'theme.css' | asset_url | stylesheet_tag }}
+  </head>
+  <body>
+    <a class="skip-link" href="#MainContent">Skip to content</a>
+    {% sections 'header-group' %}
+    <main id="MainContent" role="main">
+      {{ content_for_layout }}
+    </main>
+    {% sections 'footer-group' %}
+  </body>
+</html>

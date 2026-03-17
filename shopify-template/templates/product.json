@@ -1,0 +1,71 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "settings": {
+        "show_vendor": true
+      },
+      "blocks": {
+        "title": {
+          "type": "title",
+          "settings": {}
+        },
+        "price": {
+          "type": "price",
+          "settings": {}
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {}
+        },
+        "quantity_selector": {
+          "type": "quantity_selector",
+          "settings": {}
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {}
+        },
+        "pickup_availability": {
+          "type": "pickup_availability",
+          "settings": {}
+        },
+        "description": {
+          "type": "description",
+          "settings": {}
+        },
+        "follow_on_shop": {
+          "type": "follow_on_shop",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "title",
+        "price",
+        "variant_picker",
+        "quantity_selector",
+        "buy_buttons",
+        "pickup_availability",
+        "description",
+        "follow_on_shop"
+      ]
+    },
+    "recommendations": {
+      "type": "product-recommendations",
+      "settings": {
+        "heading": "You may also like"
+      }
+    },
+    "custom_liquid": {
+      "type": "custom-liquid",
+      "settings": {
+        "custom_liquid": ""
+      }
+    }
+  },
+  "order": [
+    "main",
+    "recommendations",
+    "custom_liquid"
+  ]
+}

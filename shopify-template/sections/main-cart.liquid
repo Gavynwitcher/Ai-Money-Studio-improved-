@@ -1,0 +1,98 @@
+<section class="section-shell">
+  <div class="page-width cart-layout">
+    <div class="card stack">
+      <h1>Cart</h1>
+
+      {% if cart == empty %}
+        <p>Your cart is empty.</p>
+        <a class="button button--primary" href="{{ routes.all_products_collection_url }}">Continue shopping</a>
+      {% else %}
+        <p class="meta">Review line items, discounts, and notes below before checkout.</p>
+      {% endif %}
+    </div>
+
+    {% if cart != empty %}
+      {% form 'cart', cart, class: 'card stack' %}
+        <ul class="cart-items stack">
+          {% for item in cart.items %}
+            <li class="cart-line card">
+              <div class="grid grid--2">
+                <div>
+                  {% if item.image %}
+                    {{ item.image | image_url: width: 600 | image_tag: loading: 'lazy', alt: item.image.alt }}
+                  {% endif %}
+                </div>
+                <div class="stack">
+                  <h2>{{ item.title }}</h2>
+                  <p>{{ item.final_price | money }}</p>
+
+                  {% if item.unit_price %}
+                    <p class="meta">
+                      {{ item.unit_price | money }}
+                      /
+                      {{ item.unit_price_measurement.reference_value }}{{ item.unit_price_measurement.reference_unit }}
+                    </p>
+                  {% endif %}
+
+                  {% if item.options_with_values != blank %}
+                    <ul class="meta">
+                      {% for option in item.options_with_values %}
+                        <li>{{ option.name }}: {{ option.value }}</li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+
+                  {% if item.selling_plan_allocation != blank %}
+                    <p class="meta">{{ item.selling_plan_allocation.selling_plan.name }}</p>
+                  {% endif %}
+
+                  {% if item.line_level_discount_allocations != blank %}
+                    <ul class="meta">
+                      {% for discount in item.line_level_discount_allocations %}
+                        <li>{{ discount.discount_application.title }}: -{{ discount.amount | money }}</li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+
+                  <label for="Quantity-{{ item.key }}">Quantity</label>
+                  <input id="Quantity-{{ item.key }}" type="number" name="updates[]" min="0" value="{{ item.quantity }}">
+                </div>
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+
+        <label for="CartNote-{{ section.id }}">Order note</label>
+        <textarea id="CartNote-{{ section.id }}" name="note" rows="4">{{ cart.note }}</textarea>
+
+        {% if cart.cart_level_discount_applications != blank %}
+          <ul class="meta">
+            {% for discount in cart.cart_level_discount_applications %}
+              <li>{{ discount.title }}: -{{ discount.total_allocated_amount | money }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        <p><strong>Total: {{ cart.total_price | money }}</strong></p>
+        {% if cart.taxes_included %}
+          <p class="meta">Taxes included where applicable.</p>
+        {% endif %}
+
+        <div class="stack">
+          <button type="submit" name="update">Update cart</button>
+          <button type="submit" name="checkout">Checkout</button>
+          {% if additional_checkout_buttons %}
+            <div>{{ content_for_additional_checkout_buttons }}</div>
+          {% endif %}
+        </div>
+      {% endform %}
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Main cart",
+  "settings": []
+}
+{% endschema %}

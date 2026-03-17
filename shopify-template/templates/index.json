@@ -1,0 +1,44 @@
+{
+  "sections": {
+    "hero": {
+      "type": "main-index-hero",
+      "settings": {
+        "eyebrow": "Original theme development",
+        "heading": "Start with structure, then push the creative direction further",
+        "body": "Shopify Theme Store reviewers expect originality, strong merchandising logic, and polished UX across every core page.",
+        "primary_label": "Browse collection",
+        "primary_link": "/collections/all",
+        "secondary_label": "Read more",
+        "secondary_link": "/pages/about"
+      }
+    },
+    "featured_collection": {
+      "type": "featured-collection",
+      "settings": {
+        "heading": "Featured collection",
+        "body": "Use this section to guide product discovery with real products and imagery.",
+        "products_to_show": 4
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {
+        "heading": "Stay connected",
+        "body": "Collect newsletter signups with real merchant messaging.",
+        "button_label": "Subscribe"
+      }
+    },
+    "custom_liquid": {
+      "type": "custom-liquid",
+      "settings": {
+        "custom_liquid": ""
+      }
+    }
+  },
+  "order": [
+    "hero",
+    "featured_collection",
+    "newsletter",
+    "custom_liquid"
+  ]
+}

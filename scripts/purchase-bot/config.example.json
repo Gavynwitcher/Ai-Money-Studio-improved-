@@ -1,0 +1,36 @@
+{
+  "loginUrl": "https://example.com/account/login",
+  "startUrl": "https://example.com/products/your-target-item",
+  "steps": [
+    {
+      "action": "click",
+      "selector": "button[data-testid='add-to-cart']",
+      "description": "Add target item to cart"
+    },
+    {
+      "action": "click",
+      "selector": "a[href='/cart']",
+      "description": "Open cart"
+    },
+    {
+      "action": "fill",
+      "selector": "input[name='quantity']",
+      "value": "1",
+      "description": "Set quantity"
+    },
+    {
+      "action": "click",
+      "selector": "button[data-testid='checkout']",
+      "description": "Proceed to checkout"
+    },
+    {
+      "action": "click",
+      "selector": "button[data-testid='place-order']",
+      "dangerous": true,
+      "description": "Submit order"
+    }
+  ],
+  "confirmation": {
+    "selector": "text=Thank you for your order"
+  }
+}

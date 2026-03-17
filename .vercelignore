@@ -1,0 +1,15 @@
+.git
+.next
+**/.next
+node_modules
+**/node_modules
+.playwright-cli
+output
+tmp
+*.log
+*.db
+*.sqlite
+.DS_Store
+.env
+.env.local
+**/.env.local

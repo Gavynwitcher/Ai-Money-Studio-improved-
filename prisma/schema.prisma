@@ -1,0 +1,488 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                          String                            @id @default(cuid())
+  email                       String                            @unique
+  name                        String?
+  passwordHash                String
+  createdAt                   DateTime                          @default(now())
+  updatedAt                   DateTime                          @updatedAt
+  ruleSettings                RuleSettings?
+  strategies                  StrategyTemplate[]
+  backtestRuns                BacktestRun[]
+  candidateTrades             CandidateTrade[]
+  paperPositions              PaperPosition[]
+  tradeLogs                   TradeLog[]
+  moneyCopilotAccounts        MoneyCopilotAccount[]
+  moneyCopilotProfile         MoneyCopilotProfile?
+  moneyCopilotTransactions    MoneyCopilotTransaction[]
+  moneyCopilotGoals           MoneyCopilotGoal[]
+  moneyCopilotDebts           MoneyCopilotDebt[]
+  moneyCopilotRecommendations MoneyCopilotRecommendation[]
+  moneyCopilotActions         MoneyCopilotAction[]
+  moneyCopilotRecurringSeries MoneyCopilotRecurringSeries[]
+  moneyCopilotSafeToSpend     MoneyCopilotSafeToSpendSnapshot[]
+  plaidItems                  PlaidItem[]
+  squareConnections           SquareConnection[]
+  squareLocations             SquareLocation[]
+  squareBankAccounts          SquareBankAccount[]
+  squarePayments              SquarePayment[]
+  squareRefunds               SquareRefund[]
+  squarePayouts               SquarePayout[]
+  squareTransferRequests      SquareTransferRequest[]
+}
+
+model MoneyCopilotProfile {
+  id       String   @id @default(cuid())
+  userId   String   @unique
+  seededAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model RuleSettings {
+  id                       String   @id @default(cuid())
+  userId                   String   @unique
+  maxRiskPerTradePct       Float
+  maxOpenPositions         Int
+  maxDailyLossPct          Float
+  maxTradesPerDay          Int
+  cooldownMinutes          Int
+  tickerConcentrationPct   Float
+  strategyConcentrationPct Float
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model StrategyTemplate {
+  id                String   @id @default(cuid())
+  userId            String
+  name              String
+  description       String?
+  strategyType      String
+  trendFilters      String
+  volatilityFilters String
+  dteTarget         Int
+  spreadWidth       Float
+  profitTargetPct   Float
+  stopLossPct       Float
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user            User             @relation(fields: [userId], references: [id])
+  backtestRuns    BacktestRun[]
+  candidateTrades CandidateTrade[]
+}
+
+model BacktestRun {
+  id                 String   @id @default(cuid())
+  userId             String
+  strategyTemplateId String
+  symbol             String
+  startDate          DateTime
+  endDate            DateTime
+  equityCurve        String
+  maxDrawdown        Float
+  winRate            Float
+  lossStreaks        String
+  violationPressure  String
+  createdAt          DateTime @default(now())
+
+  user     User             @relation(fields: [userId], references: [id])
+  strategy StrategyTemplate @relation(fields: [strategyTemplateId], references: [id])
+}
+
+model CandidateTrade {
+  id                 String   @id @default(cuid())
+  userId             String
+  strategyTemplateId String?
+  symbol             String
+  strategyType       String
+  riskDollars        Float
+  riskPct            Float
+  complianceStatus   String
+  complianceScore    Int
+  violationReasons   String
+  warningReasons     String
+  notes              String?
+  createdAt          DateTime @default(now())
+
+  user      User              @relation(fields: [userId], references: [id])
+  strategy  StrategyTemplate? @relation(fields: [strategyTemplateId], references: [id])
+  tradeLogs TradeLog[]
+}
+
+model PaperPosition {
+  id               String    @id @default(cuid())
+  userId           String
+  symbol           String
+  strategyType     String
+  openedAt         DateTime
+  closedAt         DateTime?
+  riskDollars      Float
+  riskPct          Float
+  complianceStatus String
+  complianceScore  Int
+  violationReasons String
+  warningReasons   String
+  outcome          String
+  metadata         String
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id])
+  tradeLogs TradeLog[]
+}
+
+model TradeLog {
+  id               String   @id @default(cuid())
+  userId           String
+  candidateTradeId String?
+  paperPositionId  String?
+  symbol           String
+  strategyType     String
+  riskDollars      Float
+  riskPct          Float
+  complianceStatus String
+  complianceScore  Int
+  violationReasons String
+  warningReasons   String
+  action           String
+  createdAt        DateTime @default(now())
+
+  user           User            @relation(fields: [userId], references: [id])
+  candidateTrade CandidateTrade? @relation(fields: [candidateTradeId], references: [id])
+  paperPosition  PaperPosition?  @relation(fields: [paperPositionId], references: [id])
+}
+
+model MoneyCopilotAccount {
+  id                String   @id @default(cuid())
+  userId            String
+  providerAccountId String?  @unique
+  name              String
+  type              String
+  currency          String   @default("USD")
+  currentBalance    Float
+  availableBalance  Float?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user         User                      @relation(fields: [userId], references: [id])
+  transactions MoneyCopilotTransaction[]
+
+  @@index([userId, type])
+}
+
+model MoneyCopilotTransaction {
+  id                    String   @id @default(cuid())
+  userId                String
+  accountId             String?
+  providerTransactionId String?  @unique
+  postedAt              DateTime
+  amount                Float
+  currency              String   @default("USD")
+  merchantRaw           String
+  merchantNormalized    String
+  category              String
+  confidence            Float
+  recurring             Boolean  @default(false)
+  createdAt             DateTime @default(now())
+
+  user    User                 @relation(fields: [userId], references: [id])
+  account MoneyCopilotAccount? @relation(fields: [accountId], references: [id])
+
+  @@index([userId, postedAt])
+}
+
+model PlaidItem {
+  id              String    @id @default(cuid())
+  userId          String
+  plaidItemId     String
+  accessToken     String
+  institutionName String?
+  lastSyncedAt    DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, plaidItemId])
+  @@index([userId, updatedAt])
+}
+
+model SquareConnection {
+  id           String    @id @default(cuid())
+  userId       String
+  merchantId   String
+  merchantName String?
+  accessToken  String
+  refreshToken String?
+  tokenType    String?
+  scopes       String?
+  environment  String    @default("sandbox")
+  status       String    @default("connected")
+  expiresAt    DateTime?
+  lastSyncedAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user             User                    @relation(fields: [userId], references: [id])
+  locations        SquareLocation[]
+  bankAccounts     SquareBankAccount[]
+  payments         SquarePayment[]
+  refunds          SquareRefund[]
+  payouts          SquarePayout[]
+  transferRequests SquareTransferRequest[]
+
+  @@unique([userId, merchantId])
+  @@index([userId, status, updatedAt])
+}
+
+model SquareLocation {
+  id                 String   @id @default(cuid())
+  userId             String
+  squareConnectionId String
+  squareLocationId   String
+  name               String
+  status             String?
+  currency           String   @default("USD")
+  timezone           String?
+  country            String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user       User             @relation(fields: [userId], references: [id])
+  connection SquareConnection @relation(fields: [squareConnectionId], references: [id])
+
+  @@unique([squareConnectionId, squareLocationId])
+  @@index([userId, updatedAt])
+}
+
+model SquareBankAccount {
+  id                  String   @id @default(cuid())
+  userId              String
+  squareConnectionId  String
+  squareBankAccountId String
+  bankName            String?
+  accountType         String?
+  routingSuffix       String?
+  accountSuffix       String?
+  status              String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user       User             @relation(fields: [userId], references: [id])
+  connection SquareConnection @relation(fields: [squareConnectionId], references: [id])
+  payouts    SquarePayout[]
+
+  @@unique([squareConnectionId, squareBankAccountId])
+  @@index([userId, updatedAt])
+}
+
+model SquarePayment {
+  id                 String    @id @default(cuid())
+  userId             String
+  squareConnectionId String
+  squarePaymentId    String
+  squareLocationId   String?
+  orderId            String?
+  customerId         String?
+  status             String
+  sourceType         String?
+  amount             Float
+  tipAmount          Float     @default(0)
+  processingFee      Float     @default(0)
+  netAmount          Float
+  currency           String    @default("USD")
+  approvedAt         DateTime?
+  createdAtSquare    DateTime
+  updatedAtSquare    DateTime?
+  syncedAt           DateTime  @default(now())
+
+  user       User             @relation(fields: [userId], references: [id])
+  connection SquareConnection @relation(fields: [squareConnectionId], references: [id])
+  refunds    SquareRefund[]
+
+  @@unique([squareConnectionId, squarePaymentId])
+  @@index([userId, approvedAt])
+  @@index([squareConnectionId, createdAtSquare])
+}
+
+model SquareRefund {
+  id                 String    @id @default(cuid())
+  userId             String
+  squareConnectionId String
+  squarePaymentId    String?
+  squareRefundId     String
+  status             String
+  reason             String?
+  amount             Float
+  currency           String    @default("USD")
+  createdAtSquare    DateTime
+  updatedAtSquare    DateTime?
+  syncedAt           DateTime  @default(now())
+
+  user       User             @relation(fields: [userId], references: [id])
+  connection SquareConnection @relation(fields: [squareConnectionId], references: [id])
+  payment    SquarePayment?   @relation(fields: [squarePaymentId], references: [id])
+
+  @@unique([squareConnectionId, squareRefundId])
+  @@index([userId, createdAtSquare])
+}
+
+model SquarePayout {
+  id                  String    @id @default(cuid())
+  userId              String
+  squareConnectionId  String
+  squarePayoutId      String
+  squareBankAccountId String?
+  squareLocationId    String?
+  status              String
+  payoutType          String?
+  amount              Float
+  feeAmount           Float     @default(0)
+  currency            String    @default("USD")
+  arrivalDate         DateTime?
+  paidOutAt           DateTime?
+  createdAtSquare     DateTime
+  updatedAtSquare     DateTime?
+  syncedAt            DateTime  @default(now())
+
+  user        User               @relation(fields: [userId], references: [id])
+  connection  SquareConnection   @relation(fields: [squareConnectionId], references: [id])
+  bankAccount SquareBankAccount? @relation(fields: [squareBankAccountId], references: [id])
+
+  @@unique([squareConnectionId, squarePayoutId])
+  @@index([userId, arrivalDate])
+  @@index([squareConnectionId, createdAtSquare])
+}
+
+model SquareTransferRequest {
+  id                 String    @id @default(cuid())
+  userId             String
+  squareConnectionId String?
+  fromSource         String
+  toSource           String
+  amount             Float
+  currency           String    @default("USD")
+  purpose            String
+  status             String    @default("pending")
+  executionRail      String    @default("manual")
+  squareReferenceId  String?
+  scheduledFor       DateTime?
+  executedAt         DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  user       User              @relation(fields: [userId], references: [id])
+  connection SquareConnection? @relation(fields: [squareConnectionId], references: [id])
+
+  @@index([userId, status, createdAt])
+}
+
+model MoneyCopilotGoal {
+  id                  String   @id @default(cuid())
+  userId              String
+  title               String
+  targetAmount        Float
+  currentAmount       Float
+  targetDate          DateTime
+  monthlyContribution Float
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, targetDate])
+}
+
+model MoneyCopilotDebt {
+  id             String   @id @default(cuid())
+  userId         String
+  issuer         String
+  balance        Float
+  apr            Float
+  minimumPayment Float
+  dueDate        DateTime
+  creditLimit    Float?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, dueDate])
+}
+
+model MoneyCopilotRecurringSeries {
+  id               String   @id @default(cuid())
+  userId           String
+  serviceName      String
+  cadence          String
+  nextExpectedDate DateTime
+  expectedAmount   Float
+  type             String
+  autopay          Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, type, nextExpectedDate])
+}
+
+model MoneyCopilotSafeToSpendSnapshot {
+  id              String   @id @default(cuid())
+  userId          String
+  timestamp       DateTime @default(now())
+  horizon         String
+  amount          Float
+  confidence      Float
+  assumptionsJson String?
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, horizon, timestamp])
+}
+
+model MoneyCopilotRecommendation {
+  id                 String   @id @default(cuid())
+  userId             String
+  title              String
+  recommendationType String
+  rationale          String
+  estimatedImpact    Float
+  confidence         Float
+  status             String   @default("PROPOSED")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, status, createdAt])
+}
+
+model MoneyCopilotAction {
+  id              String   @id @default(cuid())
+  userId          String
+  actionType      String
+  status          String   @default("PROPOSED")
+  expectedOutcome String
+  downside        String
+  requiresStepUp  Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, status, createdAt])
+}

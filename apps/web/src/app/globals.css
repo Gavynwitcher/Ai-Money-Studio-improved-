@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body), "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 15% -5%, rgba(16, 185, 129, 0.18) 0%, transparent 32%),
+    radial-gradient(circle at 90% 10%, rgba(14, 116, 144, 0.14) 0%, transparent 30%),
+    linear-gradient(170deg, #f8fafc 0%, #f1f5f9 52%, #eef2ff 100%);
+}
+
+.font-heading {
+  font-family: var(--font-heading), Georgia, serif;
+}
+
+.site-bg::before,
+.site-bg::after {
+  content: "";
+  position: fixed;
+  z-index: -1;
+  border-radius: 999px;
+  filter: blur(52px);
+}
+
+.site-bg::before {
+  top: 10vh;
+  left: -8rem;
+  height: 16rem;
+  width: 16rem;
+  background: rgba(52, 211, 153, 0.2);
+}
+
+.site-bg::after {
+  right: -9rem;
+  bottom: 12vh;
+  height: 20rem;
+  width: 20rem;
+  background: rgba(14, 116, 144, 0.14);
+}
+
+.reveal-up {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-up {
+    opacity: 0;
+    transform: translateY(14px);
+    animation: reveal-up 580ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  }
+}
+
+@keyframes reveal-up {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal-up {
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Footer group",
+  "type": "footer",
+  "sections": {
+    "footer": {
+      "type": "footer",
+      "settings": {
+        "menu": "footer",
+        "show_payment_icons": true,
+        "show_localization": true
+      }
+    }
+  },
+  "order": [
+    "footer"
+  ]
+}

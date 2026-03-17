@@ -1,0 +1,102 @@
+<section class="section-shell">
+  <div class="page-width stack">
+    <div class="card stack">
+      <h1>Search</h1>
+      <form action="{{ routes.search_url }}" method="get" role="search" class="stack">
+        <label for="SearchInput-{{ section.id }}">Search query</label>
+        <input id="SearchInput-{{ section.id }}" type="search" name="q" value="{{ search.terms | escape }}">
+        <input type="hidden" name="options[prefix]" value="last">
+        <button type="submit">Search</button>
+      </form>
+    </div>
+
+    {% if search.performed %}
+      <div class="search-layout">
+        <aside class="card stack">
+          <h2>Filters</h2>
+          <form class="stack" action="{{ routes.search_url }}" method="get">
+            <input type="hidden" name="q" value="{{ search.terms | escape }}">
+
+            {% for filter in search.filters %}
+              <div class="filter-group">
+                <strong>{{ filter.label }}</strong>
+                {% case filter.type %}
+                  {% when 'price_range' %}
+                    <label for="SearchMinPrice-{{ filter.param_name }}">Minimum price</label>
+                    <input id="SearchMinPrice-{{ filter.param_name }}" type="number" name="{{ filter.min_value.param_name }}">
+                    <label for="SearchMaxPrice-{{ filter.param_name }}">Maximum price</label>
+                    <input id="SearchMaxPrice-{{ filter.param_name }}" type="number" name="{{ filter.max_value.param_name }}">
+                  {% else %}
+                    <ul class="filters-list stack">
+                      {% for value in filter.values %}
+                        <li>
+                          <label for="SearchFilter-{{ filter.param_name }}-{{ forloop.index }}">
+                            <input
+                              id="SearchFilter-{{ filter.param_name }}-{{ forloop.index }}"
+                              type="checkbox"
+                              name="{{ value.param_name }}"
+                              value="{{ value.value }}"
+                              {% if value.active %}checked{% endif %}
+                            >
+                            {{ value.label }} ({{ value.count }})
+                          </label>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                {% endcase %}
+              </div>
+            {% endfor %}
+
+            <button type="submit">Apply filters</button>
+          </form>
+        </aside>
+
+        <div class="stack">
+          {% paginate search.results by 12 %}
+            {% if search.results_count == 0 %}
+              <div class="card">
+                <p>No results found for "{{ search.terms | escape }}".</p>
+              </div>
+            {% else %}
+              <div class="search-results">
+                {% for item in search.results %}
+                  <article class="card stack">
+                    <p class="badge">{{ item.object_type | capitalize }}</p>
+                    {% case item.object_type %}
+                      {% when 'product' %}
+                        {% render 'product-card', card_product: item %}
+                      {% when 'article' %}
+                        <h2><a href="{{ item.url }}">{{ item.title }}</a></h2>
+                        {% if item.image %}
+                          {{ item.image | image_url: width: 800 | image_tag: loading: 'lazy', alt: item.image.alt }}
+                        {% endif %}
+                        <div class="rte">{{ item.excerpt_or_content }}</div>
+                      {% when 'page' %}
+                        <h2><a href="{{ item.url }}">{{ item.title }}</a></h2>
+                        <div class="rte">{{ item.content | strip_html | truncate: 180 }}</div>
+                      {% else %}
+                        <h2><a href="{{ item.url }}">{{ item.title }}</a></h2>
+                    {% endcase %}
+                  </article>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            {% if paginate.pages > 1 %}
+              <nav class="pagination" aria-label="Search pagination">
+                {{ paginate | default_pagination }}
+              </nav>
+            {% endif %}
+          {% endpaginate %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Main search",
+  "settings": []
+}
+{% endschema %}
