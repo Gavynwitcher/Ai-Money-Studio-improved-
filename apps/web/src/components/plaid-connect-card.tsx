@@ -272,7 +272,8 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
   }, [loadDetails, loadStatus, onStatusChange]);
 
   const refreshAll = useCallback(async () => {
-    await Promise.all([loadStatus(), loadDetails()]);
+    const [nextStatus] = await Promise.all([loadStatus(), loadDetails()]);
+    return nextStatus;
   }, [loadDetails, loadStatus]);
 
   const launchPlaid = useCallback(async () => {
@@ -314,16 +315,18 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
             }
 
             const result = exchangePayload as PlaidExchangePayload;
+            const nextStatus = await refreshAll();
+            const connectedInstitutionCount = nextStatus.connectedItems ?? 0;
+            const institutionLabel = `${connectedInstitutionCount} institution${connectedInstitutionCount === 1 ? "" : "s"}`;
             if (result.transactionsReady === false || (result.pendingItems ?? 0) > 0) {
               setFeedback(
-                `Connected successfully. Imported ${result.importedAccounts} accounts. Transactions are still preparing at your institution; retry sync in about a minute.`
+                `Connected successfully. Imported ${result.importedAccounts} accounts across ${institutionLabel}. Transactions are still preparing at the newest institution; retry sync in about a minute.`
               );
             } else {
               setFeedback(
-                `Connected successfully. Imported ${result.importedAccounts} accounts and ${result.importedTransactions} transactions.`
+                `Connected successfully. Imported ${result.importedAccounts} accounts and ${result.importedTransactions} transactions across ${institutionLabel}.`
               );
             }
-            await refreshAll();
             onLinked?.();
           } catch (err) {
             setError(toMessage(err, "Failed to finish bank connection"));
@@ -468,6 +471,10 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
   const totalBalance = accounts.reduce((sum, account) => sum + account.currentBalance, 0);
   const availableBalance = accounts.reduce((sum, account) => sum + account.availableBalance, 0);
   const primaryInstitution = institutions[0]?.institutionName ?? status?.institutions?.[0] ?? "No institution linked yet";
+  const connectedInstitutionCount = status?.connectedItems ?? 0;
+  const canManageConnections =
+    !loadingStatus && !launching && !syncing && !unlinking && Boolean(status?.configured);
+  const addInstitutionLabel = connectedInstitutionCount === 0 ? "Connect first bank" : "Add another bank";
 
   useEffect(() => {
     onControlsReady?.({
@@ -504,8 +511,8 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
               Treasury-grade account linking for your banking workspace
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-200">
-              Securely connect institutions, import balances and transaction history, and keep your Unified Banking Hub
-              profile aligned with the live Plaid environment.
+              Securely connect one or many institutions, import balances and transaction history into a single workspace,
+              and keep your Unified Banking Hub profile aligned with the live Plaid environment.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -519,14 +526,17 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
             </button>
             <button
               type="button"
+              onClick={() => launchPlaid()}
+              disabled={!canManageConnections}
+              className="rounded-full border border-white/20 bg-white/8 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:text-white/40"
+            >
+              {launching ? "Opening Plaid..." : addInstitutionLabel}
+            </button>
+            <button
+              type="button"
               onClick={syncPlaidData}
               disabled={
-                loadingStatus ||
-                launching ||
-                syncing ||
-                unlinking ||
-                !status?.configured ||
-                (status?.connectedItems ?? 0) === 0
+                !canManageConnections || connectedInstitutionCount === 0
               }
               className="rounded-full border border-white/20 bg-white/8 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:text-white/40"
             >
@@ -536,12 +546,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
               type="button"
               onClick={unlinkPlaidData}
               disabled={
-                loadingStatus ||
-                launching ||
-                syncing ||
-                unlinking ||
-                !status?.configured ||
-                (status?.connectedItems ?? 0) === 0
+                !canManageConnections || connectedInstitutionCount === 0
               }
               className="rounded-full border border-rose-300/40 bg-transparent px-5 py-3 text-sm font-semibold text-rose-100 disabled:cursor-not-allowed disabled:text-rose-200/40"
             >
@@ -598,11 +603,22 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Institution list</p>
-              <p className="mt-3 text-lg font-semibold text-slate-950">
-                {institutions.length ? institutions.map((entry) => entry.institutionName).join(", ") : "Reconnect to add institutions"}
-              </p>
+              {institutions.length ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {institutions.map((entry) => (
+                    <span
+                      key={entry.institutionId}
+                      className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950"
+                    >
+                      {entry.institutionName}
+                    </span>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-3 text-lg font-semibold text-slate-950">Use Plaid Link to connect your first institution</p>
+              )}
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Keep each linked institution aligned with the current Plaid environment before you run syncs or transfers.
+                Each Plaid Link session can add another institution to this workspace without replacing the ones already linked.
               </p>
             </div>
             <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
@@ -631,7 +647,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
             <div className="rounded-[20px] border border-slate-200 bg-[linear-gradient(135deg,#fbfcfe_0%,#f4f7fb_100%)] p-4">
               <p className="text-sm font-semibold text-slate-950">Recommended flow</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Connect institution, complete Plaid Link, then run a sync to refresh balances and historical activity before enabling downstream workflows.
+                Add one bank at a time through Plaid Link, then run a sync to refresh balances and historical activity across every linked institution before enabling downstream workflows.
               </p>
             </div>
           </div>
