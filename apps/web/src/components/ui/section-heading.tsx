@@ -20,7 +20,8 @@ export function SectionHeading({
       <h2 className="mt-4 font-heading text-3xl font-semibold tracking-[-0.04em] text-[var(--ink)] sm:text-4xl">
         {title}
       </h2>
-      {description ? <p className="mt-4 text-base leading-7 text-[var(--muted)]">{description}</p> : null}
+      {description ? <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--muted)]">{description}</p> : null}
+      <div className="bank-divider mt-6" />
     </div>
   );
 }

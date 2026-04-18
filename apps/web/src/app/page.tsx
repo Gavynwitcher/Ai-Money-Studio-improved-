@@ -41,38 +41,38 @@ export default function HomePage() {
                 </Button>
               </div>
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
-                <div className="rounded-[24px] border border-[var(--line)] bg-white/70 p-4">
-                  <p className="text-sm text-[var(--muted)]">Target users</p>
+                <div className="bank-stat rounded-[24px] p-4">
+                  <p className="text-sm uppercase tracking-[0.16em] text-[var(--muted)]">Target users</p>
                   <p className="mt-2 text-2xl font-semibold text-[var(--navy)]">Consumers + SMBs</p>
                 </div>
-                <div className="rounded-[24px] border border-[var(--line)] bg-white/70 p-4">
-                  <p className="text-sm text-[var(--muted)]">Core MVP scope</p>
+                <div className="bank-stat rounded-[24px] p-4">
+                  <p className="text-sm uppercase tracking-[0.16em] text-[var(--muted)]">Core MVP scope</p>
                   <p className="mt-2 text-2xl font-semibold text-[var(--navy)]">Aggregation + transfers</p>
                 </div>
-                <div className="rounded-[24px] border border-[var(--line)] bg-white/70 p-4">
-                  <p className="text-sm text-[var(--muted)]">Pricing posture</p>
+                <div className="bank-stat rounded-[24px] p-4">
+                  <p className="text-sm uppercase tracking-[0.16em] text-[var(--muted)]">Pricing posture</p>
                   <p className="mt-2 text-2xl font-semibold text-[var(--navy)]">Premium feel, lower cost</p>
                 </div>
               </div>
             </div>
 
-            <Card className="mesh-card reveal relative overflow-hidden rounded-[36px] p-5 sm:p-6">
-              <div className="hero-orb -left-2 top-14 h-24 w-24 bg-[rgba(26,139,141,0.26)]" />
-              <div className="hero-orb right-6 top-6 h-20 w-20 bg-[rgba(243,201,106,0.28)]" />
+            <div className="bank-shell reveal relative overflow-hidden rounded-[36px] p-5 text-white sm:p-6">
+              <div className="hero-orb -left-2 top-14 h-24 w-24 bg-[rgba(25,106,117,0.18)]" />
+              <div className="hero-orb right-6 top-6 h-20 w-20 bg-[rgba(200,164,90,0.16)]" />
               <div className="grid gap-5">
-                <div className="rounded-[30px] border border-[var(--line)] bg-[var(--navy)] p-6 text-white">
+                <div className="bank-stat-dark rounded-[30px] p-6 text-white">
                   <p className="text-sm uppercase tracking-[0.24em] text-cyan-100/80">Unified balance</p>
                   <p className="mt-3 font-heading text-5xl font-semibold tracking-[-0.05em]">{currency(259370)}</p>
                   <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
-                    <div className="rounded-[20px] bg-white/10 p-3">
+                    <div className="bank-stat-dark rounded-[20px] p-3">
                       <p className="text-cyan-100/80">Institutions</p>
                       <p className="mt-2 font-semibold">3 linked</p>
                     </div>
-                    <div className="rounded-[20px] bg-white/10 p-3">
+                    <div className="bank-stat-dark rounded-[20px] p-3">
                       <p className="text-cyan-100/80">Transfers</p>
                       <p className="mt-2 font-semibold">1 in review</p>
                     </div>
-                    <div className="rounded-[20px] bg-white/10 p-3">
+                    <div className="bank-stat-dark rounded-[20px] p-3">
                       <p className="text-cyan-100/80">Monitoring</p>
                       <p className="mt-2 font-semibold">Credit soon</p>
                     </div>
@@ -80,16 +80,16 @@ export default function HomePage() {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-[26px] border border-[var(--line)] bg-white/80 p-5">
+                  <div className="bank-stat rounded-[26px] p-5 text-[var(--navy)]">
                     <p className="text-sm font-semibold text-[var(--navy)]">Transfer workflow</p>
                     <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
                       Review routing, fee visibility, and status steps before initiating supported movement.
                     </p>
-                    <div className="mt-4 rounded-[20px] bg-[rgba(26,139,141,0.08)] p-4 text-sm text-[var(--navy)]">
+                    <div className="bank-panel-muted mt-4 rounded-[20px] p-4 text-sm text-[var(--navy)]">
                       Reserve to Operating · {currency(2500)} · fee preview {currency(2)}
                     </div>
                   </div>
-                  <div className="rounded-[26px] border border-[var(--line)] bg-white/80 p-5">
+                  <div className="bank-stat rounded-[26px] p-5 text-[var(--navy)]">
                     <p className="text-sm font-semibold text-[var(--navy)]">Roadmap signals</p>
                     <div className="mt-4 space-y-3">
                       <StatusChip status="available-now" />
@@ -99,7 +99,7 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
           </div>
         </Container>
       </section>

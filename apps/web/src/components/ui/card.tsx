@@ -7,5 +7,5 @@ export function Card({
   children: React.ReactNode;
   className?: string;
 }) {
-  return <div className={cn("glass-panel rounded-[28px] p-6", className)}>{children}</div>;
+  return <div className={cn("bank-panel rounded-[28px] p-6", className)}>{children}</div>;
 }

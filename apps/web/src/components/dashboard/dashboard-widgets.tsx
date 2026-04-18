@@ -21,7 +21,7 @@ function MiniTrend({ values }: { values: number[] }) {
       {values.map((value, index) => (
         <span
           key={`${value}-${index}`}
-          className="w-2 rounded-full bg-[var(--teal)]/70"
+          className="w-2 rounded-full bg-[var(--teal)]/80"
           style={{ height: `${18 + (value / max) * 28}px` }}
         />
       ))}
@@ -35,31 +35,31 @@ export function DashboardWidgets() {
 
   return (
     <div className="grid gap-5 lg:grid-cols-12">
-      <Card className="lg:col-span-8">
+      <div className="bank-shell rounded-[28px] p-6 lg:col-span-8 text-white">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <Badge tone="teal">Unified balance</Badge>
-            <h2 className="mt-4 font-heading text-4xl font-semibold tracking-[-0.05em] text-[var(--navy)]">
+            <Badge tone="gold">Unified balance</Badge>
+            <h2 className="mt-4 font-heading text-4xl font-semibold tracking-[-0.05em] text-white">
               {currency(totalBalance)}
             </h2>
-            <p className="mt-2 text-sm text-[var(--muted)]">
+            <p className="mt-2 text-sm text-slate-200">
               Available cash {currency(availableBalance)} across {institutions.length} institutions
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <div className="rounded-[24px] border border-[var(--line)] bg-white/70 p-4">
-              <p className="text-[var(--muted)]">30-day inflow</p>
-              <p className="mt-2 text-xl font-semibold text-[var(--navy)]">{currency(61200)}</p>
-              <p className="mt-1 text-[var(--success)]">{percentage(6.2)}</p>
+            <div className="bank-stat-dark rounded-[24px] p-4">
+              <p className="text-cyan-100/70">30-day inflow</p>
+              <p className="mt-2 text-xl font-semibold text-white">{currency(61200)}</p>
+              <p className="mt-1 text-emerald-200">{percentage(6.2)}</p>
             </div>
-            <div className="rounded-[24px] border border-[var(--line)] bg-white/70 p-4">
-              <p className="text-[var(--muted)]">30-day outflow</p>
-              <p className="mt-2 text-xl font-semibold text-[var(--navy)]">{currency(42100)}</p>
-              <p className="mt-1 text-[var(--warning)]">{percentage(-2.8)}</p>
+            <div className="bank-stat-dark rounded-[24px] p-4">
+              <p className="text-cyan-100/70">30-day outflow</p>
+              <p className="mt-2 text-xl font-semibold text-white">{currency(42100)}</p>
+              <p className="mt-1 text-amber-200">{percentage(-2.8)}</p>
             </div>
           </div>
         </div>
-      </Card>
+      </div>
 
       <Card className="lg:col-span-4">
         <div className="flex items-center justify-between">
@@ -68,7 +68,7 @@ export function DashboardWidgets() {
         </div>
         <div className="mt-5 grid gap-3">
           {alerts.map((alert) => (
-            <div key={alert.title} className="rounded-[22px] border border-[var(--line)] bg-white/75 p-4">
+            <div key={alert.title} className="ledger-row rounded-[22px] p-4">
               <p className="text-sm font-medium text-[var(--navy)]">{alert.title}</p>
             </div>
           ))}
@@ -84,7 +84,7 @@ export function DashboardWidgets() {
           {accounts.map((account) => (
             <div
               key={account.id}
-              className="flex items-center justify-between rounded-[24px] border border-[var(--line)] bg-white/80 p-4"
+              className="ledger-row flex items-center justify-between rounded-[24px] p-4"
             >
               <div>
                 <p className="font-semibold text-[var(--navy)]">
@@ -119,7 +119,7 @@ export function DashboardWidgets() {
         <p className="mt-2 text-sm text-[var(--muted)]">
           Guided movement between approved linked institutions with transparent review.
         </p>
-        <div className="mt-5 rounded-[24px] border border-[var(--line)] bg-white/80 p-4">
+        <div className="bank-panel-muted mt-5 rounded-[24px] p-4">
           <p className="text-sm text-[var(--muted)]">Ready for review</p>
           <p className="mt-2 font-semibold text-[var(--navy)]">
             {currency(transfers[0].amount)} from Reserve to Operating
@@ -138,7 +138,7 @@ export function DashboardWidgets() {
           {transactions.map((transaction) => (
             <div
               key={transaction.id}
-              className="flex items-center justify-between rounded-[22px] border border-[var(--line)] bg-white/80 px-4 py-3"
+              className="ledger-row flex items-center justify-between rounded-[22px] px-4 py-3"
             >
               <div>
                 <p className="font-medium text-[var(--navy)]">{transaction.merchant}</p>
@@ -178,7 +178,7 @@ export function DashboardWidgets() {
         <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">Debt progress</h3>
         <p className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-[var(--navy)]">{currency(debtProgress.remaining)}</p>
         <p className="mt-2 text-sm text-[var(--muted)]">Remaining balance target</p>
-        <div className="mt-5 h-3 rounded-full bg-[rgba(10,37,64,0.08)]">
+        <div className="mt-5 h-3 rounded-full bg-[rgba(11,31,51,0.08)]">
           <div className="h-full rounded-full bg-[var(--teal)]" style={{ width: "26%" }} />
         </div>
         <div className="mt-4 space-y-3 text-sm text-[var(--muted)]">
