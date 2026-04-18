@@ -2,6 +2,16 @@ import { prisma } from "@/lib/prisma";
 import { Configuration, CountryCode, PlaidApi, PlaidEnvironments, Products } from "plaid";
 
 type PlaidEnvironment = "sandbox" | "development" | "production";
+type PlaidAuthMethod =
+  | "INSTANT_AUTH"
+  | "INSTANT_MATCH"
+  | "AUTOMATED_MICRODEPOSITS"
+  | "SAME_DAY_MICRODEPOSITS"
+  | "INSTANT_MICRODEPOSITS"
+  | "DATABASE_MATCH"
+  | "DATABASE_INSIGHTS"
+  | "TRANSFER_MIGRATED"
+  | "INVESTMENTS_FALLBACK";
 
 type SyncResult = {
   importedAccounts: number;
@@ -29,9 +39,33 @@ type PlaidConnectionStatus = {
   importedTransactions: number;
   coverageStart: string | null;
   coverageEnd: string | null;
+  verifiedBankAccounts: number;
+  pendingBankAccounts: number;
+  tokenizedBankAccounts: number;
+  authMethods: string[];
+};
+
+export type PlaidWebhookPayload = {
+  webhook_type?: string;
+  webhook_code?: string;
+  item_id?: string;
+  account_id?: string;
 };
 
 let plaidClient: PlaidApi | null = null;
+const VERIFIED_BANK_STATUSES = new Set([
+  "automatically_verified",
+  "manually_verified",
+  "database_matched",
+  "database_insights_pass",
+  "database_insights_pass_with_caution"
+]);
+const PENDING_BANK_STATUSES = new Set([
+  "pending_automatic_verification",
+  "pending_manual_verification",
+  "unsent",
+  "database_insights_pending"
+]);
 
 function readCleanEnv(name: string) {
   const value = process.env[name];
@@ -42,6 +76,12 @@ function readCleanEnv(name: string) {
 
 function isoDate(date: Date) {
   return date.toISOString().slice(0, 10);
+}
+
+function last4(value?: string | null) {
+  if (!value) return null;
+  const trimmed = value.trim();
+  return trimmed ? trimmed.slice(-4) : null;
 }
 
 function mapAccountType(type?: string | null, subtype?: string | null) {
@@ -82,6 +122,10 @@ function getPlaidErrorCode(error: unknown) {
 
 function isProductNotReadyError(error: unknown) {
   return getPlaidErrorCode(error) === "PRODUCT_NOT_READY";
+}
+
+function hasConfiguredProduct(product: Products) {
+  return resolveConfiguredProducts().includes(product);
 }
 
 function getPlaidEnvironment(): PlaidEnvironment {
@@ -129,7 +173,7 @@ function getPlaidClient() {
 function resolveConfiguredProducts() {
   const raw = process.env.PLAID_PRODUCTS?.trim();
   if (!raw) {
-    return [Products.Transactions];
+    return [Products.Auth, Products.Transactions];
   }
 
   const values = raw
@@ -141,7 +185,7 @@ function resolveConfiguredProducts() {
     .map((value) => Products[value as keyof typeof Products])
     .filter((value): value is Products => Boolean(value));
 
-  return mapped.length > 0 ? mapped : [Products.Transactions];
+  return mapped.length > 0 ? mapped : [Products.Auth, Products.Transactions];
 }
 
 export async function createPlaidLinkToken(userId: string) {
@@ -159,11 +203,11 @@ export async function createPlaidLinkToken(userId: string) {
 }
 
 export async function getPlaidConnectionStatus(userId: string): Promise<PlaidConnectionStatus> {
-  const [items, linkedAccounts, importedTransactions, transactionCoverage] = await Promise.all([
+  const [items, linkedAccounts, importedTransactions, transactionCoverage, accountVerification] = await Promise.all([
     prisma.plaidItem.findMany({
       where: { userId },
       orderBy: { updatedAt: "desc" },
-      select: { institutionName: true, lastSyncedAt: true }
+      select: { institutionName: true, lastSyncedAt: true, authMethod: true }
     }),
     prisma.moneyCopilotAccount.count({
       where: {
@@ -184,6 +228,16 @@ export async function getPlaidConnectionStatus(userId: string): Promise<PlaidCon
       },
       _min: { postedAt: true },
       _max: { postedAt: true }
+    }),
+    prisma.moneyCopilotAccount.findMany({
+      where: {
+        userId,
+        providerAccountId: { not: null }
+      },
+      select: {
+        bankVerificationStatus: true,
+        isTokenizedAccountNumber: true
+      }
     })
   ]);
 
@@ -198,6 +252,20 @@ export async function getPlaidConnectionStatus(userId: string): Promise<PlaidCon
   const latestSync = items
     .map((item) => item.lastSyncedAt?.getTime() ?? 0)
     .sort((a, b) => b - a)[0];
+  const authMethods = Array.from(
+    new Set(
+      items
+        .map((item) => item.authMethod?.trim())
+        .filter((method): method is string => Boolean(method))
+    )
+  );
+  const verifiedBankAccounts = accountVerification.filter((account) =>
+    VERIFIED_BANK_STATUSES.has((account.bankVerificationStatus || "").trim())
+  ).length;
+  const pendingBankAccounts = accountVerification.filter((account) =>
+    PENDING_BANK_STATUSES.has((account.bankVerificationStatus || "").trim())
+  ).length;
+  const tokenizedBankAccounts = accountVerification.filter((account) => account.isTokenizedAccountNumber).length;
 
   return {
     connected: items.length > 0,
@@ -207,18 +275,33 @@ export async function getPlaidConnectionStatus(userId: string): Promise<PlaidCon
     linkedAccounts,
     importedTransactions,
     coverageStart: transactionCoverage._min.postedAt ? transactionCoverage._min.postedAt.toISOString().slice(0, 10) : null,
-    coverageEnd: transactionCoverage._max.postedAt ? transactionCoverage._max.postedAt.toISOString().slice(0, 10) : null
+    coverageEnd: transactionCoverage._max.postedAt ? transactionCoverage._max.postedAt.toISOString().slice(0, 10) : null,
+    verifiedBankAccounts,
+    pendingBankAccounts,
+    tokenizedBankAccounts,
+    authMethods
   };
 }
 
-async function syncSinglePlaidItem(userId: string, plaidItem: { id: string; accessToken: string }) {
-  const client = getPlaidClient();
-  const accountsResponse = await client.accountsGet({
-    access_token: plaidItem.accessToken
-  });
-
+async function upsertPlaidAccounts(
+  userId: string,
+  accounts: Array<{
+    account_id: string;
+    name?: string | null;
+    official_name?: string | null;
+    type?: string | null;
+    subtype?: string | null;
+    mask?: string | null;
+    balances: {
+      iso_currency_code?: string | null;
+      current?: number | null;
+      available?: number | null;
+    };
+  }>
+) {
   const accountIdMap = new Map<string, string>();
-  for (const account of accountsResponse.data.accounts) {
+
+  for (const account of accounts) {
     const upsertedAccount = await prisma.moneyCopilotAccount.upsert({
       where: { providerAccountId: account.account_id },
       update: {
@@ -227,7 +310,8 @@ async function syncSinglePlaidItem(userId: string, plaidItem: { id: string; acce
         type: mapAccountType(account.type, account.subtype),
         currency: account.balances.iso_currency_code || "USD",
         currentBalance: account.balances.current ?? account.balances.available ?? 0,
-        availableBalance: account.balances.available ?? null
+        availableBalance: account.balances.available ?? null,
+        accountMask: account.mask ?? undefined
       },
       create: {
         userId,
@@ -236,11 +320,91 @@ async function syncSinglePlaidItem(userId: string, plaidItem: { id: string; acce
         type: mapAccountType(account.type, account.subtype),
         currency: account.balances.iso_currency_code || "USD",
         currentBalance: account.balances.current ?? account.balances.available ?? 0,
-        availableBalance: account.balances.available ?? null
+        availableBalance: account.balances.available ?? null,
+        accountMask: account.mask ?? null
       }
     });
     accountIdMap.set(account.account_id, upsertedAccount.id);
   }
+
+  return accountIdMap;
+}
+
+async function syncPlaidAuthData(
+  userId: string,
+  plaidItem: { id: string; plaidItemId: string; accessToken: string; institutionName?: string | null }
+) {
+  if (!hasConfiguredProduct(Products.Auth)) {
+    return { authReady: false };
+  }
+
+  const client = getPlaidClient();
+  let authResponse;
+  try {
+    authResponse = await client.authGet({
+      access_token: plaidItem.accessToken
+    });
+  } catch (error) {
+    if (isProductNotReadyError(error)) {
+      return { authReady: false };
+    }
+    throw error;
+  }
+
+  await upsertPlaidAccounts(userId, authResponse.data.accounts);
+
+  const achByAccountId = new Map(
+    (authResponse.data.numbers?.ach || []).map((entry) => [
+      entry.account_id,
+      {
+        accountMask: last4(entry.account),
+        routingNumberSuffix: last4(entry.routing),
+        isTokenizedAccountNumber: Boolean(entry.is_tokenized_account_number)
+      }
+    ])
+  );
+
+  for (const account of authResponse.data.accounts) {
+    const ach = achByAccountId.get(account.account_id);
+    await prisma.moneyCopilotAccount.updateMany({
+      where: {
+        userId,
+        providerAccountId: account.account_id
+      },
+      data: {
+        accountMask: ach?.accountMask ?? account.mask ?? undefined,
+        routingNumberSuffix: ach?.routingNumberSuffix ?? undefined,
+        bankVerificationStatus: account.verification_status || null,
+        verificationName: account.verification_name || null,
+        persistentAccountId: account.persistent_account_id || null,
+        holderCategory: account.holder_category || null,
+        isTokenizedAccountNumber: ach?.isTokenizedAccountNumber ?? false
+      }
+    });
+  }
+
+  await prisma.plaidItem.update({
+    where: { id: plaidItem.id },
+    data: {
+      institutionName: authResponse.data.item.institution_name || plaidItem.institutionName || null,
+      authMethod: (authResponse.data.item.auth_method as PlaidAuthMethod | null) || null
+    }
+  });
+
+  return { authReady: true };
+}
+
+async function syncSinglePlaidItem(
+  userId: string,
+  plaidItem: { id: string; plaidItemId: string; accessToken: string; institutionName?: string | null }
+) {
+  const client = getPlaidClient();
+  const accountsResponse = await client.accountsGet({
+    access_token: plaidItem.accessToken
+  });
+
+  const accountIdMap = await upsertPlaidAccounts(userId, accountsResponse.data.accounts);
+  await syncPlaidAuthData(userId, plaidItem);
 
   const endDate = new Date();
   const startDate = new Date();
@@ -369,7 +533,7 @@ export async function exchangePublicTokenAndSync(
 export async function syncPlaidDataForUser(userId: string): Promise<UserSyncResult> {
   const items = await prisma.plaidItem.findMany({
     where: { userId },
-    select: { id: true, accessToken: true }
+    select: { id: true, plaidItemId: true, accessToken: true, institutionName: true }
   });
 
   let importedAccounts = 0;
@@ -417,4 +581,37 @@ export async function unlinkPlaidDataForUser(userId: string): Promise<PlaidUnlin
       removedTransactions: transactionDelete.count
     };
   });
+}
+
+export async function syncPlaidAuthDataForItem(plaidItemId: string) {
+  const plaidItem = await prisma.plaidItem.findFirst({
+    where: { plaidItemId },
+    select: {
+      id: true,
+      userId: true,
+      plaidItemId: true,
+      accessToken: true,
+      institutionName: true
+    }
+  });
+  if (!plaidItem) return false;
+
+  await syncPlaidAuthData(plaidItem.userId, plaidItem);
+  return true;
+}
+
+export async function handlePlaidWebhook(payload: PlaidWebhookPayload) {
+  const webhookType = payload.webhook_type?.trim() || "";
+  const webhookCode = payload.webhook_code?.trim() || "";
+  const itemId = payload.item_id?.trim() || null;
+
+  const shouldRefreshAuth =
+    webhookType === "AUTH" &&
+    itemId !== null &&
+    ["DEFAULT_UPDATE", "AUTOMATICALLY_VERIFIED", "VERIFICATION_EXPIRED", "SMS_MICRODEPOSITS_VERIFICATION"].includes(webhookCode);
+
+  return {
+    itemId,
+    shouldRefreshAuth
+  };
 }

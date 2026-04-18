@@ -14,6 +14,10 @@ export type PlaidStatusPayload = {
   importedTransactions: number;
   coverageStart: string | null;
   coverageEnd: string | null;
+  verifiedBankAccounts: number;
+  pendingBankAccounts: number;
+  tokenizedBankAccounts: number;
+  authMethods: string[];
 };
 
 type PlaidCreateTokenPayload = {
@@ -434,6 +438,14 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
 
       {status?.institutions?.length ? (
         <p className="mt-4 text-sm text-slate-600">Institutions: {status.institutions.join(", ")}</p>
+      ) : null}
+
+      {!loadingStatus && status?.configured && status?.connected ? (
+        <p className="mt-2 text-sm text-slate-600">
+          Auth verified: {status.verifiedBankAccounts} · Pending verification: {status.pendingBankAccounts} ·
+          Tokenized accounts: {status.tokenizedBankAccounts}
+          {status.authMethods.length ? ` · Method: ${status.authMethods.join(", ")}` : ""}
+        </p>
       ) : null}
 
       {!loadingStatus && !status?.configured && status?.configError ? (

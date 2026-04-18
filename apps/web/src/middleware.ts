@@ -3,7 +3,6 @@ import { getToken } from "next-auth/jwt";
 
 const protectedApiPrefixes = [
   "/api/money-copilot",
-  "/api/plaid",
   "/api/ollama",
   "/api/dashboard",
   "/api/backtests",
@@ -16,7 +15,6 @@ const protectedApiPrefixes = [
 ];
 
 const protectedPagePrefixes = [
-  "/dashboard",
   "/transactions",
   "/goals-debt",
   "/actions",
@@ -44,6 +42,9 @@ export async function middleware(req: NextRequest) {
   }
 
   const pathname = req.nextUrl.pathname;
+  if (pathname === "/api/plaid/webhook") {
+    return NextResponse.next();
+  }
   const isProtectedApi = hasProtectedPrefix(pathname, protectedApiPrefixes);
   const isProtectedPage = hasProtectedPrefix(pathname, protectedPagePrefixes);
 
@@ -68,7 +69,6 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/api/money-copilot/:path*",
-    "/api/plaid/:path*",
     "/api/ollama/:path*",
     "/api/dashboard",
     "/api/backtests",
@@ -78,7 +78,6 @@ export const config = {
     "/api/strategies",
     "/api/trade-gatekeeper",
     "/api/trade-journal",
-    "/dashboard/:path*",
     "/transactions/:path*",
     "/goals-debt/:path*",
     "/actions/:path*",

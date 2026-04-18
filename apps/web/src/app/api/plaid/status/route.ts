@@ -1,37 +1,20 @@
 import { NextResponse } from "next/server";
-import { errorJson } from "@/lib/server/http";
-import { getPlaidConfigError, getPlaidConnectionStatus } from "@/lib/server/plaid";
-import { resolveActiveUserId } from "@/lib/server/user";
-
-export const dynamic = "force-dynamic";
+import { getPlaidConfig, shouldUseMockPlaid } from "@/lib/plaid/config";
+import { fetchLinkedAccounts, fetchLinkedInstitutions } from "@/lib/plaid/service";
 
 export async function GET() {
-  try {
-    const configError = getPlaidConfigError();
-    if (configError) {
-      return NextResponse.json({
-        configured: false,
-        configError,
-        connected: false,
-        connectedItems: 0,
-        institutions: [],
-        lastSyncedAt: null,
-        linkedAccounts: 0,
-        importedTransactions: 0,
-        coverageStart: null,
-        coverageEnd: null
-      });
-    }
+  const config = getPlaidConfig();
+  const [institutions, accounts] = await Promise.all([
+    fetchLinkedInstitutions(),
+    fetchLinkedAccounts()
+  ]);
 
-    const userId = await resolveActiveUserId();
-    const status = await getPlaidConnectionStatus(userId);
-
-    return NextResponse.json({
-      configured: true,
-      configError: null,
-      ...status
-    });
-  } catch (error) {
-    return errorJson(error instanceof Error ? error.message : "Failed to load Plaid status", 500);
-  }
+  return NextResponse.json({
+    configured: Boolean(config.clientId && config.secret),
+    mockMode: shouldUseMockPlaid(),
+    environment: config.environment,
+    products: config.products,
+    linkedInstitutions: institutions.length,
+    linkedAccounts: accounts.length
+  });
 }
