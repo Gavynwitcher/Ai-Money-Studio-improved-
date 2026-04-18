@@ -199,7 +199,10 @@ export async function POST(req: NextRequest) {
     }
 
     const normalizedMessages = normalizeMessages(payload.messages);
-    const totalChars = normalizedMessages.reduce((sum, msg) => sum + msg.content.length, 0);
+    const totalChars = normalizedMessages.reduce(
+      (sum: number, msg: (typeof normalizedMessages)[number]) => sum + msg.content.length,
+      0
+    );
     if (totalChars > MAX_TOTAL_CHARS) {
       return errorJson(`Conversation is too long (${totalChars} chars). Keep it under ${MAX_TOTAL_CHARS}.`, 413);
     }

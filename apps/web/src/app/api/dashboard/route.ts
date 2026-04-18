@@ -28,12 +28,18 @@ export async function GET() {
       })
     ]);
 
-    const openRisk = positions.reduce((sum, pos) => sum + pos.riskDollars, 0);
+    const openRisk = positions.reduce(
+      (sum: number, pos: (typeof positions)[number]) => sum + pos.riskDollars,
+      0
+    );
     const complianceScore =
       latestLogs.length === 0
         ? null
         : Math.round(
-            latestLogs.reduce((sum, log) => sum + log.complianceScore, 0) / latestLogs.length
+            latestLogs.reduce(
+              (sum: number, log: (typeof latestLogs)[number]) => sum + log.complianceScore,
+              0
+            ) / latestLogs.length
           );
 
     return NextResponse.json({

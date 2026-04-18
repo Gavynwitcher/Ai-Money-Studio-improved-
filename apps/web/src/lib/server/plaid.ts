@@ -241,7 +241,7 @@ export async function getPlaidConnectionStatus(userId: string): Promise<PlaidCon
     })
   ]);
 
-  const institutions = Array.from(
+  const institutions: string[] = Array.from(
     new Set(
       items
         .map((item) => item.institutionName?.trim())
@@ -252,7 +252,7 @@ export async function getPlaidConnectionStatus(userId: string): Promise<PlaidCon
   const latestSync = items
     .map((item) => item.lastSyncedAt?.getTime() ?? 0)
     .sort((a, b) => b - a)[0];
-  const authMethods = Array.from(
+  const authMethods: string[] = Array.from(
     new Set(
       items
         .map((item) => item.authMethod?.trim())
@@ -353,7 +353,14 @@ async function syncPlaidAuthData(
 
   await upsertPlaidAccounts(userId, authResponse.data.accounts);
 
-  const achByAccountId = new Map(
+  const achByAccountId = new Map<
+    string,
+    {
+      accountMask: string | null;
+      routingNumberSuffix: string | null;
+      isTokenizedAccountNumber: boolean;
+    }
+  >(
     (authResponse.data.numbers?.ach || []).map((entry) => [
       entry.account_id,
       {
