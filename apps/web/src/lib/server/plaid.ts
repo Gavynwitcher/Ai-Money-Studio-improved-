@@ -176,16 +176,27 @@ function resolveConfiguredProducts() {
     return [Products.Auth, Products.Transactions];
   }
 
-  const values = raw
-    .split(",")
-    .map((item) => item.trim().toUpperCase())
-    .filter(Boolean);
+  const productMap: Record<string, Products> = {
+    auth: Products.Auth,
+    transactions: Products.Transactions,
+    transfer: Products.Transfer,
+    identity: Products.Identity,
+    investments: Products.Investments,
+    liabilities: Products.Liabilities,
+    assets: Products.Assets,
+    signal: Products.Signal,
+    statements: Products.Statements
+  };
 
-  const mapped = values
-    .map((value) => Products[value as keyof typeof Products])
+  const mapped = raw
+    .split(",")
+    .map((item) => item.trim().toLowerCase())
+    .filter(Boolean);
+  const products = mapped
+    .map((value) => productMap[value])
     .filter((value): value is Products => Boolean(value));
 
-  return mapped.length > 0 ? mapped : [Products.Auth, Products.Transactions];
+  return products.length > 0 ? products : [Products.Auth, Products.Transactions];
 }
 
 export async function createPlaidLinkToken(userId: string) {
