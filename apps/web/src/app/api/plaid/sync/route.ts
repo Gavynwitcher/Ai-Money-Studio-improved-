@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { fetchBalances, fetchTransactions } from "@/lib/plaid/service";
 import { shouldUseMockPlaid } from "@/lib/plaid/config";
 import { resolveActiveUserId } from "@/lib/server/user";
-import { syncPlaidDataForUser } from "@/lib/server/plaid";
+import { ensurePlaidItemsMatchEnvironment, syncPlaidDataForUser } from "@/lib/server/plaid";
 import { getPlaidErrorMessage } from "@/lib/server/plaidErrors";
 import { isDbUnavailableError } from "@/lib/server/moneyCopilotFallback";
 
@@ -23,6 +23,20 @@ export async function POST() {
     }
 
     const userId = await resolveActiveUserId();
+    const reset = await ensurePlaidItemsMatchEnvironment(userId);
+    if (reset?.resetRequired) {
+      return NextResponse.json({
+        syncedItems: 0,
+        importedAccounts: 0,
+        importedTransactions: 0,
+        transactionsReady: false,
+        pendingItems: 0,
+        resetRequired: true,
+        removedStaleItems: reset.removedItems,
+        message: `We removed ${reset.removedItems} sandbox connection${reset.removedItems === 1 ? "" : "s"} stored under this profile. Reconnect with Plaid production to continue.`
+      });
+    }
+
     const result = await syncPlaidDataForUser(userId);
     return NextResponse.json(result);
   } catch (error) {

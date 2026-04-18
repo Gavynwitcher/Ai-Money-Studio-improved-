@@ -45,6 +45,13 @@ type PlaidConnectionStatus = {
   authMethods: string[];
 };
 
+export type PlaidEnvironmentResetResult = {
+  resetRequired: boolean;
+  removedItems: number;
+  removedAccounts: number;
+  removedTransactions: number;
+};
+
 export type PlaidWebhookPayload = {
   webhook_type?: string;
   webhook_code?: string;
@@ -122,6 +129,20 @@ function getPlaidErrorCode(error: unknown) {
 
 function isProductNotReadyError(error: unknown) {
   return getPlaidErrorCode(error) === "PRODUCT_NOT_READY";
+}
+
+function getPlaidErrorMessageText(error: unknown) {
+  if (typeof error !== "object" || error === null) return "";
+  const maybe = error as { response?: { data?: { error_message?: unknown } }; message?: unknown };
+  const responseMessage = maybe.response?.data?.error_message;
+  if (typeof responseMessage === "string") return responseMessage.trim();
+  return typeof maybe.message === "string" ? maybe.message.trim() : "";
+}
+
+function isWrongEnvironmentAccessTokenError(error: unknown) {
+  if (getPlaidErrorCode(error) !== "INVALID_ACCESS_TOKEN") return false;
+  const message = getPlaidErrorMessageText(error);
+  return /wrong plaid environment/i.test(message) || /expected "production", got "sandbox"/i.test(message);
 }
 
 function hasConfiguredProduct(product: Products) {
@@ -292,6 +313,36 @@ export async function getPlaidConnectionStatus(userId: string): Promise<PlaidCon
     tokenizedBankAccounts,
     authMethods
   };
+}
+
+export async function ensurePlaidItemsMatchEnvironment(userId: string): Promise<PlaidEnvironmentResetResult | null> {
+  const items = await prisma.plaidItem.findMany({
+    where: { userId },
+    select: {
+      accessToken: true
+    },
+    take: 5
+  });
+
+  if (items.length === 0) return null;
+
+  const client = getPlaidClient();
+  for (const item of items) {
+    try {
+      await client.itemGet({ access_token: item.accessToken });
+    } catch (error) {
+      if (isWrongEnvironmentAccessTokenError(error)) {
+        const removed = await unlinkPlaidDataForUser(userId);
+        return {
+          resetRequired: true,
+          ...removed
+        };
+      }
+      throw error;
+    }
+  }
+
+  return null;
 }
 
 async function upsertPlaidAccounts(
@@ -549,6 +600,17 @@ export async function exchangePublicTokenAndSync(
 }
 
 export async function syncPlaidDataForUser(userId: string): Promise<UserSyncResult> {
+  const reset = await ensurePlaidItemsMatchEnvironment(userId);
+  if (reset?.resetRequired) {
+    return {
+      syncedItems: 0,
+      importedAccounts: 0,
+      importedTransactions: 0,
+      transactionsReady: false,
+      pendingItems: 0
+    };
+  }
+
   const items = await prisma.plaidItem.findMany({
     where: { userId },
     select: { id: true, plaidItemId: true, accessToken: true, institutionName: true }

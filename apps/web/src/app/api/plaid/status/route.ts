@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { getPlaidConfig, shouldUseMockPlaid } from "@/lib/plaid/config";
 import { fetchLinkedAccounts, fetchLinkedInstitutions } from "@/lib/plaid/service";
-import { getPlaidConfigError, getPlaidConnectionStatus, isPlaidConfigured } from "@/lib/server/plaid";
+import {
+  ensurePlaidItemsMatchEnvironment,
+  getPlaidConfigError,
+  getPlaidConnectionStatus,
+  isPlaidConfigured
+} from "@/lib/server/plaid";
 import { resolveActiveUserId } from "@/lib/server/user";
 import { isDbUnavailableError } from "@/lib/server/moneyCopilotFallback";
 
@@ -34,6 +39,7 @@ export async function GET() {
     }
 
     const userId = await resolveActiveUserId();
+    const reset = await ensurePlaidItemsMatchEnvironment(userId);
     const status = await getPlaidConnectionStatus(userId);
 
     return NextResponse.json({
@@ -42,6 +48,10 @@ export async function GET() {
       mockMode: false,
       environment: config.environment,
       products: config.products,
+      resetRequired: Boolean(reset?.resetRequired),
+      resetMessage: reset?.resetRequired
+        ? `We cleared ${reset.removedItems} older sandbox connection${reset.removedItems === 1 ? "" : "s"} so this workspace matches Plaid production. Reconnect your bank to continue.`
+        : null,
       ...status
     });
   } catch (error) {

@@ -6,6 +6,11 @@ import { formatDate } from "@/lib/format";
 export type PlaidStatusPayload = {
   configured: boolean;
   configError: string | null;
+  mockMode?: boolean;
+  environment?: string;
+  products?: string[];
+  resetRequired?: boolean;
+  resetMessage?: string | null;
   connected: boolean;
   connectedItems: number;
   institutions: string[];
@@ -37,6 +42,9 @@ type PlaidSyncPayload = {
   importedTransactions: number;
   transactionsReady?: boolean;
   pendingItems?: number;
+  resetRequired?: boolean;
+  removedStaleItems?: number;
+  message?: string;
 };
 
 type PlaidUnlinkPayload = {
@@ -117,7 +125,7 @@ function toMessage(error: unknown, fallback: string) {
 
 function coverageLabel(status: PlaidStatusPayload | null) {
   if (!status?.coverageStart || !status.coverageEnd) return "No imported range yet";
-  return `${formatDate(status.coverageStart)}-${formatDate(status.coverageEnd)}`;
+  return `${formatDate(status.coverageStart)} to ${formatDate(status.coverageEnd)}`;
 }
 
 type Props = {
@@ -264,6 +272,15 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
       }
 
       const result = payload as PlaidSyncPayload;
+      if (result.resetRequired) {
+        setFeedback(
+          result.message ??
+            `We cleared older sandbox-linked items so this workspace matches Plaid production. Reconnect your bank to continue.`
+        );
+        await loadStatus();
+        onLinked?.();
+        return;
+      }
       if (result.transactionsReady === false || (result.pendingItems ?? 0) > 0) {
         setFeedback(
           `Sync started. ${result.pendingItems ?? 1} connected item is still preparing transactions; retry in about a minute.`
@@ -347,6 +364,12 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
     };
   }, [launchPlaid, loadStatus, loadingStatus, status, syncing, launching, syncPlaidData, unlinking]);
 
+  const modeLabel = status?.environment ? status.environment.toUpperCase() : "LIVE";
+  const productLabel = status?.products?.length ? status.products.join(", ") : "transactions";
+  const treasuryTone = status?.connected ? "bg-emerald-500" : "bg-amber-500";
+  const connectionLabel = loadingStatus ? "Loading..." : status?.connected ? "Treasury rail active" : "Awaiting connection";
+  const syncLabel = loadingStatus ? "-" : formatRelativeTimestamp(status?.lastSyncedAt ?? null);
+
   useEffect(() => {
     onControlsReady?.({
       connect: () => {
@@ -362,106 +385,176 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
   }, [launchPlaid, loadStatus, onControlsReady, syncPlaidData]);
 
   return (
-    <section className={`rounded-3xl border border-slate-200 bg-white ${compact ? "p-5 md:p-6" : "p-6 md:p-7"}`}>
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Connection & Data Coverage</p>
-          <h2 className={`mt-2 font-heading text-slate-900 ${compact ? "text-2xl" : "text-3xl"}`}>Connect with Plaid</h2>
-          <p className="mt-2 text-sm text-slate-600">Link accounts for live balances and transaction imports.</p>
+    <section
+      className={`overflow-hidden rounded-[34px] border border-slate-200/80 bg-[linear-gradient(180deg,#f7fafc_0%,#eef4fb_48%,#ffffff_100%)] shadow-[0_30px_90px_rgba(15,23,42,0.08)] ${
+        compact ? "p-5 md:p-6" : "p-6 md:p-7"
+      }`}
+    >
+      <div className="rounded-[28px] bg-[linear-gradient(135deg,#081628_0%,#0f2742_58%,#163d63_100%)] px-6 py-6 text-white">
+        <div className="flex flex-wrap items-start justify-between gap-5">
+          <div className="max-w-2xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/80">
+                Banking Connection Center
+              </span>
+              <span className="rounded-full border border-emerald-400/20 bg-emerald-400/12 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-100">
+                {modeLabel}
+              </span>
+            </div>
+            <h2 className={`mt-4 font-heading ${compact ? "text-3xl" : "text-4xl"} font-semibold tracking-[-0.05em]`}>
+              Treasury-grade account linking for your banking workspace
+            </h2>
+            <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-200">
+              Securely connect institutions, import transaction history, and keep your Unified Banking Hub profile aligned
+              with the live Plaid environment.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={primaryAction.onClick}
+              disabled={primaryAction.disabled}
+              className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 shadow-[0_18px_45px_rgba(8,22,40,0.18)] disabled:cursor-not-allowed disabled:bg-slate-300"
+            >
+              {primaryAction.label}
+            </button>
+            <button
+              type="button"
+              onClick={syncPlaidData}
+              disabled={
+                loadingStatus ||
+                launching ||
+                syncing ||
+                unlinking ||
+                !status?.configured ||
+                (status?.connectedItems ?? 0) === 0
+              }
+              className="rounded-full border border-white/20 bg-white/8 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:text-white/40"
+            >
+              {syncing ? "Syncing..." : "Manual Sync"}
+            </button>
+            <button
+              type="button"
+              onClick={unlinkPlaidData}
+              disabled={
+                loadingStatus ||
+                launching ||
+                syncing ||
+                unlinking ||
+                !status?.configured ||
+                (status?.connectedItems ?? 0) === 0
+              }
+              className="rounded-full border border-rose-300/40 bg-transparent px-5 py-3 text-sm font-semibold text-rose-100 disabled:cursor-not-allowed disabled:text-rose-200/40"
+            >
+              {unlinking ? "Unlinking..." : "Unlink"}
+            </button>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={primaryAction.onClick}
-            disabled={primaryAction.disabled}
-            className="rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-slate-400"
-          >
-            {primaryAction.label}
-          </button>
-          <button
-            type="button"
-            onClick={syncPlaidData}
-            disabled={
-              loadingStatus ||
-              launching ||
-              syncing ||
-              unlinking ||
-              !status?.configured ||
-              (status?.connectedItems ?? 0) === 0
-            }
-            className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-800 disabled:cursor-not-allowed disabled:text-slate-400"
-          >
-            {syncing ? "Syncing..." : "Manual Sync"}
-          </button>
-          <button
-            type="button"
-            onClick={unlinkPlaidData}
-            disabled={
-              loadingStatus ||
-              launching ||
-              syncing ||
-              unlinking ||
-              !status?.configured ||
-              (status?.connectedItems ?? 0) === 0
-            }
-            className="rounded-full border border-rose-300 bg-white px-4 py-2 text-sm font-semibold text-rose-700 disabled:cursor-not-allowed disabled:text-rose-300"
-          >
-            {unlinking ? "Unlinking..." : "Unlink"}
-          </button>
+
+        <div className="mt-6 grid gap-3 md:grid-cols-4">
+          <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Connection rail</p>
+            <div className="mt-3 flex items-center gap-3">
+              <span className={`h-3 w-3 rounded-full ${treasuryTone}`} />
+              <p className="text-lg font-semibold text-white">{connectionLabel}</p>
+            </div>
+            <p className="mt-2 text-sm text-slate-300">{status?.institutions?.[0] ?? "No institution linked yet"}</p>
+          </div>
+          <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Last ledger sync</p>
+            <p className="mt-3 text-2xl font-semibold text-white">{syncLabel}</p>
+            <p className="mt-2 text-sm text-slate-300">Coverage {loadingStatus ? "-" : coverageLabel(status)}</p>
+          </div>
+          <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Imported accounts</p>
+            <p className="mt-3 text-3xl font-semibold text-white">{loadingStatus ? "-" : status?.linkedAccounts ?? 0}</p>
+            <p className="mt-2 text-sm text-slate-300">
+              {loadingStatus ? "Loading..." : `${status?.connectedItems ?? 0} linked institution${(status?.connectedItems ?? 0) === 1 ? "" : "s"}`}
+            </p>
+          </div>
+          <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Imported transactions</p>
+            <p className="mt-3 text-3xl font-semibold text-white">{loadingStatus ? "-" : status?.importedTransactions ?? 0}</p>
+            <p className="mt-2 text-sm text-slate-300">Products: {productLabel}</p>
+          </div>
         </div>
       </div>
 
-      <div className={`mt-5 grid gap-3 text-sm text-slate-700 ${compact ? "md:grid-cols-2 xl:grid-cols-5" : "md:grid-cols-5"}`}>
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-          <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Connection</p>
-          <p className="mt-1 font-semibold text-slate-900">
-            {loadingStatus ? "Loading..." : status?.connected ? "Connected" : "Not connected"}
-          </p>
+      <div className="mt-5 grid gap-4 lg:grid-cols-[1.35fr_0.95fr]">
+        <div className="rounded-[28px] border border-slate-200 bg-white/90 p-5 shadow-[0_15px_45px_rgba(15,23,42,0.05)]">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Institution snapshot</p>
+              <h3 className="mt-2 text-xl font-semibold text-slate-950">Connected banking relationships</h3>
+            </div>
+            <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600">
+              {status?.configured ? "Server configured" : "Setup needed"}
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Institution list</p>
+              <p className="mt-3 text-lg font-semibold text-slate-950">
+                {status?.institutions?.length ? status.institutions.join(", ") : "Reconnect to add institutions"}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Keep each linked institution aligned with the current Plaid environment before you run syncs or transfers.
+              </p>
+            </div>
+            <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Verification posture</p>
+              <p className="mt-3 text-lg font-semibold text-slate-950">
+                Verified {status?.verifiedBankAccounts ?? 0} · Pending {status?.pendingBankAccounts ?? 0}
+              </p>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Tokenized accounts: {status?.tokenizedBankAccounts ?? 0}
+                {status?.authMethods?.length ? ` · Auth method: ${status.authMethods.join(", ")}` : ""}
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-          <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Last Successful Sync</p>
-          <p className="mt-1 font-semibold text-slate-900">{loadingStatus ? "-" : formatRelativeTimestamp(status?.lastSyncedAt ?? null)}</p>
-        </div>
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-          <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Linked Accounts</p>
-          <p className="mt-1 font-semibold text-slate-900">{loadingStatus ? "-" : status?.linkedAccounts ?? 0}</p>
-        </div>
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-          <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Imported Transactions</p>
-          <p className="mt-1 font-semibold text-slate-900">{loadingStatus ? "-" : status?.importedTransactions ?? 0}</p>
-        </div>
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-          <p className="text-xs uppercase tracking-[0.12em] text-slate-500">Data Coverage</p>
-          <p className="mt-1 font-semibold text-slate-900">{loadingStatus ? "-" : coverageLabel(status)}</p>
+
+        <div className="rounded-[28px] border border-slate-200 bg-white/90 p-5 shadow-[0_15px_45px_rgba(15,23,42,0.05)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Operating guidance</p>
+          <h3 className="mt-2 text-xl font-semibold text-slate-950">Connection controls</h3>
+          <div className="mt-4 grid gap-3">
+            <div className="rounded-[20px] border border-slate-200 bg-[linear-gradient(135deg,#f8fbff_0%,#eef5ff_100%)] p-4">
+              <p className="text-sm font-semibold text-slate-950">Production environment</p>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Link tokens are now issued against Plaid production, so previously stored sandbox connections are reset automatically.
+              </p>
+            </div>
+            <div className="rounded-[20px] border border-slate-200 bg-[linear-gradient(135deg,#fbfcfe_0%,#f4f7fb_100%)] p-4">
+              <p className="text-sm font-semibold text-slate-950">Recommended flow</p>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Connect institution, complete Plaid Link, then run a sync to refresh balances and transaction history before enabling money movement steps.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {status?.institutions?.length ? (
-        <p className="mt-4 text-sm text-slate-600">Institutions: {status.institutions.join(", ")}</p>
-      ) : null}
-
-      {!loadingStatus && status?.configured && status?.connected ? (
-        <p className="mt-2 text-sm text-slate-600">
-          Auth verified: {status.verifiedBankAccounts} · Pending verification: {status.pendingBankAccounts} ·
-          Tokenized accounts: {status.tokenizedBankAccounts}
-          {status.authMethods.length ? ` · Method: ${status.authMethods.join(", ")}` : ""}
-        </p>
+      {!loadingStatus && status?.resetRequired && status?.resetMessage ? (
+        <div className="mt-4 rounded-[22px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900">
+          {status.resetMessage}
+        </div>
       ) : null}
 
       {!loadingStatus && !status?.configured && status?.configError ? (
-        <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <div className="mt-4 rounded-[22px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900">
           Plaid setup needed: {status.configError}. Add `PLAID_CLIENT_ID` and `PLAID_SECRET` in your environment.
         </div>
       ) : null}
 
       {feedback ? (
-        <div className="mt-4 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+        <div className="mt-4 rounded-[22px] border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-900">
           {feedback}
         </div>
       ) : null}
 
       {error ? (
-        <div className="mt-4 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error}</div>
+        <div className="mt-4 rounded-[22px] border border-rose-200 bg-rose-50 px-4 py-4 text-sm text-rose-800">{error}</div>
       ) : null}
     </section>
   );
