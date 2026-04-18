@@ -4,6 +4,7 @@ export const navigation = [
   { href: "/", label: "Home" },
   { href: "/features", label: "Features" },
   { href: "/dashboard-demo", label: "Dashboard Demo" },
+  { href: "/transactions", label: "Transactions" },
   { href: "/plaid-integration", label: "Plaid Flow" },
   { href: "/pricing", label: "Pricing" },
   { href: "/security", label: "Security" },
@@ -273,6 +274,7 @@ export const footerColumns = [
     links: [
       { href: "/features", label: "Features" },
       { href: "/dashboard-demo", label: "Dashboard Demo" },
+      { href: "/transactions", label: "Transactions" },
       { href: "/plaid-integration", label: "Plaid Integration" },
       { href: "/pricing", label: "Pricing" }
     ]

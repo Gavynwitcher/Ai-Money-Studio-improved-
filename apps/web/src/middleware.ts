@@ -15,7 +15,6 @@ const protectedApiPrefixes = [
 ];
 
 const protectedPagePrefixes = [
-  "/transactions",
   "/goals-debt",
   "/actions",
   "/assistant",
@@ -78,7 +77,6 @@ export const config = {
     "/api/strategies",
     "/api/trade-gatekeeper",
     "/api/trade-journal",
-    "/transactions/:path*",
     "/goals-debt/:path*",
     "/actions/:path*",
     "/assistant/:path*",
