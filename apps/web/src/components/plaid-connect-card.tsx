@@ -25,6 +25,46 @@ export type PlaidStatusPayload = {
   authMethods: string[];
 };
 
+type PlaidInstitution = {
+  institutionId: string;
+  institutionName: string;
+  status: "connected" | "syncing";
+};
+
+type PlaidAccount = {
+  id: string;
+  institutionId: string;
+  institutionName: string;
+  name: string;
+  officialName?: string;
+  type?: string;
+  subtype: string;
+  mask: string;
+  currentBalance: number;
+  availableBalance: number;
+};
+
+type PlaidItem = {
+  itemId: string;
+  institutionId: string;
+  institutionName: string;
+  billedProducts: string[];
+  availableProducts: string[];
+  webhook: string | null;
+  accessTokenStatus: "stored" | "mock";
+};
+
+type PlaidTransactionRow = {
+  id: string;
+  merchant: string;
+  category: string;
+  amount: number;
+  accountName: string;
+  date: string;
+  direction: "inflow" | "outflow";
+  status: "posted" | "pending";
+};
+
 type PlaidCreateTokenPayload = {
   linkToken: string;
 };
@@ -51,6 +91,18 @@ type PlaidUnlinkPayload = {
   removedItems: number;
   removedAccounts: number;
   removedTransactions: number;
+};
+
+type PlaidAccountsPayload = {
+  institutions: PlaidInstitution[];
+  accounts: PlaidAccount[];
+  item: PlaidItem | null;
+  error?: string;
+};
+
+type PlaidTransactionsPayload = {
+  transactions: PlaidTransactionRow[];
+  error?: string;
 };
 
 type PlaidPublicMetadata = {
@@ -89,7 +141,7 @@ function ensurePlaidScriptLoaded() {
   if (plaidScriptPromise) return plaidScriptPromise;
 
   plaidScriptPromise = new Promise((resolve, reject) => {
-    const existing = document.querySelector(`script[src=\"${PLAID_SCRIPT_SRC}\"]`) as HTMLScriptElement | null;
+    const existing = document.querySelector(`script[src="${PLAID_SCRIPT_SRC}"]`) as HTMLScriptElement | null;
     if (existing) {
       existing.addEventListener("load", () => resolve(), { once: true });
       existing.addEventListener("error", () => reject(new Error("Failed to load Plaid script")), { once: true });
@@ -119,12 +171,20 @@ function formatRelativeTimestamp(value: string | null) {
   }).format(date);
 }
 
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2
+  }).format(value);
+}
+
 function toMessage(error: unknown, fallback: string) {
   return error instanceof Error ? error.message : fallback;
 }
 
 function coverageLabel(status: PlaidStatusPayload | null) {
-  if (!status?.coverageStart || !status.coverageEnd) return "No imported range yet";
+  if (!status?.coverageStart || !status?.coverageEnd) return "No imported range yet";
   return `${formatDate(status.coverageStart)} to ${formatDate(status.coverageEnd)}`;
 }
 
@@ -137,7 +197,12 @@ type Props = {
 
 export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, compact = false }: Props) {
   const [status, setStatus] = useState<PlaidStatusPayload | null>(null);
+  const [institutions, setInstitutions] = useState<PlaidInstitution[]>([]);
+  const [accounts, setAccounts] = useState<PlaidAccount[]>([]);
+  const [transactions, setTransactions] = useState<PlaidTransactionRow[]>([]);
+  const [item, setItem] = useState<PlaidItem | null>(null);
   const [loadingStatus, setLoadingStatus] = useState(true);
+  const [loadingDetails, setLoadingDetails] = useState(true);
   const [launching, setLaunching] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [unlinking, setUnlinking] = useState(false);
@@ -156,12 +221,36 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
     return typed;
   }, [onStatusChange]);
 
+  const loadDetails = useCallback(async () => {
+    setLoadingDetails(true);
+    const [accountsRes, transactionsRes] = await Promise.all([
+      fetch("/api/plaid/accounts", { cache: "no-store" }),
+      fetch("/api/plaid/transactions", { cache: "no-store" })
+    ]);
+
+    const accountsPayload = (await accountsRes.json()) as PlaidAccountsPayload;
+    const transactionsPayload = (await transactionsRes.json()) as PlaidTransactionsPayload;
+
+    if (!accountsRes.ok) {
+      throw new Error(accountsPayload.error ?? "Failed to load Plaid accounts");
+    }
+    if (!transactionsRes.ok) {
+      throw new Error(transactionsPayload.error ?? "Failed to load Plaid transactions");
+    }
+
+    setInstitutions(accountsPayload.institutions);
+    setAccounts(accountsPayload.accounts);
+    setItem(accountsPayload.item);
+    setTransactions(transactionsPayload.transactions);
+    setLoadingDetails(false);
+  }, []);
+
   useEffect(() => {
     let canceled = false;
 
     async function load() {
       try {
-        await loadStatus();
+        await Promise.all([loadStatus(), loadDetails()]);
       } catch (err) {
         if (!canceled) {
           const message = toMessage(err, "Failed to load Plaid status");
@@ -169,7 +258,10 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
           onStatusChange?.(null);
         }
       } finally {
-        if (!canceled) setLoadingStatus(false);
+        if (!canceled) {
+          setLoadingStatus(false);
+          setLoadingDetails(false);
+        }
       }
     }
 
@@ -177,7 +269,11 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
     return () => {
       canceled = true;
     };
-  }, [loadStatus, onStatusChange]);
+  }, [loadDetails, loadStatus, onStatusChange]);
+
+  const refreshAll = useCallback(async () => {
+    await Promise.all([loadStatus(), loadDetails()]);
+  }, [loadDetails, loadStatus]);
 
   const launchPlaid = useCallback(async () => {
     try {
@@ -227,7 +323,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
                 `Connected successfully. Imported ${result.importedAccounts} accounts and ${result.importedTransactions} transactions.`
               );
             }
-            await loadStatus();
+            await refreshAll();
             onLinked?.();
           } catch (err) {
             setError(toMessage(err, "Failed to finish bank connection"));
@@ -254,7 +350,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
       setError(toMessage(err, "Failed to launch Plaid Link"));
       setLaunching(false);
     }
-  }, [loadStatus, onLinked]);
+  }, [onLinked, refreshAll]);
 
   const syncPlaidData = useCallback(async () => {
     try {
@@ -275,9 +371,9 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
       if (result.resetRequired) {
         setFeedback(
           result.message ??
-            `We cleared older sandbox-linked items so this workspace matches Plaid production. Reconnect your bank to continue.`
+            "We cleared older sandbox-linked items so this workspace matches Plaid production. Reconnect your bank to continue."
         );
-        await loadStatus();
+        await refreshAll();
         onLinked?.();
         return;
       }
@@ -290,14 +386,14 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
           `Sync complete. Updated ${result.syncedItems} items, ${result.importedAccounts} accounts, and ${result.importedTransactions} transactions.`
         );
       }
-      await loadStatus();
+      await refreshAll();
       onLinked?.();
     } catch (err) {
       setError(toMessage(err, "Failed to sync Plaid data"));
     } finally {
       setSyncing(false);
     }
-  }, [loadStatus, onLinked]);
+  }, [onLinked, refreshAll]);
 
   const unlinkPlaidData = useCallback(async () => {
     if (!status?.connected) return;
@@ -326,20 +422,20 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
       setFeedback(
         `Unlinked successfully. Removed ${result.removedItems} items, ${result.removedAccounts} accounts, and ${result.removedTransactions} transactions.`
       );
-      await loadStatus();
+      await refreshAll();
       onLinked?.();
     } catch (err) {
       setError(toMessage(err, "Failed to unlink Plaid data"));
     } finally {
       setUnlinking(false);
     }
-  }, [loadStatus, onLinked, status?.connected]);
+  }, [onLinked, refreshAll, status?.connected]);
 
   const primaryAction = useMemo(() => {
     if (!status?.configured) {
       return {
         label: loadingStatus ? "Loading..." : "Retry",
-        onClick: () => loadStatus(),
+        onClick: () => refreshAll(),
         disabled: loadingStatus || launching || syncing || unlinking
       };
     }
@@ -352,7 +448,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
     }
     if ((status.importedTransactions ?? 0) === 0) {
       return {
-        label: launching ? "Opening Plaid..." : "Relink",
+        label: launching ? "Opening Plaid..." : "Refresh Link",
         onClick: () => launchPlaid(),
         disabled: loadingStatus || launching || syncing || unlinking
       };
@@ -362,13 +458,16 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
       onClick: () => syncPlaidData(),
       disabled: loadingStatus || launching || syncing || unlinking
     };
-  }, [launchPlaid, loadStatus, loadingStatus, status, syncing, launching, syncPlaidData, unlinking]);
+  }, [launchPlaid, loadingStatus, status, syncing, launching, syncPlaidData, unlinking, refreshAll]);
 
   const modeLabel = status?.environment ? status.environment.toUpperCase() : "LIVE";
   const productLabel = status?.products?.length ? status.products.join(", ") : "transactions";
   const treasuryTone = status?.connected ? "bg-emerald-500" : "bg-amber-500";
   const connectionLabel = loadingStatus ? "Loading..." : status?.connected ? "Treasury rail active" : "Awaiting connection";
   const syncLabel = loadingStatus ? "-" : formatRelativeTimestamp(status?.lastSyncedAt ?? null);
+  const totalBalance = accounts.reduce((sum, account) => sum + account.currentBalance, 0);
+  const availableBalance = accounts.reduce((sum, account) => sum + account.availableBalance, 0);
+  const primaryInstitution = institutions[0]?.institutionName ?? status?.institutions?.[0] ?? "No institution linked yet";
 
   useEffect(() => {
     onControlsReady?.({
@@ -379,10 +478,10 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
         void syncPlaidData();
       },
       retry: () => {
-        void loadStatus();
+        void refreshAll();
       }
     });
-  }, [launchPlaid, loadStatus, onControlsReady, syncPlaidData]);
+  }, [launchPlaid, onControlsReady, refreshAll, syncPlaidData]);
 
   return (
     <section
@@ -405,8 +504,8 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
               Treasury-grade account linking for your banking workspace
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-200">
-              Securely connect institutions, import transaction history, and keep your Unified Banking Hub profile aligned
-              with the live Plaid environment.
+              Securely connect institutions, import balances and transaction history, and keep your Unified Banking Hub
+              profile aligned with the live Plaid environment.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -458,7 +557,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
               <span className={`h-3 w-3 rounded-full ${treasuryTone}`} />
               <p className="text-lg font-semibold text-white">{connectionLabel}</p>
             </div>
-            <p className="mt-2 text-sm text-slate-300">{status?.institutions?.[0] ?? "No institution linked yet"}</p>
+            <p className="mt-2 text-sm text-slate-300">{primaryInstitution}</p>
           </div>
           <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Last ledger sync</p>
@@ -467,14 +566,18 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
           </div>
           <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Imported accounts</p>
-            <p className="mt-3 text-3xl font-semibold text-white">{loadingStatus ? "-" : status?.linkedAccounts ?? 0}</p>
+            <p className="mt-3 text-3xl font-semibold text-white">
+              {loadingDetails ? "..." : accounts.length || status?.linkedAccounts || 0}
+            </p>
             <p className="mt-2 text-sm text-slate-300">
               {loadingStatus ? "Loading..." : `${status?.connectedItems ?? 0} linked institution${(status?.connectedItems ?? 0) === 1 ? "" : "s"}`}
             </p>
           </div>
           <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Imported transactions</p>
-            <p className="mt-3 text-3xl font-semibold text-white">{loadingStatus ? "-" : status?.importedTransactions ?? 0}</p>
+            <p className="mt-3 text-3xl font-semibold text-white">
+              {loadingDetails ? "..." : transactions.length || status?.importedTransactions || 0}
+            </p>
             <p className="mt-2 text-sm text-slate-300">Products: {productLabel}</p>
           </div>
         </div>
@@ -496,7 +599,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
             <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Institution list</p>
               <p className="mt-3 text-lg font-semibold text-slate-950">
-                {status?.institutions?.length ? status.institutions.join(", ") : "Reconnect to add institutions"}
+                {institutions.length ? institutions.map((entry) => entry.institutionName).join(", ") : "Reconnect to add institutions"}
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Keep each linked institution aligned with the current Plaid environment before you run syncs or transfers.
@@ -522,16 +625,133 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
             <div className="rounded-[20px] border border-slate-200 bg-[linear-gradient(135deg,#f8fbff_0%,#eef5ff_100%)] p-4">
               <p className="text-sm font-semibold text-slate-950">Production environment</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Link tokens are now issued against Plaid production, so previously stored sandbox connections are reset automatically.
+                Link tokens are now issued against Plaid production, and stale sandbox records are cleared automatically if they conflict.
               </p>
             </div>
             <div className="rounded-[20px] border border-slate-200 bg-[linear-gradient(135deg,#fbfcfe_0%,#f4f7fb_100%)] p-4">
               <p className="text-sm font-semibold text-slate-950">Recommended flow</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Connect institution, complete Plaid Link, then run a sync to refresh balances and transaction history before enabling money movement steps.
+                Connect institution, complete Plaid Link, then run a sync to refresh balances and historical activity before enabling downstream workflows.
               </p>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+        <div className="rounded-[28px] border border-slate-200 bg-white/90 p-5 shadow-[0_15px_45px_rgba(15,23,42,0.05)]">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Banking snapshot</p>
+              <h3 className="mt-2 text-xl font-semibold text-slate-950">Linked account balances</h3>
+            </div>
+            <div className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
+              {loadingDetails ? "Loading ledger" : `${accounts.length} account${accounts.length === 1 ? "" : "s"}`}
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div className="rounded-[22px] border border-slate-200 bg-[linear-gradient(135deg,#f8fbff_0%,#eef5ff_100%)] p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Total balance</p>
+              <p className="mt-3 text-3xl font-semibold text-slate-950">{loadingDetails ? "..." : formatCurrency(totalBalance)}</p>
+            </div>
+            <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Available cash</p>
+              <p className="mt-3 text-3xl font-semibold text-slate-950">{loadingDetails ? "..." : formatCurrency(availableBalance)}</p>
+            </div>
+            <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Primary item</p>
+              <p className="mt-3 text-lg font-semibold text-slate-950">{loadingDetails ? "..." : item?.institutionName ?? "No item linked"}</p>
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3">
+            {loadingDetails ? (
+              <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                Loading connected accounts...
+              </div>
+            ) : accounts.length > 0 ? (
+              accounts.map((account) => (
+                <div
+                  key={account.id}
+                  className="flex flex-wrap items-center justify-between gap-4 rounded-[22px] border border-slate-200 bg-white px-4 py-4"
+                >
+                  <div>
+                    <p className="text-base font-semibold text-slate-950">{account.name}</p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {account.institutionName} · {account.subtype.replace(/_/g, " ")} · •••• {account.mask}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-lg font-semibold text-slate-950">{formatCurrency(account.currentBalance)}</p>
+                    <p className="mt-1 text-sm text-slate-600">Available {formatCurrency(account.availableBalance)}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-[22px] border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-600">
+                Your institution is connected. Once account data is imported, linked balances will appear here automatically.
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-[28px] border border-slate-200 bg-white/90 p-5 shadow-[0_15px_45px_rgba(15,23,42,0.05)]">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Activity feed</p>
+              <h3 className="mt-2 text-xl font-semibold text-slate-950">Recent transactions</h3>
+            </div>
+            <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600">
+              {loadingDetails ? "Loading" : `${transactions.length} imported`}
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3">
+            {loadingDetails ? (
+              <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                Loading transaction activity...
+              </div>
+            ) : transactions.length > 0 ? (
+              transactions.slice(0, 8).map((transaction) => (
+                <div
+                  key={transaction.id}
+                  className="flex items-center justify-between gap-4 rounded-[22px] border border-slate-200 bg-white px-4 py-4"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-base font-semibold text-slate-950">{transaction.merchant}</p>
+                    <p className="mt-1 text-sm text-slate-600">
+                      {transaction.category} · {transaction.accountName} · {formatDate(transaction.date)}
+                    </p>
+                  </div>
+                  <div
+                    className={`shrink-0 text-right text-base font-semibold ${
+                      transaction.direction === "inflow" ? "text-emerald-700" : "text-slate-950"
+                    }`}
+                  >
+                    {transaction.direction === "inflow" ? "+" : "-"}
+                    {formatCurrency(transaction.amount)}
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-[22px] border border-dashed border-slate-300 bg-slate-50 p-5 text-sm leading-6 text-slate-600">
+                The bank connection is active, but transaction history has not populated yet. That usually means the institution
+                is still preparing historical data. Try <span className="font-semibold text-slate-950">Manual Sync</span> again in a minute.
+              </div>
+            )}
+          </div>
+
+          {item ? (
+            <div className="mt-4 rounded-[22px] border border-slate-200 bg-[linear-gradient(135deg,#fcfdff_0%,#f6f8fb_100%)] p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Link metadata</p>
+              <p className="mt-2 text-sm text-slate-700">
+                Item: <span className="font-semibold text-slate-950">{item.institutionName}</span> · Products:{" "}
+                <span className="font-semibold text-slate-950">{item.availableProducts.join(", ")}</span>
+              </p>
+              <p className="mt-1 text-sm text-slate-600">Access token status: {item.accessTokenStatus}</p>
+            </div>
+          ) : null}
         </div>
       </div>
 
