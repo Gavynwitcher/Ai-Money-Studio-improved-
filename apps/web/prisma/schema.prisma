@@ -39,6 +39,37 @@ model User {
   squareTransferRequests      SquareTransferRequest[]
 }
 
+model ContactInquiry {
+  id              String                @id @default(cuid())
+  name            String
+  email           String
+  emailNormalized String
+  company         String?
+  message         String
+  status          String                @default("received")
+  source          String                @default("contact_form")
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  notifications   ContactNotification[]
+
+  @@index([emailNormalized, createdAt])
+  @@index([status, createdAt])
+}
+
+model ContactNotification {
+  id             String         @id @default(cuid())
+  inquiryId      String
+  channel        String         @default("in_app")
+  title          String
+  message        String
+  sentAt         DateTime       @default(now())
+  acknowledgedAt DateTime?
+
+  inquiry ContactInquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
+
+  @@index([inquiryId, sentAt])
+}
+
 model MoneyCopilotProfile {
   id       String   @id @default(cuid())
   userId   String   @unique
