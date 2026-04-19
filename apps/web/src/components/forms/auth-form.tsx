@@ -2,17 +2,21 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 type AuthMode = "signin" | "signup" | "forgot" | "verify";
 
 export function AuthForm({ mode }: { mode: AuthMode }) {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
   const [status, setStatus] = useState<"idle" | "error" | "loading" | "success">("idle");
+  const [serverError, setServerError] = useState("");
 
   const error = useMemo(() => {
     if (mode !== "verify" && !/\S+@\S+\.\S+/.test(email)) return "Enter a valid email address.";
@@ -54,14 +58,72 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
       return;
     }
 
-    setStatus("loading");
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    setStatus("success");
+    try {
+      setStatus("loading");
+      setServerError("");
+      const callbackUrl =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("callbackUrl") || "/contact-inbox"
+          : "/contact-inbox";
+
+      if (mode === "signin") {
+        const result = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+          callbackUrl
+        });
+
+        if (!result?.ok) {
+          throw new Error("Email or password is incorrect.");
+        }
+
+        setStatus("success");
+        router.push(result.url || callbackUrl);
+        router.refresh();
+        return;
+      }
+
+      if (mode === "signup") {
+        const response = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ email, password, name })
+        });
+        const payload = (await response.json()) as { error?: string };
+        if (!response.ok) {
+          throw new Error(payload.error ?? "Failed to create account.");
+        }
+
+        const result = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+          callbackUrl
+        });
+        if (!result?.ok) {
+          throw new Error("Account created, but automatic sign-in failed.");
+        }
+
+        setStatus("success");
+        router.push(result.url || callbackUrl);
+        router.refresh();
+        return;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      setStatus("success");
+    } catch (submissionError) {
+      setStatus("error");
+      setServerError(submissionError instanceof Error ? submissionError.message : "Unable to complete the request.");
+    }
   }
 
   return (
     <Card className="mx-auto w-full max-w-xl rounded-[32px] p-8">
-      <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--teal)]">Frontend auth mock</p>
+      <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--teal)]">
+        {mode === "signin" || mode === "signup" ? "Secure account access" : "Frontend auth mock"}
+      </p>
       <h1 className="mt-4 font-heading text-4xl font-semibold tracking-[-0.05em] text-[var(--navy)]">
         {titles[mode].title}
       </h1>
@@ -116,9 +178,12 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
         ) : null}
 
         {status === "error" && error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
+        {serverError ? <p className="text-sm text-[var(--danger)]">{serverError}</p> : null}
         {status === "success" ? (
           <p className="rounded-2xl bg-[rgba(30,142,99,0.12)] px-4 py-3 text-sm text-[var(--success)]">
-            Demo state complete. In production, this form would call your auth provider and persist session state.
+            {mode === "signin" || mode === "signup"
+              ? "Success. Redirecting you to the protected workspace."
+              : "Demo state complete. In production, this form would call your auth provider and persist session state."}
           </p>
         ) : null}
 

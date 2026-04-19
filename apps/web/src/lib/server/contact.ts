@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getContactOwnerRecipient, sendContactOwnerAlert } from "@/lib/server/email";
 
 export type ContactSubmissionInput = {
   name: string;
@@ -25,6 +26,10 @@ export type ContactInquiryPayload = {
   message: string;
   status: string;
   createdAt: string;
+  ownerAlertEmail: string;
+  ownerAlertStatus: string;
+  ownerAlertSentAt: string | null;
+  ownerAlertError: string | null;
   notifications: ContactNotificationPayload[];
 };
 
@@ -74,6 +79,10 @@ function serializeInquiry(
     message: string;
     status: string;
     createdAt: Date;
+    ownerAlertEmail: string;
+    ownerAlertStatus: string;
+    ownerAlertSentAt: Date | null;
+    ownerAlertError: string | null;
     notifications: Array<{
       id: string;
       title: string;
@@ -93,6 +102,10 @@ function serializeInquiry(
     message: inquiry.message,
     status: inquiry.status,
     createdAt: inquiry.createdAt.toISOString(),
+    ownerAlertEmail: inquiry.ownerAlertEmail,
+    ownerAlertStatus: inquiry.ownerAlertStatus,
+    ownerAlertSentAt: inquiry.ownerAlertSentAt?.toISOString() ?? null,
+    ownerAlertError: inquiry.ownerAlertError ?? null,
     notifications: inquiry.notifications.map((notification) => ({
       id: notification.id,
       title: notification.title,
@@ -113,6 +126,7 @@ export async function createContactInquiry(input: ContactSubmissionInput) {
       emailNormalized: values.email,
       company: values.company,
       message: values.message,
+      ownerAlertEmail: getContactOwnerRecipient(),
       notifications: {
         create: {
           channel: "in_app",
@@ -128,7 +142,30 @@ export async function createContactInquiry(input: ContactSubmissionInput) {
     }
   });
 
-  return serializeInquiry(inquiry);
+  const ownerAlertResult = await sendContactOwnerAlert({
+    inquiryId: inquiry.id,
+    name: inquiry.name,
+    email: inquiry.email,
+    company: inquiry.company,
+    message: inquiry.message,
+    createdAt: inquiry.createdAt
+  });
+
+  const updatedInquiry = await prisma.contactInquiry.update({
+    where: { id: inquiry.id },
+    data: {
+      ownerAlertStatus: ownerAlertResult.status,
+      ownerAlertSentAt: ownerAlertResult.status === "sent" ? new Date() : null,
+      ownerAlertError: ownerAlertResult.error
+    },
+    include: {
+      notifications: {
+        orderBy: { sentAt: "desc" }
+      }
+    }
+  });
+
+  return serializeInquiry(updatedInquiry);
 }
 
 export async function getContactInquiriesByEmail(email: string) {
@@ -148,6 +185,20 @@ export async function getContactInquiriesByEmail(email: string) {
       }
     },
     take: 5
+  });
+
+  return inquiries.map(serializeInquiry);
+}
+
+export async function getContactInbox() {
+  const inquiries = await prisma.contactInquiry.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      notifications: {
+        orderBy: { sentAt: "desc" }
+      }
+    },
+    take: 100
   });
 
   return inquiries.map(serializeInquiry);

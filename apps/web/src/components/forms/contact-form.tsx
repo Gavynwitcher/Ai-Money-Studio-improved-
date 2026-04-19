@@ -31,6 +31,10 @@ type ContactInquiry = {
   message: string;
   status: string;
   createdAt: string;
+  ownerAlertEmail: string;
+  ownerAlertStatus: string;
+  ownerAlertSentAt: string | null;
+  ownerAlertError: string | null;
   notifications: ContactNotification[];
 };
 
@@ -182,7 +186,9 @@ export function ContactForm() {
         {serverError ? <p className="text-sm text-[var(--danger)]">{serverError}</p> : null}
         {status === "success" ? (
           <p className="rounded-2xl bg-[rgba(30,142,99,0.12)] px-4 py-3 text-sm text-[var(--success)]">
-            Message sent. A confirmation notification has been saved for this email, and the outreach status panel below will keep showing updates inside the app.
+            {inquiries[0]?.ownerAlertStatus === "sent"
+              ? `Message sent. We logged the inquiry and emailed the owner alert to ${inquiries[0].ownerAlertEmail}.`
+              : `Message sent. We logged the inquiry and queued the owner alert to ${inquiries[0]?.ownerAlertEmail ?? "sales@hibark.com"}.`}
           </p>
         ) : null}
 

@@ -48,6 +48,10 @@ model ContactInquiry {
   message         String
   status          String                @default("received")
   source          String                @default("contact_form")
+  ownerAlertEmail String                @default("sales@hibark.com")
+  ownerAlertStatus String               @default("queued")
+  ownerAlertSentAt DateTime?
+  ownerAlertError String?
   createdAt       DateTime              @default(now())
   updatedAt       DateTime              @updatedAt
   notifications   ContactNotification[]
