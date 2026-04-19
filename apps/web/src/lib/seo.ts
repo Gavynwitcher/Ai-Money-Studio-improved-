@@ -8,10 +8,10 @@ function normalizeUrl(value?: string | null) {
 }
 
 export const siteConfig = {
-  name: "Unified Banking Hub",
-  shortName: "Unified Banking Hub",
+  name: "Northline",
+  shortName: "Northline",
   description:
-    "Unified Banking Hub helps consumers and small businesses connect multiple bank accounts, track balances and transactions, and explore Plaid-powered money movement workflows in one place.",
+    "Northline helps consumers and small businesses connect multiple bank accounts, track balances and transactions, and explore Plaid-powered money movement workflows in one place.",
   siteUrl: normalizeUrl(process.env.NEXT_PUBLIC_SITE_URL ?? process.env.SITE_URL),
   ogImage: "/opengraph-image"
 };

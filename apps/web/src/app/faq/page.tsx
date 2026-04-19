@@ -8,7 +8,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   title: "FAQ for Multi-Bank Account Linking, Pricing, and Security",
   description:
-    "Read frequently asked questions about bank account linking, Plaid connectivity, security, pricing, and small business use cases for Unified Banking Hub.",
+    "Read frequently asked questions about bank account linking, Plaid connectivity, security, pricing, and small business use cases for Northline.",
   path: "/faq",
   keywords: [
     "Plaid FAQ",

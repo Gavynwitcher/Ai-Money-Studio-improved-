@@ -46,7 +46,7 @@ export async function createLinkToken() {
   // webhook, and redirect URI to initialize Plaid Link on the client.
   const response = await client.linkTokenCreate({
     user: { client_user_id: "demo-user-id" },
-    client_name: "Unified Banking Hub",
+    client_name: "Northline",
     country_codes: [CountryCode.Us],
     language: "en",
     products: [Products.Auth, Products.Transactions, Products.Transfer],
@@ -59,7 +59,7 @@ export async function createLinkToken() {
     expiration: response.data.expiration,
     environment: getPlaidEnvironment(),
     mockMode: false,
-    clientName: "Unified Banking Hub",
+    clientName: "Northline",
     products: ["auth", "transactions", "transfer"],
     countryCodes: ["US"]
   };

@@ -14,7 +14,7 @@ export default function TermsPage() {
         <Container>
           <Card className="rounded-[32px] space-y-6 text-sm leading-7 text-[var(--muted)]">
             <p>
-              Unified Banking Hub is provided on an as-available basis for demonstration, pilot, or subscription use subject to future service terms, pricing, and partner availability.
+              Northline is provided on an as-available basis for demonstration, pilot, or subscription use subject to future service terms, pricing, and partner availability.
             </p>
             <p>
               Users are responsible for providing accurate information during account linking, safeguarding their login credentials, and using the service only for lawful purposes.

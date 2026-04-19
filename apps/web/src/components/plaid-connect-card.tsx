@@ -512,7 +512,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-200">
               Securely connect one or many institutions, import balances and transaction history into a single workspace,
-              and keep your Unified Banking Hub profile aligned with the live Plaid environment.
+              and keep your Northline profile aligned with the live Plaid environment.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">

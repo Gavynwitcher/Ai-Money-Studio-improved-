@@ -7,7 +7,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   title: "Categorized Bank Transactions and Cash Flow Dashboard",
   description:
-    "View categorized bank transactions, search merchants, and understand cash flow across connected accounts in Unified Banking Hub.",
+    "View categorized bank transactions, search merchants, and understand cash flow across connected accounts in Northline.",
   path: "/transactions",
   keywords: [
     "categorized bank transactions",

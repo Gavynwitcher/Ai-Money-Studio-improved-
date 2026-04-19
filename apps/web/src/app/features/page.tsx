@@ -10,7 +10,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   title: "Bank Account Aggregation, Transfers, and Financial Wellness Features",
   description:
-    "Explore Unified Banking Hub features for multi-bank account aggregation, balance visibility, transaction summaries, transfer workflows, and future credit and debt support tools.",
+    "Explore Northline features for multi-bank account aggregation, balance visibility, transaction summaries, transfer workflows, and future credit and debt support tools.",
   path: "/features",
   keywords: [
     "bank account aggregation features",
@@ -26,7 +26,7 @@ export default function FeaturesPage() {
       <PageHero
         eyebrow="Platform features"
         title="Everything the MVP needs today, with a roadmap users can trust."
-        description="Unified Banking Hub is structured to validate account visibility, linked-institution management, transaction summaries, transfer workflow interest, and future demand for financial wellness tools."
+        description="Northline is structured to validate account visibility, linked-institution management, transaction summaries, transfer workflow interest, and future demand for financial wellness tools."
         primaryCta={{ href: "/dashboard-demo", label: "View dashboard demo" }}
         secondaryCta={{ href: "/pricing", label: "Explore pricing" }}
       />

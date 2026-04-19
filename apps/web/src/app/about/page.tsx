@@ -6,9 +6,9 @@ import { PageHero } from "@/components/ui/page-hero";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "About Unified Banking Hub",
+  title: "About Northline",
   description:
-    "Learn why Unified Banking Hub was created to simplify multi-bank account management for consumers and small business owners.",
+    "Learn why Northline was created to simplify multi-bank account management for consumers and small business owners.",
   path: "/about",
   keywords: [
     "about unified banking hub",
@@ -22,7 +22,7 @@ export default function AboutPage() {
     <>
       <PageHero
         eyebrow="About"
-        title="Why Unified Banking Hub exists."
+        title="Why Northline exists."
         description="The product is built around a simple observation: smaller businesses and everyday users face multi-bank complexity too, but they are rarely the audience most finance software is optimized for."
         primaryCta={{ href: "/contact", label: "Talk to the team" }}
         secondaryCta={{ href: "/features", label: "See the roadmap" }}

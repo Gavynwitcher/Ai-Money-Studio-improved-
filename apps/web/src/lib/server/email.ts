@@ -35,7 +35,7 @@ export async function sendContactOwnerAlert(input: ContactOwnerAlertInput): Prom
   }
 
   const recipient = getOwnerRecipient();
-  const subject = `New Unified Banking Hub contact inquiry from ${input.name}`;
+  const subject = `New Northline contact inquiry from ${input.name}`;
   const submittedAt = new Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -47,7 +47,7 @@ export async function sendContactOwnerAlert(input: ContactOwnerAlertInput): Prom
   const html = `
     <div style="font-family: Arial, sans-serif; color: #0b1f33; line-height: 1.6;">
       <h2 style="margin-bottom: 12px;">New contact inquiry</h2>
-      <p style="margin: 0 0 16px;">A new request was submitted through Unified Banking Hub.</p>
+      <p style="margin: 0 0 16px;">A new request was submitted through Northline.</p>
       <table style="border-collapse: collapse; width: 100%; margin-bottom: 16px;">
         <tr><td style="padding: 8px 0; font-weight: 700;">Reference</td><td style="padding: 8px 0;">${input.inquiryId.slice(0, 8).toUpperCase()}</td></tr>
         <tr><td style="padding: 8px 0; font-weight: 700;">Name</td><td style="padding: 8px 0;">${input.name}</td></tr>

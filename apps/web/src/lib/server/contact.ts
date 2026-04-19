@@ -131,7 +131,7 @@ export async function createContactInquiry(input: ContactSubmissionInput) {
         create: {
           channel: "in_app",
           title: "We received your message",
-          message: `Thanks for reaching out to Unified Banking Hub. Your request is in our queue, and our team will follow up using ${values.email}.`
+          message: `Thanks for reaching out to Northline. Your request is in our queue, and our team will follow up using ${values.email}.`
         }
       }
     },

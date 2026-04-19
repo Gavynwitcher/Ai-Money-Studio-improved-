@@ -11,7 +11,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   title: "Pricing for Multi-Bank Account Aggregation and Plaid-Powered Banking Tools",
   description:
-    "Review pricing for Unified Banking Hub, including free and paid options for connected bank accounts, transaction visibility, and future transfer workflows.",
+    "Review pricing for Northline, including free and paid options for connected bank accounts, transaction visibility, and future transfer workflows.",
   path: "/pricing",
   keywords: [
     "bank account aggregation pricing",

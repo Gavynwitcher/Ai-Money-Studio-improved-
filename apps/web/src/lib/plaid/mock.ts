@@ -16,7 +16,7 @@ export async function createMockLinkToken(): Promise<LinkTokenResponse> {
     expiration: new Date(Date.now() + 1000 * 60 * 30).toISOString(),
     environment: "sandbox",
     mockMode: true,
-    clientName: "Unified Banking Hub",
+    clientName: "Northline",
     products: ["auth", "transactions", "transfer"],
     countryCodes: ["US"]
   };

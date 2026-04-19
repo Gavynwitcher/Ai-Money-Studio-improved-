@@ -20,7 +20,7 @@ const steps = [
 export const metadata: Metadata = buildMetadata({
   title: "Plaid Integration Demo for Bank Account Linking and Transaction Sync",
   description:
-    "See how Unified Banking Hub uses Plaid Link for bank account connection, public token exchange, account syncing, balance visibility, and transaction imports.",
+    "See how Northline uses Plaid Link for bank account connection, public token exchange, account syncing, balance visibility, and transaction imports.",
   path: "/plaid-integration",
   keywords: [
     "Plaid Link demo",

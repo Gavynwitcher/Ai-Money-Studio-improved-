@@ -9,7 +9,7 @@ const sections = [
   {
     title: "Data privacy overview",
     copy:
-      "Unified Banking Hub is positioned to collect only the information needed to deliver account visibility, transaction summaries, and approved transfer workflows, while relying on secure third-party connectivity for institution-level linking."
+      "Northline is positioned to collect only the information needed to deliver account visibility, transaction summaries, and approved transfer workflows, while relying on secure third-party connectivity for institution-level linking."
   },
   {
     title: "Plaid-powered secure connection",
@@ -31,7 +31,7 @@ const sections = [
 export const metadata: Metadata = buildMetadata({
   title: "Security, Privacy, and Compliance Positioning",
   description:
-    "Review Unified Banking Hub security messaging, Plaid-powered connectivity details, encryption expectations, and MVP compliance disclaimers.",
+    "Review Northline security messaging, Plaid-powered connectivity details, encryption expectations, and MVP compliance disclaimers.",
   path: "/security",
   keywords: [
     "banking app security",

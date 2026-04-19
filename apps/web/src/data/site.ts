@@ -3,9 +3,9 @@ import { featureFlags } from "@/lib/feature-flags";
 export const navigation = [
   { href: "/", label: "Home" },
   { href: "/features", label: "Features" },
-  { href: "/dashboard-demo", label: "Dashboard Demo" },
+  { href: "/dashboard-demo", label: "Dashboard" },
   { href: "/transactions", label: "Transactions" },
-  { href: "/plaid-integration", label: "Plaid Flow" },
+  { href: "/plaid-integration", label: "Connect" },
   { href: "/pricing", label: "Pricing" },
   { href: "/security", label: "Security" },
   { href: "/contact", label: "Contact" }
@@ -81,7 +81,7 @@ export const howItWorks = [
     step: "02",
     title: "See balances and transactions in one place",
     copy:
-      "Unified Banking Hub consolidates balances, account health, and transaction activity into one dashboard built for clarity."
+      "Northline consolidates balances, account health, and transaction activity into one dashboard built for clarity."
   },
   {
     step: "03",
@@ -233,7 +233,7 @@ export const faqs = [
   {
     question: "How does account linking work?",
     answer:
-      "Users launch a secure Plaid-powered connection flow, choose their financial institution, authenticate with that provider, and select which accounts to share with Unified Banking Hub."
+      "Users launch a secure Plaid-powered connection flow, choose their financial institution, authenticate with that provider, and select which accounts to share with Northline."
   },
   {
     question: "Can users move money between banks today?",
@@ -251,7 +251,7 @@ export const faqs = [
       "The product supports a free entry path, a monthly subscription for broader usage and premium insights, and a transfer-fee option for users who prefer pay-as-you-go access."
   },
   {
-    question: "Is Unified Banking Hub a bank?",
+    question: "Is Northline a bank?",
     answer:
       "No. The platform is positioned as a financial connectivity and money-management experience powered by secure third-party integrations. It does not replace a chartered bank."
   },
@@ -273,9 +273,10 @@ export const footerColumns = [
     title: "Platform",
     links: [
       { href: "/features", label: "Features" },
-      { href: "/dashboard-demo", label: "Dashboard Demo" },
+      { href: "/dashboard-demo", label: "Dashboard" },
       { href: "/transactions", label: "Transactions" },
-      { href: "/plaid-integration", label: "Plaid Integration" },
+      { href: "/plaid-integration", label: "Connect" },
+      { href: "/seller-reporting", label: "Seller Reports" },
       { href: "/pricing", label: "Pricing" }
     ]
   },

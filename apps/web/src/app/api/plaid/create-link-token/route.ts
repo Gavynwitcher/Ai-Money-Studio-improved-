@@ -28,7 +28,7 @@ export async function POST() {
       expiration: result.expiration,
       environment: process.env.PLAID_ENV || "sandbox",
       mockMode: false,
-      clientName: "Unified Banking Hub",
+      clientName: "Northline",
       products: config.products,
       countryCodes: ["US"]
     });

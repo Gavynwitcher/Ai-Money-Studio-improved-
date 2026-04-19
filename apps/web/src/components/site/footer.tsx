@@ -16,7 +16,7 @@ export function Footer() {
                 One place to see cash clearly.
               </h2>
               <p className="mt-4 max-w-md text-sm leading-7 text-slate-200">
-                Unified Banking Hub is a premium-feeling, cost-sensitive fintech MVP designed for
+                Northline is a premium-feeling, cost-sensitive fintech MVP designed for
                 consumers and small businesses managing money across multiple institutions.
               </p>
             </div>

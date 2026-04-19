@@ -44,11 +44,11 @@ export default function OpenGraphImage() {
               fontWeight: 700
             }}
           >
-            UH
+            NL
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontSize: "22px", letterSpacing: "0.24em", textTransform: "uppercase", color: "#8ec9cf" }}>
-              Unified Banking Hub
+              Northline
             </div>
             <div style={{ fontSize: "24px", color: "#d7e7ef" }}>Multi-bank visibility for consumers and small businesses</div>
           </div>

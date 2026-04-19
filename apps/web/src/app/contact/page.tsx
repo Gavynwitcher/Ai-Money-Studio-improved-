@@ -10,7 +10,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   title: "Contact, Waitlist, and Demo Requests",
   description:
-    "Contact Unified Banking Hub, join the waitlist, request a product demo, or express investor interest in the multi-bank banking platform.",
+    "Contact Northline, join the waitlist, request a product demo, or express investor interest in the multi-bank banking platform.",
   path: "/contact",
   keywords: [
     "banking app waitlist",
