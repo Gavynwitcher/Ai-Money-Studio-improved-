@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { PlaidConnectCard } from "@/components/plaid-connect-card";
 import { PlaidConnectFlow } from "@/components/plaid/plaid-connect-flow";
 import { Card } from "@/components/ui/card";
@@ -5,6 +6,7 @@ import { Container } from "@/components/ui/container";
 import { PageHero } from "@/components/ui/page-hero";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { getPlaidConfig, shouldUseMockPlaid } from "@/lib/plaid/config";
+import { buildMetadata } from "@/lib/seo";
 
 const steps = [
   "POST /link/token/create to create a short-lived link_token",
@@ -14,6 +16,19 @@ const steps = [
   "Store the Item and use access_token for /accounts/get and transaction calls",
   "Layer in transfer flows only when product, cost, and compliance are ready"
 ];
+
+export const metadata: Metadata = buildMetadata({
+  title: "Plaid Integration Demo for Bank Account Linking and Transaction Sync",
+  description:
+    "See how Unified Banking Hub uses Plaid Link for bank account connection, public token exchange, account syncing, balance visibility, and transaction imports.",
+  path: "/plaid-integration",
+  keywords: [
+    "Plaid Link demo",
+    "bank account linking with Plaid",
+    "Plaid transaction sync",
+    "Plaid integration example"
+  ]
+});
 
 export default function PlaidIntegrationPage() {
   const config = getPlaidConfig();

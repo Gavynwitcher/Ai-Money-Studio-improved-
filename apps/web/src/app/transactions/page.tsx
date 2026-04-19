@@ -1,6 +1,21 @@
+import type { Metadata } from "next";
 import { TransactionsWorkspace } from "@/components/transactions/transactions-workspace";
 import { Container } from "@/components/ui/container";
 import { PageHero } from "@/components/ui/page-hero";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Categorized Bank Transactions and Cash Flow Dashboard",
+  description:
+    "View categorized bank transactions, search merchants, and understand cash flow across connected accounts in Unified Banking Hub.",
+  path: "/transactions",
+  keywords: [
+    "categorized bank transactions",
+    "cash flow dashboard",
+    "transaction categorization app",
+    "bank ledger dashboard"
+  ]
+});
 
 export default function TransactionsPage() {
   return (

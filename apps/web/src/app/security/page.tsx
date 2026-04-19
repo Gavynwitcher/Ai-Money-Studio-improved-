@@ -1,7 +1,9 @@
+import type { Metadata } from "next";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { PageHero } from "@/components/ui/page-hero";
+import { buildMetadata } from "@/lib/seo";
 
 const sections = [
   {
@@ -25,6 +27,19 @@ const sections = [
       "The MVP intentionally avoids claiming regulated status, guaranteed approvals, or instant transfer capabilities. Advanced movement and regulated services may require additional reviews, approvals, partner configuration, and legal oversight."
   }
 ];
+
+export const metadata: Metadata = buildMetadata({
+  title: "Security, Privacy, and Compliance Positioning",
+  description:
+    "Review Unified Banking Hub security messaging, Plaid-powered connectivity details, encryption expectations, and MVP compliance disclaimers.",
+  path: "/security",
+  keywords: [
+    "banking app security",
+    "Plaid security",
+    "financial app compliance",
+    "bank account privacy"
+  ]
+});
 
 export default function SecurityPage() {
   return (

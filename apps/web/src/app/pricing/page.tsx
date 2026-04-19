@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -5,6 +6,20 @@ import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { PageHero } from "@/components/ui/page-hero";
 import { comparisonRows, pricingPlans } from "@/data/site";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Pricing for Multi-Bank Account Aggregation and Plaid-Powered Banking Tools",
+  description:
+    "Review pricing for Unified Banking Hub, including free and paid options for connected bank accounts, transaction visibility, and future transfer workflows.",
+  path: "/pricing",
+  keywords: [
+    "bank account aggregation pricing",
+    "plaid app pricing",
+    "small business banking software pricing",
+    "consumer banking dashboard pricing"
+  ]
+});
 
 export default function PricingPage() {
   return (

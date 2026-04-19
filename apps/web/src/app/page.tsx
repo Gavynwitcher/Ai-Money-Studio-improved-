@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { StatusChip } from "@/components/marketing/status-chip";
@@ -17,11 +18,32 @@ import {
   testimonials,
   trustPillars
 } from "@/data/site";
+import { buildMetadata, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { currency } from "@/lib/utils";
 
+export const metadata: Metadata = buildMetadata({
+  title: "Multi-Bank Account Dashboard for Consumers and Small Businesses",
+  description:
+    "Manage bank accounts from multiple institutions in one dashboard with Plaid-powered connectivity, transaction visibility, and transfer workflow previews.",
+  path: "/",
+  keywords: [
+    "multi bank account dashboard",
+    "plaid powered banking app",
+    "bank account aggregation for small business",
+    "consumer financial dashboard",
+    "bank transaction dashboard"
+  ]
+});
+
 export default function HomePage() {
+  const homeSchema = [organizationJsonLd(), websiteJsonLd()];
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeSchema) }}
+      />
       <section className="page-section overflow-hidden pt-16 sm:pt-20">
         <Container>
           <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">

@@ -1,11 +1,40 @@
+import type { Metadata } from "next";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { PageHero } from "@/components/ui/page-hero";
 import { faqs } from "@/data/site";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "FAQ for Multi-Bank Account Linking, Pricing, and Security",
+  description:
+    "Read frequently asked questions about bank account linking, Plaid connectivity, security, pricing, and small business use cases for Unified Banking Hub.",
+  path: "/faq",
+  keywords: [
+    "Plaid FAQ",
+    "bank account linking FAQ",
+    "bank aggregation software FAQ",
+    "small business banking app FAQ"
+  ]
+});
 
 export default function FaqPage() {
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer
+      }
+    }))
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
       <PageHero
         eyebrow="FAQ"
         title="Answers that help users evaluate the product quickly."

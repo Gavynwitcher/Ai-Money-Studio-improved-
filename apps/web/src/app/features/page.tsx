@@ -1,9 +1,24 @@
+import type { Metadata } from "next";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { StatusChip } from "@/components/marketing/status-chip";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { PageHero } from "@/components/ui/page-hero";
 import { featureCategories } from "@/data/site";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Bank Account Aggregation, Transfers, and Financial Wellness Features",
+  description:
+    "Explore Unified Banking Hub features for multi-bank account aggregation, balance visibility, transaction summaries, transfer workflows, and future credit and debt support tools.",
+  path: "/features",
+  keywords: [
+    "bank account aggregation features",
+    "plaid integration features",
+    "bank transfer workflow app",
+    "financial wellness tools"
+  ]
+});
 
 export default function FeaturesPage() {
   return (

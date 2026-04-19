@@ -1,9 +1,24 @@
+import type { Metadata } from "next";
 import { ContactForm } from "@/components/forms/contact-form";
 import { WaitlistForm } from "@/components/forms/waitlist-form";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { PageHero } from "@/components/ui/page-hero";
 import { faqs } from "@/data/site";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "Contact, Waitlist, and Demo Requests",
+  description:
+    "Contact Unified Banking Hub, join the waitlist, request a product demo, or express investor interest in the multi-bank banking platform.",
+  path: "/contact",
+  keywords: [
+    "banking app waitlist",
+    "request banking dashboard demo",
+    "contact fintech startup",
+    "investor demo fintech"
+  ]
+});
 
 export default function ContactPage() {
   return (

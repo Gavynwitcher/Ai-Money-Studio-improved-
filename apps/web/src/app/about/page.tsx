@@ -1,7 +1,21 @@
+import type { Metadata } from "next";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { PageHero } from "@/components/ui/page-hero";
+import { buildMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  title: "About Unified Banking Hub",
+  description:
+    "Learn why Unified Banking Hub was created to simplify multi-bank account management for consumers and small business owners.",
+  path: "/about",
+  keywords: [
+    "about unified banking hub",
+    "multi bank management platform",
+    "small business banking visibility"
+  ]
+});
 
 export default function AboutPage() {
   return (
