@@ -5,7 +5,9 @@ export const navigation = [
   { href: "/features", label: "Features" },
   { href: "/dashboard-demo", label: "Dashboard" },
   { href: "/transactions", label: "Transactions" },
+  { href: "/accounting", label: "Accounting" },
   { href: "/plaid-integration", label: "Connect" },
+  { href: "/credit", label: "Credit" },
   { href: "/pricing", label: "Pricing" },
   { href: "/security", label: "Security" },
   { href: "/contact", label: "Contact" }
@@ -39,6 +41,13 @@ export const featureCategories = [
     description:
       "Provide a compliant, guided workflow for moving funds between approved linked accounts as capabilities mature.",
     bullets: ["Transfer initiation flow", "Fee visibility", "Transfer status timeline"]
+  },
+  {
+    title: "Accounting workspace",
+    status: featureFlags.transactions,
+    description:
+      "Operate a clean set of books with chart of accounts visibility, journal review, receivables, payables, and reconciliation work tied to linked bank data.",
+    bullets: ["Chart of accounts", "Accounts receivable and payable", "Reconciliation queue"]
   },
   {
     title: "Debt assistance tools",
@@ -156,6 +165,7 @@ export const testimonials = [
 
 export const pricingPlans = [
   {
+    key: "starter",
     name: "Starter",
     price: "$0",
     subtitle: "Free trial for early users validating account visibility",
@@ -169,6 +179,7 @@ export const pricingPlans = [
     ]
   },
   {
+    key: "hub_plus",
     name: "Hub Plus",
     price: "$19/mo",
     subtitle: "Premium plan for multi-account households and small businesses",
@@ -182,6 +193,7 @@ export const pricingPlans = [
     ]
   },
   {
+    key: "transfer_flex",
     name: "Transfer Flex",
     price: "From $2",
     subtitle: "Pay-as-you-go path for users who want transfer access without a full subscription",
@@ -195,6 +207,8 @@ export const pricingPlans = [
     ]
   }
 ];
+
+export type PricingPlan = (typeof pricingPlans)[number];
 
 export const comparisonRows = [
   {
@@ -275,8 +289,9 @@ export const footerColumns = [
       { href: "/features", label: "Features" },
       { href: "/dashboard-demo", label: "Dashboard" },
       { href: "/transactions", label: "Transactions" },
+      { href: "/accounting", label: "Accounting" },
       { href: "/plaid-integration", label: "Connect" },
-      { href: "/seller-reporting", label: "Seller Reports" },
+      { href: "/credit", label: "Credit" },
       { href: "/pricing", label: "Pricing" }
     ]
   },

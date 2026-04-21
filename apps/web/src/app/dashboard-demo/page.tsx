@@ -1,5 +1,9 @@
+import { Suspense } from "react";
 import { CtaBanner } from "@/components/marketing/cta-banner";
 import { DashboardWidgets } from "@/components/dashboard/dashboard-widgets";
+import { StripePlatformStatusPanel } from "@/components/stripe/stripe-platform-status-panel";
+import { StripeConnectWorkspace } from "@/components/stripe/stripe-connect-workspace";
+import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { PageHero } from "@/components/ui/page-hero";
 
@@ -17,6 +21,28 @@ export default function DashboardDemoPage() {
       <section className="page-section pt-0">
         <Container>
           <DashboardWidgets />
+        </Container>
+      </section>
+
+      <section className="page-section pt-0">
+        <Container>
+          <StripePlatformStatusPanel />
+        </Container>
+      </section>
+
+      <section className="page-section pt-0">
+        <Container>
+          <Suspense
+            fallback={
+              <Card className="rounded-[32px]">
+                <p className="text-sm font-medium text-[var(--muted)]">
+                  Loading Stripe Connect workspace...
+                </p>
+              </Card>
+            }
+          >
+            <StripeConnectWorkspace />
+          </Suspense>
         </Container>
       </section>
 

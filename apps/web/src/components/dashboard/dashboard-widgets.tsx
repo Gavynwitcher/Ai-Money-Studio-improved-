@@ -1,15 +1,16 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CategoryChart } from "@/components/charts/category-chart";
 import { CashFlowChart } from "@/components/charts/cash-flow-chart";
+import { StripeTransferWorkspace } from "@/components/stripe/stripe-transfer-workspace";
 import {
   accounts,
   alerts,
   creditSnapshot,
   debtProgress,
   institutions,
-  transactions,
-  transfers
+  transactions
 } from "@/data/mock-finance";
 import { currency, percentage } from "@/lib/utils";
 
@@ -112,25 +113,14 @@ export function DashboardWidgets() {
         <div className="mt-6">
           <CashFlowChart />
         </div>
-      </Card>
-
-      <Card className="lg:col-span-3">
-        <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">Transfer panel</h3>
-        <p className="mt-2 text-sm text-[var(--muted)]">
-          Guided movement between approved linked institutions with transparent review.
-        </p>
-        <div className="bank-panel-muted mt-5 rounded-[24px] p-4">
-          <p className="text-sm text-[var(--muted)]">Ready for review</p>
-          <p className="mt-2 font-semibold text-[var(--navy)]">
-            {currency(transfers[0].amount)} from Reserve to Operating
-          </p>
-          <div className="mt-4 space-y-2 text-sm text-[var(--muted)]">
-            <p>Transfer fee: {currency(transfers[0].fee)}</p>
-            <p>Status: {transfers[0].status}</p>
-            <p>ETA: {transfers[0].eta}</p>
-          </div>
+        <div className="mt-5">
+          <Button href="/accounting" variant="secondary">
+            Open accounting desk
+          </Button>
         </div>
       </Card>
+
+      <StripeTransferWorkspace />
 
       <Card className="lg:col-span-6">
         <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">Recent transactions</h3>
@@ -171,6 +161,11 @@ export function DashboardWidgets() {
         <div className="mt-5 space-y-3 text-sm text-[var(--muted)]">
           <p>Utilization: {creditSnapshot.utilization}</p>
           <p>{creditSnapshot.nextBestAction}</p>
+        </div>
+        <div className="mt-5">
+          <Button href="/credit" variant="secondary">
+            Open credit workspace
+          </Button>
         </div>
       </Card>
 

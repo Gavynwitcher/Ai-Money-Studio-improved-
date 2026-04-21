@@ -12,9 +12,15 @@ model User {
   email                       String                            @unique
   name                        String?
   passwordHash                String
+  stripeCustomerId            String?                           @unique
+  stripeConnectedAccounts     StripeConnectedAccount[]
+  billingPlan                 String                            @default("starter")
+  billingStatus               String                            @default("inactive")
   createdAt                   DateTime                          @default(now())
   updatedAt                   DateTime                          @updatedAt
   ruleSettings                RuleSettings?
+  billingSubscriptions        BillingSubscription[]
+  billingEvents               BillingEvent[]
   strategies                  StrategyTemplate[]
   backtestRuns                BacktestRun[]
   candidateTrades             CandidateTrade[]
@@ -30,6 +36,15 @@ model User {
   moneyCopilotRecurringSeries MoneyCopilotRecurringSeries[]
   moneyCopilotSafeToSpend     MoneyCopilotSafeToSpendSnapshot[]
   plaidItems                  PlaidItem[]
+  creditConsents              CreditConsent[]
+  creditProfiles              CreditProfile[]
+  creditReportSnapshots       CreditReportSnapshot[]
+  creditAlerts                CreditAlert[]
+  accountingAccounts          AccountingAccount[]
+  accountingJournalEntries    AccountingJournalEntry[]
+  accountingInvoices          AccountingInvoice[]
+  accountingBills             AccountingBill[]
+  accountingReconciliations   AccountingReconciliationItem[]
   squareConnections           SquareConnection[]
   squareLocations             SquareLocation[]
   squareBankAccounts          SquareBankAccount[]
@@ -60,6 +75,72 @@ model ContactInquiry {
   @@index([status, createdAt])
 }
 
+model BillingSubscription {
+  id                  String   @id @default(cuid())
+  userId              String
+  provider            String   @default("stripe")
+  stripeCustomerId    String
+  stripeSubscriptionId String  @unique
+  stripePriceId       String?
+  planKey             String
+  status              String
+  cancelAtPeriodEnd   Boolean  @default(false)
+  currentPeriodStart  DateTime?
+  currentPeriodEnd    DateTime?
+  trialEnd            DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status, updatedAt])
+  @@index([stripeCustomerId, updatedAt])
+}
+
+model BillingEvent {
+  id              String   @id @default(cuid())
+  userId          String?
+  provider        String   @default("stripe")
+  providerEventId String   @unique
+  eventType       String
+  payloadJson     String
+  processedAt     DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, processedAt])
+  @@index([eventType, processedAt])
+}
+
+model StripeConnectedAccount {
+  id                          String   @id @default(cuid())
+  userId                      String
+  stripeAccountId             String   @unique
+  email                       String?
+  country                     String?  @default("US")
+  accountType                 String   @default("express")
+  onboardingStatus            String   @default("created")
+  detailsSubmitted            Boolean  @default(false)
+  chargesEnabled              Boolean  @default(false)
+  payoutsEnabled              Boolean  @default(false)
+  cardPaymentsRequested       Boolean  @default(true)
+  transfersRequested          Boolean  @default(true)
+  treasuryRequested           Boolean  @default(false)
+  currentlyDueCount           Int      @default(0)
+  eventuallyDueCount          Int      @default(0)
+  pendingVerificationCount    Int      @default(0)
+  disabledReason              String?
+  lastAccountLinkCreatedAt    DateTime?
+  lastSyncedAt                DateTime?
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, updatedAt])
+  @@index([onboardingStatus, updatedAt])
+}
+
 model ContactNotification {
   id             String         @id @default(cuid())
   inquiryId      String
@@ -72,6 +153,193 @@ model ContactNotification {
   inquiry ContactInquiry @relation(fields: [inquiryId], references: [id], onDelete: Cascade)
 
   @@index([inquiryId, sentAt])
+}
+
+model CreditConsent {
+  id                 String   @id @default(cuid())
+  userId             String
+  provider           String
+  monitoringEnabled  Boolean  @default(false)
+  reportsEnabled     Boolean  @default(false)
+  scoreAccessEnabled Boolean  @default(false)
+  permissiblePurpose String   @default("consumer_direct_access")
+  consentVersion     String   @default("v1")
+  consentIp          String?
+  consentedAt        DateTime @default(now())
+  revokedAt          DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+  @@index([provider, monitoringEnabled])
+}
+
+model CreditProfile {
+  id                    String   @id @default(cuid())
+  userId                String
+  provider              String
+  bureauScope           String   @default("single_bureau")
+  monitoringStatus      String   @default("inactive")
+  scoreModel            String?
+  scoreValue            Int?
+  scoreBand             String?
+  scoreDelta            Int      @default(0)
+  utilizationPct        Float?
+  totalOpenAccounts     Int?
+  averageAccountAgeMo   Int?
+  hardInquiries         Int?
+  derogatoryAccounts    Int?
+  alertsLast30Days      Int      @default(0)
+  reportRefreshedAt     DateTime?
+  nextRefreshAt         DateTime?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+  @@index([monitoringStatus, updatedAt])
+}
+
+model CreditReportSnapshot {
+  id                    String   @id @default(cuid())
+  userId                String
+  provider              String
+  reportType            String   @default("summary")
+  bureau                String   @default("equifax")
+  reportDate            DateTime @default(now())
+  scoreValue            Int?
+  scoreModel            String?
+  summaryJson           String
+  factorsJson           String
+  disputesUrl           String?
+  providerReferenceId   String?
+  createdAt             DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, reportDate])
+  @@index([provider, bureau, reportDate])
+}
+
+model CreditAlert {
+  id                  String   @id @default(cuid())
+  userId              String
+  provider            String
+  bureau              String   @default("equifax")
+  alertType           String
+  severity            String   @default("info")
+  title               String
+  description         String
+  occurredAt          DateTime
+  acknowledgedAt      DateTime?
+  metadataJson        String?
+  providerReferenceId String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, occurredAt])
+  @@index([severity, occurredAt])
+}
+
+model AccountingAccount {
+  id             String   @id @default(cuid())
+  userId         String
+  code           String
+  name           String
+  category       String
+  subtype        String
+  balance        Float
+  direction      String   @default("debit")
+  status         String   @default("active")
+  institutionRef String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, code])
+  @@index([userId, category])
+}
+
+model AccountingJournalEntry {
+  id               String   @id @default(cuid())
+  userId           String
+  entryDate        DateTime
+  reference        String
+  memo             String
+  debitAccountCode String
+  creditAccountCode String
+  amount           Float
+  source           String   @default("manual")
+  status           String   @default("posted")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, entryDate])
+  @@index([userId, status])
+}
+
+model AccountingInvoice {
+  id            String   @id @default(cuid())
+  userId        String
+  invoiceNumber String
+  customerName  String
+  issueDate     DateTime
+  dueDate       DateTime
+  amount        Float
+  amountPaid    Float    @default(0)
+  status        String   @default("open")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, invoiceNumber])
+  @@index([userId, status, dueDate])
+}
+
+model AccountingBill {
+  id          String   @id @default(cuid())
+  userId      String
+  vendorName  String
+  billNumber  String
+  issueDate   DateTime
+  dueDate     DateTime
+  amount      Float
+  amountPaid  Float    @default(0)
+  status      String   @default("open")
+  expenseCode String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, billNumber])
+  @@index([userId, status, dueDate])
+}
+
+model AccountingReconciliationItem {
+  id                 String   @id @default(cuid())
+  userId             String
+  source             String
+  statementDate      DateTime
+  description        String
+  amount             Float
+  status             String   @default("needs_review")
+  suggestedAccountCode String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status, statementDate])
 }
 
 model MoneyCopilotProfile {

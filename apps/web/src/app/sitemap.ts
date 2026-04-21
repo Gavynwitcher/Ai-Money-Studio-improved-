@@ -4,7 +4,9 @@ import { absoluteUrl } from "@/lib/seo";
 const routes = [
   "/",
   "/about",
+  "/accounting",
   "/contact",
+  "/credit",
   "/dashboard-demo",
   "/faq",
   "/features",
@@ -24,6 +26,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     url: absoluteUrl(route),
     lastModified: now,
     changeFrequency: route === "/" ? "weekly" : "monthly",
-    priority: route === "/" ? 1 : route === "/pricing" || route === "/features" || route === "/plaid-integration" ? 0.8 : 0.6
+    priority:
+      route === "/"
+        ? 1
+        : route === "/pricing" || route === "/features" || route === "/plaid-integration"
+          ? 0.8
+          : 0.6
   }));
 }

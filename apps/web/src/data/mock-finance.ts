@@ -103,7 +103,7 @@ export const transactions: Transaction[] = [
   },
   {
     id: "txn_3",
-    merchant: "AWS",
+    merchant: "Microsoft 365",
     category: "Software",
     amount: -682,
     accountName: "Reserve",

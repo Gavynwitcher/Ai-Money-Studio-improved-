@@ -48,18 +48,18 @@ export default function HomePage() {
         <Container>
           <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <div className="reveal">
-              <Badge tone="gold">Affordable alternative to enterprise treasury tools</Badge>
+              <Badge tone="gold">Affordable alternative to enterprise treasury and bookkeeping stacks</Badge>
               <h1 className="mt-6 max-w-3xl font-heading text-5xl font-semibold tracking-[-0.06em] text-[var(--ink)] sm:text-6xl lg:text-7xl">
-                Manage all your bank accounts in one place.
+                Run banking, books, and cash visibility from one place.
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--muted)]">
-                Connect accounts across institutions, monitor balances and transactions, and
+                Connect accounts across institutions, monitor balances and transactions, review accounting workflows, and
                 simplify transfers with an affordable platform built for consumers and small business owners.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
                 <Button href="/plaid-integration">Connect your bank</Button>
-                <Button href="/dashboard-demo" variant="secondary">
-                  Explore the dashboard
+                <Button href="/accounting" variant="secondary">
+                  Explore accounting
                 </Button>
               </div>
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
@@ -69,7 +69,7 @@ export default function HomePage() {
                 </div>
                 <div className="bank-stat rounded-[24px] p-4">
                   <p className="text-sm uppercase tracking-[0.16em] text-[var(--muted)]">Core MVP scope</p>
-                  <p className="mt-2 text-2xl font-semibold text-[var(--navy)]">Aggregation + transfers</p>
+                  <p className="mt-2 text-2xl font-semibold text-[var(--navy)]">Banking + accounting</p>
                 </div>
                 <div className="bank-stat rounded-[24px] p-4">
                   <p className="text-sm uppercase tracking-[0.16em] text-[var(--muted)]">Pricing posture</p>
@@ -95,20 +95,20 @@ export default function HomePage() {
                       <p className="mt-2 font-semibold">1 in review</p>
                     </div>
                     <div className="bank-stat-dark rounded-[20px] p-3">
-                      <p className="text-cyan-100/80">Monitoring</p>
-                      <p className="mt-2 font-semibold">Credit soon</p>
+                      <p className="text-cyan-100/80">Books</p>
+                      <p className="mt-2 font-semibold">Close ready</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="bank-stat rounded-[26px] p-5 text-[var(--navy)]">
-                    <p className="text-sm font-semibold text-[var(--navy)]">Transfer workflow</p>
+                    <p className="text-sm font-semibold text-[var(--navy)]">Accounting workflow</p>
                     <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-                      Review routing, fee visibility, and status steps before initiating supported movement.
+                      Review receivables, payables, and reconciliation exceptions without leaving the banking workspace.
                     </p>
                     <div className="bank-panel-muted mt-4 rounded-[20px] p-4 text-sm text-[var(--navy)]">
-                      Reserve to Operating · {currency(2500)} · fee preview {currency(2)}
+                      AR aging · {currency(18640)} open · 3 items need action
                     </div>
                   </div>
                   <div className="bank-stat rounded-[26px] p-5 text-[var(--navy)]">

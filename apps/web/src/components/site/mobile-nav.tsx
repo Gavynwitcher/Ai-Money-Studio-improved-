@@ -14,14 +14,14 @@ export function MobileNav() {
         type="button"
         aria-expanded={open}
         aria-label="Toggle navigation"
-        className="rounded-full border border-[var(--line)] bg-white/80 px-4 py-2 text-sm font-semibold text-[var(--navy)]"
+        className="rounded-[16px] border border-[var(--line)] bg-white/88 px-4 py-2 text-sm font-semibold text-[var(--navy)] shadow-[0_8px_24px_rgba(8,23,41,0.04)]"
         onClick={() => setOpen((value) => !value)}
       >
         Menu
       </button>
       <div
         className={cn(
-          "absolute left-5 right-5 top-[calc(100%+0.75rem)] rounded-[24px] border border-[var(--line)] bg-white/95 p-4 shadow-[0_20px_60px_rgba(8,23,41,0.16)] transition",
+          "absolute left-5 right-5 top-[calc(100%+0.75rem)] rounded-[24px] border border-[var(--line)] bg-white/96 p-4 shadow-[0_20px_56px_rgba(8,23,41,0.14)] transition",
           open ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none -translate-y-3 opacity-0"
         )}
       >

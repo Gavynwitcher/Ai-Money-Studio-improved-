@@ -188,8 +188,8 @@
     "cardLiabilitiesTotal": 33257.07
   },
   "notes": [
-    "Expense candidate includes card purchases and Amazon fee outflows from selected sources.",
+    "Expense candidate includes card purchases and fee outflows from selected sources.",
     "Transfers are non-P&L movement and shown separately.",
-    "Amazon simple CSV excluded to avoid overlap with detailed custom report."
+    "Simple CSV imports are excluded to avoid overlap with the detailed reporting view."
   ]
 }

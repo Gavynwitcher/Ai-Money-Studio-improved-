@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { CtaBanner } from "@/components/marketing/cta-banner";
+import { PricingActions } from "@/components/billing/pricing-actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -7,6 +8,8 @@ import { Container } from "@/components/ui/container";
 import { PageHero } from "@/components/ui/page-hero";
 import { comparisonRows, pricingPlans } from "@/data/site";
 import { buildMetadata } from "@/lib/seo";
+import { getBillingOverview } from "@/lib/server/billing";
+import type { BillingPlanKey } from "@/lib/stripe/config";
 
 export const metadata: Metadata = buildMetadata({
   title: "Pricing for Multi-Bank Account Aggregation and Plaid-Powered Banking Tools",
@@ -21,7 +24,9 @@ export const metadata: Metadata = buildMetadata({
   ]
 });
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const billing = await getBillingOverview();
+
   return (
     <>
       <PageHero
@@ -34,10 +39,23 @@ export default function PricingPage() {
 
       <section className="page-section pt-0">
         <Container>
+          <div className="mb-5">
+            <PricingActions {...billing} />
+          </div>
+
+          {!billing.stripeConfigured ? (
+            <Card className="mb-5 rounded-[32px] border-amber-200 bg-amber-50">
+              <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Stripe still needs live credentials</h2>
+              <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
+                Add `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and the plan Price IDs in your environment before Stripe Checkout and the Billing Portal can go live.
+              </p>
+            </Card>
+          ) : null}
+
           <div className="grid gap-5 lg:grid-cols-3">
             {pricingPlans.map((plan) => (
               <Card
-                key={plan.name}
+                key={plan.key}
                 className={`rounded-[32px] ${plan.accent ? "bg-[var(--navy)] text-white" : ""}`}
               >
                 {plan.accent ? <Badge className="bg-white/15 text-white">Most flexible</Badge> : <Badge tone="teal">Launch plan</Badge>}
@@ -59,9 +77,19 @@ export default function PricingPage() {
                   ))}
                 </div>
                 <div className="mt-6">
-                  <Button href="/signup" variant={plan.accent ? "secondary" : "primary"}>
-                    {plan.cta}
-                  </Button>
+                  {plan.key === "starter" ? (
+                    <Button href={billing.authenticated ? "/dashboard-demo" : "/signup"} variant={plan.accent ? "secondary" : "primary"}>
+                      {billing.authenticated ? "Continue with Starter" : plan.cta}
+                    </Button>
+                  ) : (
+                    <div className={`rounded-[20px] border px-4 py-3 text-sm ${
+                      plan.accent ? "border-white/10 bg-white/10 text-white" : "border-[var(--line)] bg-slate-50 text-[var(--muted)]"
+                    }`}>
+                      {billing.checkoutReadyPlans.includes(plan.key as BillingPlanKey)
+                        ? "Use the live billing controls above to start Stripe Checkout."
+                        : "Add the corresponding Stripe Price ID to enable checkout for this plan."}
+                    </div>
+                  )}
                 </div>
               </Card>
             ))}
