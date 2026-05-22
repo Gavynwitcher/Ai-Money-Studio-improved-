@@ -21,7 +21,7 @@ export function SectionHeading({
         {title}
       </h2>
       {description ? <p className="mt-4 max-w-2xl text-base leading-7 text-[var(--muted)]">{description}</p> : null}
-      <div className="bank-divider mt-6" />
+      <div className="section-rule mt-6" />
     </div>
   );
 }

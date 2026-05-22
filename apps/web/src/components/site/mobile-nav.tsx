@@ -14,14 +14,14 @@ export function MobileNav() {
         type="button"
         aria-expanded={open}
         aria-label="Toggle navigation"
-        className="rounded-full border border-[var(--line)] bg-white/80 px-4 py-2 text-sm font-semibold text-[var(--navy)]"
+        className="nav-surface rounded-full px-4 py-2 text-sm font-semibold text-[var(--navy)]"
         onClick={() => setOpen((value) => !value)}
       >
         Menu
       </button>
       <div
         className={cn(
-          "absolute left-5 right-5 top-[calc(100%+0.75rem)] rounded-[24px] border border-[var(--line)] bg-white/95 p-4 shadow-[0_20px_60px_rgba(8,23,41,0.16)] transition",
+          "nav-surface absolute left-5 right-5 top-[calc(100%+0.75rem)] rounded-[24px] p-4 shadow-[0_20px_60px_rgba(8,23,41,0.12)] transition",
           open ? "pointer-events-auto translate-y-0 opacity-100" : "pointer-events-none -translate-y-3 opacity-0"
         )}
       >
@@ -41,7 +41,7 @@ export function MobileNav() {
             className="mt-2 rounded-full bg-[var(--navy)] px-4 py-3 text-center text-sm font-semibold text-white"
             onClick={() => setOpen(false)}
           >
-            Request access
+            Create account
           </Link>
         </div>
       </div>

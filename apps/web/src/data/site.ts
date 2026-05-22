@@ -1,14 +1,12 @@
 import { featureFlags } from "@/lib/feature-flags";
 
 export const navigation = [
-  { href: "/", label: "Home" },
-  { href: "/features", label: "Features" },
   { href: "/dashboard-demo", label: "Dashboard" },
   { href: "/transactions", label: "Transactions" },
   { href: "/plaid-integration", label: "Connect" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/security", label: "Security" },
-  { href: "/contact", label: "Contact" }
+  { href: "/security", label: "Trust" },
+  { href: "/contact", label: "Support" }
 ];
 
 export const featureCategories = [
@@ -111,7 +109,7 @@ export const trustPillars = [
   {
     title: "Transparent product staging",
     copy:
-      "Users can see what is available now, what is in the MVP, and what is planned, which helps investors and testers evaluate the roadmap honestly."
+      "Users can see what is available now, what is planned, and where approval-dependent features still require additional operational readiness."
   }
 ];
 
@@ -142,7 +140,7 @@ export const testimonials = [
   },
   {
     quote:
-      "The dashboard makes it obvious where our balances sit and which accounts need attention. It’s polished enough for investor demos and early pilots.",
+      "The dashboard makes it obvious where our balances sit and which accounts need attention. It feels structured enough to use as a real operating surface.",
     name: "Andre Lewis",
     role: "Founder, Northfield Services"
   },
@@ -150,7 +148,7 @@ export const testimonials = [
     quote:
       "I want one place for my household accounts and future credit tools. The flow is simple and the language doesn’t feel intimidating.",
     name: "Leah Patel",
-    role: "Consumer beta waitlist"
+    role: "Consumer user"
   }
 ];
 
@@ -158,27 +156,27 @@ export const pricingPlans = [
   {
     name: "Starter",
     price: "$0",
-    subtitle: "Free trial for early users validating account visibility",
+    subtitle: "Entry plan for users who want linked-account visibility and a clean daily workspace",
     cta: "Start free",
     accent: false,
     bullets: [
       "Up to 2 connected institutions",
       "Unified balances dashboard",
       "Basic transaction feed",
-      "Waitlist access for transfer features"
+      "Access to connected cash and activity views"
     ]
   },
   {
-    name: "Hub Plus",
+    name: "Northline Plus",
     price: "$19/mo",
     subtitle: "Premium plan for multi-account households and small businesses",
-    cta: "Choose Hub Plus",
+    cta: "Choose Northline Plus",
     accent: true,
     bullets: [
       "Unlimited connected institutions",
       "Cash flow summaries and alerts",
       "Priority support and onboarding analytics",
-      "Early access to money movement workflows"
+      "Expanded workspace access as transfer rails mature"
     ]
   },
   {
@@ -217,8 +215,8 @@ export const comparisonRows = [
   },
   {
     label: "Transfer initiation",
-    starter: "Waitlist",
-    plus: "Priority access",
+    starter: "Planned",
+    plus: "Expanded access",
     flex: "Per transfer"
   },
   {
@@ -248,7 +246,7 @@ export const faqs = [
   {
     question: "How does pricing work?",
     answer:
-      "The product supports a free entry path, a monthly subscription for broader usage and premium insights, and a transfer-fee option for users who prefer pay-as-you-go access."
+      "The product supports a free entry path, a monthly subscription for broader usage and premium insights, and a transfer-fee option for users who prefer pay-as-you-go access when supported."
   },
   {
     question: "Is Northline a bank?",
@@ -272,11 +270,11 @@ export const footerColumns = [
   {
     title: "Platform",
     links: [
+      { href: "/", label: "Overview" },
       { href: "/features", label: "Features" },
       { href: "/dashboard-demo", label: "Dashboard" },
       { href: "/transactions", label: "Transactions" },
       { href: "/plaid-integration", label: "Connect" },
-      { href: "/seller-reporting", label: "Seller Reports" },
       { href: "/pricing", label: "Pricing" }
     ]
   },

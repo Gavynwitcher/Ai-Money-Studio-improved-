@@ -188,6 +188,10 @@ function coverageLabel(status: PlaidStatusPayload | null) {
   return `${formatDate(status.coverageStart)} to ${formatDate(status.coverageEnd)}`;
 }
 
+function pluralize(count: number, singular: string, plural?: string) {
+  return `${count} ${count === 1 ? singular : plural ?? `${singular}s`}`;
+}
+
 type Props = {
   onLinked?: () => void;
   onStatusChange?: (status: PlaidStatusPayload | null) => void;
@@ -465,8 +469,13 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
 
   const modeLabel = status?.environment ? status.environment.toUpperCase() : "LIVE";
   const productLabel = status?.products?.length ? status.products.join(", ") : "transactions";
-  const treasuryTone = status?.connected ? "bg-emerald-500" : "bg-amber-500";
-  const connectionLabel = loadingStatus ? "Loading..." : status?.connected ? "Treasury rail active" : "Awaiting connection";
+  const connectionLabel = loadingStatus
+    ? "Loading..."
+    : !status?.connected
+      ? "Ready to connect"
+      : (status.importedTransactions ?? 0) > 0
+        ? "Accounts connected"
+        : "Syncing activity";
   const syncLabel = loadingStatus ? "-" : formatRelativeTimestamp(status?.lastSyncedAt ?? null);
   const totalBalance = accounts.reduce((sum, account) => sum + account.currentBalance, 0);
   const availableBalance = accounts.reduce((sum, account) => sum + account.availableBalance, 0);
@@ -475,6 +484,39 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
   const canManageConnections =
     !loadingStatus && !launching && !syncing && !unlinking && Boolean(status?.configured);
   const addInstitutionLabel = connectedInstitutionCount === 0 ? "Connect first bank" : "Add another bank";
+  const transactionsImported = transactions.length || status?.importedTransactions || 0;
+  const linkedAccountCount = accounts.length || status?.linkedAccounts || 0;
+  const activeProducts = status?.products?.length ?? 0;
+  const connectionStage = !status?.connected ? 1 : transactionsImported > 0 ? 3 : 2;
+  const nextActionLabel = !status?.connected
+    ? "Connect your first institution to begin importing balances and activity."
+    : transactionsImported > 0
+      ? "Your connected institutions are live. Add another bank or refresh balances anytime."
+      : "Your institution is linked. Run a sync to pull balances and historical activity into Northline.";
+  const actionPills = [
+    {
+      step: "01",
+      label: "Link bank",
+      detail:
+        connectedInstitutionCount > 0
+          ? `${pluralize(connectedInstitutionCount, "institution")} connected`
+          : "Start a new Plaid Link session"
+    },
+    {
+      step: "02",
+      label: "Import balances",
+      detail:
+        linkedAccountCount > 0 ? `${pluralize(linkedAccountCount, "account")} imported` : "Bring in checking, savings, and credit lines"
+    },
+    {
+      step: "03",
+      label: "Review activity",
+      detail:
+        transactionsImported > 0
+          ? `${pluralize(transactionsImported, "transaction")} ready`
+          : "Historical transactions will appear after sync"
+    }
+  ];
 
   useEffect(() => {
     onControlsReady?.({
@@ -501,18 +543,18 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
           <div className="max-w-2xl">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-white/80">
-                Banking Connection Center
+                Bank Interconnectivity
               </span>
               <span className="rounded-full border border-emerald-400/20 bg-emerald-400/12 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-100">
                 {modeLabel}
               </span>
             </div>
             <h2 className={`mt-4 font-heading ${compact ? "text-3xl" : "text-4xl"} font-semibold tracking-[-0.05em]`}>
-              Treasury-grade account linking for your banking workspace
+              Connect institutions once and manage them from one banking workspace
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-200">
-              Securely connect one or many institutions, import balances and transaction history into a single workspace,
-              and keep your Northline profile aligned with the live Plaid environment.
+              Northline keeps account linking, balance imports, and transaction sync in one guided flow so moving from
+              first connection to multi-bank visibility feels fast and predictable.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -524,66 +566,85 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
             >
               {primaryAction.label}
             </button>
-            <button
-              type="button"
-              onClick={() => launchPlaid()}
-              disabled={!canManageConnections}
-              className="rounded-full border border-white/20 bg-white/8 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:text-white/40"
-            >
-              {launching ? "Opening Plaid..." : addInstitutionLabel}
-            </button>
+            {connectedInstitutionCount > 0 ? (
+              <button
+                type="button"
+                onClick={() => launchPlaid()}
+                disabled={!canManageConnections}
+                className="rounded-full border border-white/20 bg-white/8 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:text-white/40"
+              >
+                {launching ? "Opening Plaid..." : addInstitutionLabel}
+              </button>
+            ) : null}
             <button
               type="button"
               onClick={syncPlaidData}
-              disabled={
-                !canManageConnections || connectedInstitutionCount === 0
-              }
+              disabled={!canManageConnections || connectedInstitutionCount === 0}
               className="rounded-full border border-white/20 bg-white/8 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:text-white/40"
             >
-              {syncing ? "Syncing..." : "Manual Sync"}
-            </button>
-            <button
-              type="button"
-              onClick={unlinkPlaidData}
-              disabled={
-                !canManageConnections || connectedInstitutionCount === 0
-              }
-              className="rounded-full border border-rose-300/40 bg-transparent px-5 py-3 text-sm font-semibold text-rose-100 disabled:cursor-not-allowed disabled:text-rose-200/40"
-            >
-              {unlinking ? "Unlinking..." : "Unlink"}
+              {syncing ? "Syncing..." : "Refresh balances"}
             </button>
           </div>
         </div>
 
-        <div className="mt-6 grid gap-3 md:grid-cols-4">
+        <div className="mt-6 grid gap-3 lg:grid-cols-[1.15fr_0.85fr]">
           <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Connection rail</p>
-            <div className="mt-3 flex items-center gap-3">
-              <span className={`h-3 w-3 rounded-full ${treasuryTone}`} />
-              <p className="text-lg font-semibold text-white">{connectionLabel}</p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Connection status</p>
+                <p className="mt-3 text-2xl font-semibold text-white">{connectionLabel}</p>
+                <p className="mt-2 max-w-xl text-sm text-slate-300">{nextActionLabel}</p>
+              </div>
+              <div className="rounded-[20px] border border-white/12 bg-white/8 px-4 py-3 text-right">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Last sync</p>
+                <p className="mt-2 text-lg font-semibold text-white">{syncLabel}</p>
+                <p className="mt-1 text-xs text-slate-300">Coverage {loadingStatus ? "-" : coverageLabel(status)}</p>
+              </div>
             </div>
-            <p className="mt-2 text-sm text-slate-300">{primaryInstitution}</p>
+
+            <div className="mt-5 grid gap-3 md:grid-cols-3">
+              {actionPills.map((pill, index) => {
+                const active = connectionStage >= index + 1;
+                return (
+                  <div
+                    key={pill.step}
+                    className={`rounded-[22px] border p-4 ${
+                      active ? "border-emerald-300/35 bg-emerald-400/10" : "border-white/10 bg-white/6"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
+                          active ? "bg-emerald-300 text-slate-950" : "bg-white/10 text-white/70"
+                        }`}
+                      >
+                        {pill.step}
+                      </span>
+                      <p className="text-sm font-semibold text-white">{pill.label}</p>
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-slate-300">{pill.detail}</p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Last ledger sync</p>
-            <p className="mt-3 text-2xl font-semibold text-white">{syncLabel}</p>
-            <p className="mt-2 text-sm text-slate-300">Coverage {loadingStatus ? "-" : coverageLabel(status)}</p>
-          </div>
-          <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Imported accounts</p>
-            <p className="mt-3 text-3xl font-semibold text-white">
-              {loadingDetails ? "..." : accounts.length || status?.linkedAccounts || 0}
-            </p>
-            <p className="mt-2 text-sm text-slate-300">
-              {loadingStatus ? "Loading..." : `${status?.connectedItems ?? 0} linked institution${(status?.connectedItems ?? 0) === 1 ? "" : "s"}`}
-            </p>
-          </div>
-          <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Imported transactions</p>
-            <p className="mt-3 text-3xl font-semibold text-white">
-              {loadingDetails ? "..." : transactions.length || status?.importedTransactions || 0}
-            </p>
-            <p className="mt-2 text-sm text-slate-300">Products: {productLabel}</p>
+
+          <div className="grid gap-3 md:grid-cols-3 lg:grid-cols-1">
+            <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Institutions</p>
+              <p className="mt-3 text-3xl font-semibold text-white">{loadingStatus ? "..." : connectedInstitutionCount}</p>
+              <p className="mt-2 text-sm text-slate-300">{primaryInstitution}</p>
+            </div>
+            <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Linked accounts</p>
+              <p className="mt-3 text-3xl font-semibold text-white">{loadingDetails ? "..." : linkedAccountCount}</p>
+              <p className="mt-2 text-sm text-slate-300">Available cash {loadingDetails ? "..." : formatCurrency(availableBalance)}</p>
+            </div>
+            <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Activity imported</p>
+              <p className="mt-3 text-3xl font-semibold text-white">{loadingDetails ? "..." : transactionsImported}</p>
+              <p className="mt-2 text-sm text-slate-300">Products: {productLabel} · {activeProducts || 1} active</p>
+            </div>
           </div>
         </div>
       </div>
@@ -602,14 +663,31 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
 
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Institution list</p>
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Connected banks</p>
+                {connectedInstitutionCount > 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => launchPlaid()}
+                    disabled={!canManageConnections}
+                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 disabled:cursor-not-allowed disabled:text-slate-400"
+                  >
+                    {addInstitutionLabel}
+                  </button>
+                ) : null}
+              </div>
               {institutions.length ? (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {institutions.map((entry) => (
                     <span
                       key={entry.institutionId}
-                      className="rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950"
+                      className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-950"
                     >
+                      <span
+                        className={`h-2.5 w-2.5 rounded-full ${
+                          entry.status === "connected" ? "bg-emerald-500" : "bg-amber-500"
+                        }`}
+                      />
                       {entry.institutionName}
                     </span>
                   ))}
@@ -618,11 +696,11 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
                 <p className="mt-3 text-lg font-semibold text-slate-950">Use Plaid Link to connect your first institution</p>
               )}
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Each Plaid Link session can add another institution to this workspace without replacing the ones already linked.
+                Each Plaid Link session adds another institution without interrupting the banks that are already connected.
               </p>
             </div>
             <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Verification posture</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Connection health</p>
               <p className="mt-3 text-lg font-semibold text-slate-950">
                 Verified {status?.verifiedBankAccounts ?? 0} · Pending {status?.pendingBankAccounts ?? 0}
               </p>
@@ -630,28 +708,20 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
                 Tokenized accounts: {status?.tokenizedBankAccounts ?? 0}
                 {status?.authMethods?.length ? ` · Auth method: ${status.authMethods.join(", ")}` : ""}
               </p>
+              {connectedInstitutionCount > 0 ? (
+                <button
+                  type="button"
+                  onClick={unlinkPlaidData}
+                  disabled={!canManageConnections}
+                  className="mt-4 rounded-full border border-rose-200 bg-white px-3 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-rose-700 disabled:cursor-not-allowed disabled:text-rose-300"
+                >
+                  {unlinking ? "Unlinking..." : "Disconnect all"}
+                </button>
+              ) : null}
             </div>
           </div>
         </div>
 
-        <div className="rounded-[28px] border border-slate-200 bg-white/90 p-5 shadow-[0_15px_45px_rgba(15,23,42,0.05)]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Operating guidance</p>
-          <h3 className="mt-2 text-xl font-semibold text-slate-950">Connection controls</h3>
-          <div className="mt-4 grid gap-3">
-            <div className="rounded-[20px] border border-slate-200 bg-[linear-gradient(135deg,#f8fbff_0%,#eef5ff_100%)] p-4">
-              <p className="text-sm font-semibold text-slate-950">Production environment</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Link tokens are now issued against Plaid production, and stale sandbox records are cleared automatically if they conflict.
-              </p>
-            </div>
-            <div className="rounded-[20px] border border-slate-200 bg-[linear-gradient(135deg,#fbfcfe_0%,#f4f7fb_100%)] p-4">
-              <p className="text-sm font-semibold text-slate-950">Recommended flow</p>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Add one bank at a time through Plaid Link, then run a sync to refresh balances and historical activity across every linked institution before enabling downstream workflows.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
 
       <div className="mt-5 grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">

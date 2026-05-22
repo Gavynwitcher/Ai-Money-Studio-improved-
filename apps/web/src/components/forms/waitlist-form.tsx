@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 
 type WaitlistState = {
   email: string;
-  segment: "consumer" | "business" | "investor";
+  segment: "consumer" | "business" | "operator";
   connectedBanks: string;
   interest: string;
 };
@@ -21,7 +21,7 @@ export function WaitlistForm() {
   const [status, setStatus] = useState<"idle" | "error" | "loading" | "success">("idle");
 
   const error = useMemo(() => {
-    if (!/\S+@\S+\.\S+/.test(values.email)) return "Enter a valid email to join the waitlist.";
+    if (!/\S+@\S+\.\S+/.test(values.email)) return "Enter a valid email to save your setup profile.";
     return "";
   }, [values.email]);
 
@@ -40,9 +40,9 @@ export function WaitlistForm() {
   return (
     <Card className="rounded-[32px]">
       <div className="mb-6">
-        <h3 className="font-heading text-2xl font-semibold text-[var(--navy)]">Join the waitlist</h3>
+        <h3 className="font-heading text-2xl font-semibold text-[var(--navy)]">Save your setup profile</h3>
         <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-          Capture segment demand, pricing sensitivity, and multi-institution complexity from early users.
+          Tell Northline what kind of user you are, how many institutions you want to connect, and which workflows matter most.
         </p>
       </div>
 
@@ -72,7 +72,7 @@ export function WaitlistForm() {
             >
               <option value="consumer">Consumer</option>
               <option value="business">Small business owner</option>
-              <option value="investor">Investor or partner</option>
+              <option value="operator">Operator or finance lead</option>
             </select>
           </label>
 
@@ -112,13 +112,13 @@ export function WaitlistForm() {
         {status === "error" && error ? <p className="text-sm text-[var(--danger)]">{error}</p> : null}
         {status === "success" ? (
           <p className="rounded-2xl bg-[rgba(30,142,99,0.12)] px-4 py-3 text-sm text-[var(--success)]">
-            Waitlist entry saved. This payload is shaped to support segment, demand, and pricing analysis later.
+            Setup profile saved. The team can use this to understand account complexity, workflow needs, and support priorities.
           </p>
         ) : null}
 
         <div className="flex items-center gap-3">
-          <Button>{status === "loading" ? "Submitting..." : "Join waitlist"}</Button>
-          <p className="text-xs text-[var(--muted)]">Great for measuring CTA conversion and onboarding drop-off.</p>
+          <Button>{status === "loading" ? "Submitting..." : "Save profile"}</Button>
+          <p className="text-xs text-[var(--muted)]">Helpful for shaping onboarding, plan fit, and product support.</p>
         </div>
       </form>
     </Card>

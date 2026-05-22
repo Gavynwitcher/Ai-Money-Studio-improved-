@@ -11,7 +11,7 @@ export const metadata: Metadata = buildMetadata({
     "Learn why Northline was created to simplify multi-bank account management for consumers and small business owners.",
   path: "/about",
   keywords: [
-    "about unified banking hub",
+    "about northline",
     "multi bank management platform",
     "small business banking visibility"
   ]

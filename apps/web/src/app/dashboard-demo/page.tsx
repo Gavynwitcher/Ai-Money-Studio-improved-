@@ -11,7 +11,7 @@ export default function DashboardDemoPage() {
         title="A realistic product surface for balances, transactions, transfers, and future wellness tools."
         description="This page models the day-one customer experience: total balances, linked accounts, recent transactions, cash flow, transfer reviews, alerts, and staged credit and debt widgets."
         primaryCta={{ href: "/plaid-integration", label: "Try the Plaid demo flow" }}
-        secondaryCta={{ href: "/signup", label: "Join early access" }}
+        secondaryCta={{ href: "/signup", label: "Create account" }}
       />
 
       <section className="page-section pt-0">

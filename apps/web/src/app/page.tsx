@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CtaBanner } from "@/components/marketing/cta-banner";
 import { StatusChip } from "@/components/marketing/status-chip";
 import { DashboardWidgets } from "@/components/dashboard/dashboard-widgets";
 import { Badge } from "@/components/ui/badge";
@@ -44,12 +43,12 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(homeSchema) }}
       />
-      <section className="page-section overflow-hidden pt-16 sm:pt-20">
+      <section className="page-section overflow-hidden pt-14 sm:pt-18">
         <Container>
           <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
             <div className="reveal">
               <Badge tone="gold">Affordable alternative to enterprise treasury tools</Badge>
-              <h1 className="mt-6 max-w-3xl font-heading text-5xl font-semibold tracking-[-0.06em] text-[var(--ink)] sm:text-6xl lg:text-7xl">
+              <h1 className="mt-6 max-w-3xl font-heading text-5xl font-semibold tracking-[-0.06em] text-[var(--ink)] sm:text-6xl lg:text-[4.4rem]">
                 Manage all your bank accounts in one place.
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--muted)]">
@@ -63,26 +62,26 @@ export default function HomePage() {
                 </Button>
               </div>
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
-                <div className="bank-stat rounded-[24px] p-4">
+                <div className="bank-stat rounded-[22px] p-4">
                   <p className="text-sm uppercase tracking-[0.16em] text-[var(--muted)]">Target users</p>
                   <p className="mt-2 text-2xl font-semibold text-[var(--navy)]">Consumers + SMBs</p>
                 </div>
-                <div className="bank-stat rounded-[24px] p-4">
+                <div className="bank-stat rounded-[22px] p-4">
                   <p className="text-sm uppercase tracking-[0.16em] text-[var(--muted)]">Core MVP scope</p>
                   <p className="mt-2 text-2xl font-semibold text-[var(--navy)]">Aggregation + transfers</p>
                 </div>
-                <div className="bank-stat rounded-[24px] p-4">
+                <div className="bank-stat rounded-[22px] p-4">
                   <p className="text-sm uppercase tracking-[0.16em] text-[var(--muted)]">Pricing posture</p>
                   <p className="mt-2 text-2xl font-semibold text-[var(--navy)]">Premium feel, lower cost</p>
                 </div>
               </div>
             </div>
 
-            <div className="bank-shell reveal relative overflow-hidden rounded-[36px] p-5 text-white sm:p-6">
+            <div className="bank-shell reveal relative overflow-hidden rounded-[34px] p-5 text-white sm:p-6">
               <div className="hero-orb -left-2 top-14 h-24 w-24 bg-[rgba(25,106,117,0.18)]" />
               <div className="hero-orb right-6 top-6 h-20 w-20 bg-[rgba(200,164,90,0.16)]" />
               <div className="grid gap-5">
-                <div className="bank-stat-dark rounded-[30px] p-6 text-white">
+                <div className="bank-stat-dark rounded-[28px] p-6 text-white">
                   <p className="text-sm uppercase tracking-[0.24em] text-cyan-100/80">Unified balance</p>
                   <p className="mt-3 font-heading text-5xl font-semibold tracking-[-0.05em]">{currency(259370)}</p>
                   <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
@@ -102,16 +101,16 @@ export default function HomePage() {
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="bank-stat rounded-[26px] p-5 text-[var(--navy)]">
+                  <div className="bank-stat rounded-[24px] p-5 text-[var(--navy)]">
                     <p className="text-sm font-semibold text-[var(--navy)]">Transfer workflow</p>
                     <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
                       Review routing, fee visibility, and status steps before initiating supported movement.
                     </p>
-                    <div className="bank-panel-muted mt-4 rounded-[20px] p-4 text-sm text-[var(--navy)]">
+                    <div className="bank-panel-muted mt-4 rounded-[18px] p-4 text-sm text-[var(--navy)]">
                       Reserve to Operating · {currency(2500)} · fee preview {currency(2)}
                     </div>
                   </div>
-                  <div className="bank-stat rounded-[26px] p-5 text-[var(--navy)]">
+                  <div className="bank-stat rounded-[24px] p-5 text-[var(--navy)]">
                     <p className="text-sm font-semibold text-[var(--navy)]">Roadmap signals</p>
                     <div className="mt-4 space-y-3">
                       <StatusChip status="available-now" />
@@ -148,11 +147,11 @@ export default function HomePage() {
 
       <section className="page-section">
         <Container>
-          <SectionHeading
-            eyebrow="How it works"
-            title="A simple path from fragmented banking to one connected operating view."
-            description="The MVP is designed to validate whether users want one place to connect accounts, see balances, review transactions, and start money movement workflows."
-          />
+            <SectionHeading
+              eyebrow="How it works"
+              title="A simple path from fragmented banking to one connected operating view."
+              description="The platform is organized around a short, understandable flow: connect institutions, review cash and transactions, then move into the workflows that matter."
+            />
           <div className="mt-10 grid gap-4 lg:grid-cols-4">
             {howItWorks.map((item) => (
               <Card key={item.step} className="rounded-[28px]">
@@ -167,13 +166,13 @@ export default function HomePage() {
 
       <section className="page-section">
         <Container>
-          <SectionHeading
-            eyebrow="Feature preview"
-            title="Built for visibility first, then action."
-            description="The product roadmap is explicit about what’s live in the experience today and which wellness tools are planned for later releases."
-          />
+            <SectionHeading
+              eyebrow="Feature preview"
+              title="Built for visibility first, then action."
+              description="The product stays focused on the core day-to-day banking workflows first, with more advanced tools clearly staged for later."
+            />
           <div className="mt-10 grid gap-4 md:grid-cols-2">
-            {featureCategories.slice(0, 6).map((feature) => (
+            {featureCategories.slice(0, 4).map((feature) => (
               <Card key={feature.title} className="rounded-[28px]">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <h3 className="font-heading text-2xl font-semibold text-[var(--navy)]">{feature.title}</h3>
@@ -201,7 +200,7 @@ export default function HomePage() {
           <SectionHeading
             eyebrow="Dashboard demo"
             title="A premium dashboard that still feels approachable."
-            description="The mock product experience is styled for investor demos and early customer testing, with realistic cards, alerts, cash flow summaries, and staged wellness widgets."
+            description="The mock product experience is styled as a real operating workspace, with realistic cards, alerts, cash flow summaries, and staged wellness widgets."
           />
           <div className="mt-10">
             <DashboardWidgets />
@@ -229,12 +228,12 @@ export default function HomePage() {
 
       <section className="page-section">
         <Container>
-          <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="grid gap-5 lg:grid-cols-[1.05fr_0.95fr]">
             <Card className="rounded-[32px]">
               <SectionHeading
                 eyebrow="Pricing preview"
                 title="Flexible enough for cost-sensitive users."
-                description="The pricing model supports free entry, subscription upside, and a path for transfer-fee testing."
+                description="Northline keeps the plan structure simple so users can start with visibility and grow into richer workflows when they need them."
               />
               <div className="mt-8 grid gap-4">
                 {pricingPlans.map((plan) => (
@@ -266,37 +265,30 @@ export default function HomePage() {
             </Card>
 
             <Card className="rounded-[32px]">
-              <h3 className="font-heading text-3xl font-semibold tracking-[-0.04em] text-[var(--navy)]">
-                What the business can learn from this MVP
-              </h3>
-              <div className="mt-6 grid gap-3 text-sm leading-7 text-[var(--muted)]">
-                <p>• Number of users who connect at least one account and multiple institutions</p>
-                <p>• Transfer workflow engagement rate and pricing page conversion</p>
-                <p>• Demand split between consumers, small businesses, and investors or partners</p>
-                <p>• Feature interest across aggregation, transfers, debt help, and credit tools</p>
-                <p>• Onboarding drop-off between account connection, pricing review, and waitlist conversion</p>
+              <SectionHeading
+                eyebrow="Included now"
+                title="Start with the essentials and keep the workflow focused."
+                description="The platform is easiest to use when it emphasizes a few clear tasks: connect accounts, review transactions, understand balances, and get help when you need it."
+              />
+              <div className="mt-8 grid gap-3">
+                {[
+                  "One connected view for balances across institutions",
+                  "Categorized transaction review with cash flow context",
+                  "A guided Plaid connection flow with live handoff points",
+                  "Clear pricing and support paths without enterprise complexity"
+                ].map((item) => (
+                  <div key={item} className="ledger-row rounded-[22px] px-4 py-4 text-sm font-medium text-[var(--navy)]">
+                    {item}
+                  </div>
+                ))}
               </div>
-              <div className="mt-8 overflow-hidden rounded-[26px] border border-[var(--line)]">
-                <table className="min-w-full bg-white/70 text-left text-sm">
-                  <thead className="bg-slate-900/5 text-[var(--navy)]">
-                    <tr>
-                      <th className="px-4 py-3 font-semibold">Capability</th>
-                      <th className="px-4 py-3 font-semibold">Starter</th>
-                      <th className="px-4 py-3 font-semibold">Hub Plus</th>
-                      <th className="px-4 py-3 font-semibold">Transfer Flex</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {comparisonRows.map((row) => (
-                      <tr key={row.label} className="border-t border-[var(--line)] text-[var(--muted)]">
-                        <td className="px-4 py-3 font-medium text-[var(--navy)]">{row.label}</td>
-                        <td className="px-4 py-3">{row.starter}</td>
-                        <td className="px-4 py-3">{row.plus}</td>
-                        <td className="px-4 py-3">{row.flex}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Button href="/pricing" variant="secondary">
+                  Compare plans
+                </Button>
+                <Button href="/contact" variant="secondary">
+                  Talk to the team
+                </Button>
               </div>
             </Card>
           </div>
@@ -306,9 +298,9 @@ export default function HomePage() {
       <section className="page-section">
         <Container>
           <SectionHeading
-            eyebrow="Social proof"
-            title="Positioned to feel premium even before launch."
-            description="These demo testimonials are crafted as investor-ready placeholders to show how real customer validation can be surfaced later."
+            eyebrow="Customer voice"
+            title="Clear enough for everyday users and disciplined enough for operators."
+            description="The interface is intentionally designed to feel calm, understandable, and useful across both consumer and small-business use cases."
           />
           <div className="mt-10 grid gap-4 lg:grid-cols-3">
             {testimonials.map((testimonial) => (
@@ -327,11 +319,11 @@ export default function HomePage() {
           <Card className="rounded-[32px]">
             <SectionHeading
               eyebrow="Quick FAQ"
-              title="Short answers for the most common launch questions."
+              title="Short answers to the most common questions."
               description="The full FAQ page covers security, pricing, feature staging, and how account linking works."
             />
             <div className="mt-8 grid gap-4 lg:grid-cols-2">
-              {faqs.slice(0, 4).map((faq) => (
+              {faqs.slice(0, 3).map((faq) => (
                 <div key={faq.question} className="rounded-[24px] border border-[var(--line)] bg-white/80 p-5">
                   <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">{faq.question}</h3>
                   <p className="mt-3 text-sm leading-7 text-[var(--muted)]">{faq.answer}</p>
@@ -341,8 +333,6 @@ export default function HomePage() {
           </Card>
         </Container>
       </section>
-
-      <CtaBanner />
     </>
   );
 }

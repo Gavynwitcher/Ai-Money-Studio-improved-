@@ -36,7 +36,7 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
     },
     signup: {
       title: "Create your account",
-      body: "Start the early access flow for consumers and small businesses evaluating multi-bank visibility.",
+      body: "Create an account for consumers and small businesses evaluating multi-bank visibility.",
       button: "Create account"
     },
     forgot: {
@@ -63,8 +63,8 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
       setServerError("");
       const callbackUrl =
         typeof window !== "undefined"
-          ? new URLSearchParams(window.location.search).get("callbackUrl") || "/contact-inbox"
-          : "/contact-inbox";
+          ? new URLSearchParams(window.location.search).get("callbackUrl") || "/workspace"
+          : "/workspace";
 
       if (mode === "signin") {
         const result = await signIn("credentials", {

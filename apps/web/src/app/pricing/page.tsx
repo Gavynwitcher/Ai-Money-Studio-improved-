@@ -84,7 +84,7 @@ export default function PricingPage() {
                   <tr>
                     <th className="px-6 py-4 font-semibold">Capability</th>
                     <th className="px-6 py-4 font-semibold">Starter</th>
-                    <th className="px-6 py-4 font-semibold">Hub Plus</th>
+                    <th className="px-6 py-4 font-semibold">Northline Plus</th>
                     <th className="px-6 py-4 font-semibold">Transfer Flex</th>
                   </tr>
                 </thead>

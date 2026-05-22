@@ -8,15 +8,15 @@ import { faqs } from "@/data/site";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Contact, Waitlist, and Demo Requests",
+  title: "Contact Northline Support and Product Team",
   description:
-    "Contact Northline, join the waitlist, request a product demo, or express investor interest in the multi-bank banking platform.",
+    "Contact Northline for onboarding help, support questions, product walkthroughs, and connected-account setup guidance.",
   path: "/contact",
   keywords: [
-    "banking app waitlist",
-    "request banking dashboard demo",
-    "contact fintech startup",
-    "investor demo fintech"
+    "northline support",
+    "banking dashboard support",
+    "contact fintech product team",
+    "multi bank setup help"
   ]
 });
 
@@ -24,10 +24,10 @@ export default function ContactPage() {
   return (
     <>
       <PageHero
-        eyebrow="Contact and waitlist"
-        title="Capture customers, demo requests, and investor interest in one place."
-        description="This page is built to support launch demand collection, inbound product conversations, and lightweight investor outreach before a production backend is connected."
-        primaryCta={{ href: "/signup", label: "Create early access account" }}
+        eyebrow="Contact and support"
+        title="Talk to the team, get setup help, and keep account questions moving."
+        description="Northline uses this page for product support, onboarding conversations, and guided walkthrough requests so users can get help with connections, workflows, and account visibility."
+        primaryCta={{ href: "/signup", label: "Create account" }}
         secondaryCta={{ href: "/pricing", label: "Review pricing" }}
       />
 
@@ -44,21 +44,21 @@ export default function ContactPage() {
         <Container>
           <div className="grid gap-5 lg:grid-cols-3">
             <Card className="rounded-[30px]">
-              <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Demo request</h2>
+              <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Guided walkthrough</h2>
               <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                Invite early customers to a guided walkthrough of account linking, dashboard visibility, and transfer reviews.
+                Schedule a guided look at account linking, dashboard visibility, transaction categorization, and banking workflows.
               </p>
             </Card>
             <Card className="rounded-[30px]">
-              <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Investor interest</h2>
+              <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Operational questions</h2>
               <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                Frame the product as an MVP for demand validation, pricing exploration, and Plaid-driven architecture planning.
+                Reach the team about rollout requirements, Plaid-linked workflows, support needs, or institution coverage questions.
               </p>
             </Card>
             <Card className="rounded-[30px]">
-              <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Segment signals</h2>
+              <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Product fit</h2>
               <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                Use form submissions to understand whether consumers or small businesses show stronger interest in aggregation, transfer tools, or credit features.
+                Tell the team whether you care most about aggregation, transaction review, accounting, debt visibility, or credit tools.
               </p>
             </Card>
           </div>

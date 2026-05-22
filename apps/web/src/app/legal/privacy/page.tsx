@@ -14,7 +14,7 @@ export default function PrivacyPolicyPage() {
         <Container>
           <Card className="rounded-[32px] space-y-6 text-sm leading-7 text-[var(--muted)]">
             <p>
-              Northline may collect account connection metadata, profile information, product usage events, and waitlist or contact form submissions needed to operate the platform and improve the service.
+              Northline may collect account connection metadata, profile information, product usage events, and account-profile or contact form submissions needed to operate the platform and improve the service.
             </p>
             <p>
               Secure third-party integrations may be used to connect supported financial institutions. Sensitive financial credentials should never be stored directly by the application if a third-party connection workflow is used for linking.

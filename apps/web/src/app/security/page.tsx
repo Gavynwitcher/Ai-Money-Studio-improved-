@@ -46,7 +46,7 @@ export default function SecurityPage() {
     <>
       <PageHero
         eyebrow="Security and compliance"
-        title="Trustworthy language for customers, investors, and compliance stakeholders."
+        title="Trustworthy language for customers, operators, and compliance stakeholders."
         description="The site copy is designed to feel secure and credible without making unsupported claims about regulated services or transfer speed."
         primaryCta={{ href: "/legal/disclaimer", label: "Read disclaimer" }}
         secondaryCta={{ href: "/plaid-integration", label: "See integration flow" }}
