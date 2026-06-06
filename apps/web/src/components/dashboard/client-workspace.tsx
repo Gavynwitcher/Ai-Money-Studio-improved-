@@ -113,7 +113,7 @@ export function ClientWorkspace({ userName, userEmail }: DashboardWorkspaceProps
             <p className="mt-2 text-sm text-slate-300">{loading ? "Checking status..." : nextStepLabel}</p>
           </div>
           <div className="bank-stat-dark rounded-[24px] p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/75">Imported accounts</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/75">Accounts found</p>
             <p className="mt-3 text-3xl font-semibold text-white">{loading ? "..." : status?.linkedAccounts ?? 0}</p>
             <p className="mt-2 text-sm text-slate-300">Last sync {loading ? "-" : formatRelativeTimestamp(status?.lastSyncedAt ?? null)}</p>
           </div>

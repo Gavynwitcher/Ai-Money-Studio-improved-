@@ -57,7 +57,7 @@ export default async function ContactInboxPage() {
                   Contact requests
                 </h2>
                 <p className="mt-2 text-sm leading-7 text-[var(--muted)]">
-                  Signed in as {session.user.email}. Owner alert emails are routed to `sales@hibark.com` unless overridden in environment settings.
+                  Signed in as {session.user.email}. Internal alert delivery is routed to `sales@hibark.com` unless overridden in environment settings.
                 </p>
               </div>
               <div className="rounded-full bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">

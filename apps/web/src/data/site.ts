@@ -156,7 +156,9 @@ export const pricingPlans = [
   {
     name: "Starter",
     price: "$0",
-    subtitle: "Entry plan for users who want linked-account visibility and a clean daily workspace",
+    badge: "Launch plan",
+    subtitle: "Entry plan for users who want linked-account visibility and a clean daily workspace.",
+    detail: "Best for first-time users validating account visibility before upgrading.",
     cta: "Start free",
     accent: false,
     bullets: [
@@ -169,25 +171,30 @@ export const pricingPlans = [
   {
     name: "Northline Plus",
     price: "$19/mo",
-    subtitle: "Premium plan for multi-account households and small businesses",
+    badge: "Recommended",
+    subtitle: "Full workspace plan for multi-account households and small businesses.",
+    detail: "Built for users who want stronger daily oversight, richer categorization, and guided operating visibility.",
     cta: "Choose Northline Plus",
     accent: true,
     bullets: [
       "Unlimited connected institutions",
-      "Cash flow summaries and alerts",
-      "Priority support and onboarding analytics",
+      "Advanced transaction categorization and cash flow alerts",
+      "Priority onboarding support",
       "Expanded workspace access as transfer rails mature"
     ]
   },
   {
     name: "Transfer Flex",
-    price: "From $2",
-    subtitle: "Pay-as-you-go path for users who want transfer access without a full subscription",
+    price: "$2 same-day",
+    badge: "Pay as you go",
+    subtitle: "Pay-as-you-go path for users who want guided same-day transfer access without a full subscription.",
+    detail: "Per-transfer fee varies by route, timing, institution support, and compliance review.",
     cta: "View transfer pricing",
     accent: false,
     bullets: [
-      "Per-transfer fee model",
-      "Transparent fee preview",
+      "Same-day transfer requests from $2",
+      "Per-transfer fee cost varies",
+      "Transparent fee preview before review",
       "Status tracking and transfer history",
       "Subject to feature availability and compliance review"
     ]
@@ -199,7 +206,7 @@ export const comparisonRows = [
     label: "Connected institutions",
     starter: "2",
     plus: "Unlimited",
-    flex: "Up to linked institutions"
+    flex: "Eligible linked institutions"
   },
   {
     label: "Balances dashboard",
@@ -217,7 +224,7 @@ export const comparisonRows = [
     label: "Transfer initiation",
     starter: "Planned",
     plus: "Expanded access",
-    flex: "Per transfer"
+    flex: "From $2 same-day"
   },
   {
     label: "Credit and debt tools",

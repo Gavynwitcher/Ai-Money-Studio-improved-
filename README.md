@@ -16,6 +16,7 @@ Unified Banking Hub is a polished multi-page fintech MVP built with Next.js, Rea
   - `initiate transfer`
 - Environment variable placeholders and code comments for sandbox, development, and production Plaid wiring
 - Frontend validation and interactive success, loading, and error states for auth, contact, waitlist, and Plaid demo flows
+- Contact intake and internal owner alert delivery, ready for transactional email providers such as Brevo
 
 ## Project structure
 
@@ -81,6 +82,26 @@ apps/web/src/
    ```
 
 4. Open [http://localhost:3000](http://localhost:3000)
+
+## Brevo email integration
+
+Northline can send operational contact alerts through Brevo using the existing contact workflow.
+
+Add these environment variables:
+
+```env
+CONTACT_OWNER_ALERT_TO=sales@hibark.com
+CONTACT_FROM_NAME=Northline
+BREVO_API_KEY=
+BREVO_FROM_EMAIL=
+BREVO_FROM_NAME=Northline
+```
+
+Notes:
+
+- Brevo is the primary transactional provider when `BREVO_API_KEY` is present.
+- Resend remains supported as an optional fallback if `RESEND_API_KEY` is configured instead.
+- The current integration is wired into the contact flow for both internal owner alerts and customer confirmation emails.
 
 ## Plaid integration notes
 

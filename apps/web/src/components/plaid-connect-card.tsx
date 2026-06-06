@@ -192,6 +192,43 @@ function pluralize(count: number, singular: string, plural?: string) {
   return `${count} ${count === 1 ? singular : plural ?? `${singular}s`}`;
 }
 
+function friendlyPlaidError(message: string) {
+  const value = message.toLowerCase();
+
+  if (value.includes("create link token") || value.includes("link token")) {
+    return "We couldn’t start the secure bank connection.";
+  }
+  if (value.includes("exchange public token") || value.includes("public token")) {
+    return "We couldn’t finish connecting your bank just yet.";
+  }
+  if (value.includes("load plaid status") || value.includes("load workspace status")) {
+    return "We couldn’t load your bank connection status.";
+  }
+  if (value.includes("load plaid accounts")) {
+    return "We couldn’t load your connected accounts.";
+  }
+  if (value.includes("load plaid transactions")) {
+    return "We couldn’t load your transaction history.";
+  }
+  if (value.includes("launch plaid")) {
+    return "We couldn’t open the secure bank connection.";
+  }
+  if (value.includes("sync plaid data")) {
+    return "We couldn’t refresh your bank data.";
+  }
+  if (value.includes("finish bank connection")) {
+    return "We couldn’t finish connecting your bank.";
+  }
+  if (value.includes("unlink plaid data")) {
+    return "We couldn’t disconnect your bank right now.";
+  }
+  if (value.includes("plaid link is not available")) {
+    return "The secure bank connection is not available in this browser session.";
+  }
+
+  return message;
+}
+
 type Props = {
   onLinked?: () => void;
   onStatusChange?: (status: PlaidStatusPayload | null) => void;
@@ -257,7 +294,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
         await Promise.all([loadStatus(), loadDetails()]);
       } catch (err) {
         if (!canceled) {
-          const message = toMessage(err, "Failed to load Plaid status");
+          const message = friendlyPlaidError(toMessage(err, "We couldn’t load your bank connection status."));
           setError(message);
           onStatusChange?.(null);
         }
@@ -292,7 +329,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
       });
       const tokenPayload = (await tokenRes.json()) as PlaidCreateTokenPayload | { error?: string };
       if (!tokenRes.ok) {
-        throw new Error((tokenPayload as { error?: string }).error ?? "Failed to create link token");
+        throw new Error((tokenPayload as { error?: string }).error ?? "We couldn’t start the secure bank connection.");
       }
 
       await ensurePlaidScriptLoaded();
@@ -315,7 +352,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
             });
             const exchangePayload = (await exchangeRes.json()) as PlaidExchangePayload | { error?: string };
             if (!exchangeRes.ok) {
-              throw new Error((exchangePayload as { error?: string }).error ?? "Failed to exchange public token");
+              throw new Error((exchangePayload as { error?: string }).error ?? "We couldn’t finish connecting your bank.");
             }
 
             const result = exchangePayload as PlaidExchangePayload;
@@ -333,7 +370,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
             }
             onLinked?.();
           } catch (err) {
-            setError(toMessage(err, "Failed to finish bank connection"));
+            setError(friendlyPlaidError(toMessage(err, "We couldn’t finish connecting your bank.")));
           } finally {
             setLaunching(false);
           }
@@ -354,7 +391,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
 
       handler.open();
     } catch (err) {
-      setError(toMessage(err, "Failed to launch Plaid Link"));
+      setError(friendlyPlaidError(toMessage(err, "We couldn’t start the secure bank connection.")));
       setLaunching(false);
     }
   }, [onLinked, refreshAll]);
@@ -371,7 +408,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
       });
       const payload = (await res.json()) as PlaidSyncPayload | { error?: string };
       if (!res.ok) {
-        throw new Error((payload as { error?: string }).error ?? "Failed to sync Plaid data");
+        throw new Error((payload as { error?: string }).error ?? "We couldn’t refresh your bank data.");
       }
 
       const result = payload as PlaidSyncPayload;
@@ -386,17 +423,17 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
       }
       if (result.transactionsReady === false || (result.pendingItems ?? 0) > 0) {
         setFeedback(
-          `Sync started. ${result.pendingItems ?? 1} connected item is still preparing transactions; retry in about a minute.`
+          "Your bank connected. Transaction history may take a minute."
         );
       } else {
         setFeedback(
-          `Sync complete. Updated ${result.syncedItems} items, ${result.importedAccounts} accounts, and ${result.importedTransactions} transactions.`
+          `Refresh complete. Updated ${result.syncedItems} bank login${result.syncedItems === 1 ? "" : "s"}, found ${result.importedAccounts} accounts, and refreshed ${result.importedTransactions} transactions.`
         );
       }
       await refreshAll();
       onLinked?.();
     } catch (err) {
-      setError(toMessage(err, "Failed to sync Plaid data"));
+      setError(friendlyPlaidError(toMessage(err, "We couldn’t refresh your bank data.")));
     } finally {
       setSyncing(false);
     }
@@ -422,7 +459,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
       });
       const payload = (await res.json()) as PlaidUnlinkPayload | { error?: string };
       if (!res.ok) {
-        throw new Error((payload as { error?: string }).error ?? "Failed to unlink Plaid data");
+        throw new Error((payload as { error?: string }).error ?? "We couldn’t disconnect your bank right now.");
       }
 
       const result = payload as PlaidUnlinkPayload;
@@ -432,7 +469,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
       await refreshAll();
       onLinked?.();
     } catch (err) {
-      setError(toMessage(err, "Failed to unlink Plaid data"));
+      setError(friendlyPlaidError(toMessage(err, "We couldn’t disconnect your bank right now.")));
     } finally {
       setUnlinking(false);
     }
@@ -582,7 +619,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
               disabled={!canManageConnections || connectedInstitutionCount === 0}
               className="rounded-full border border-white/20 bg-white/8 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:text-white/40"
             >
-              {syncing ? "Syncing..." : "Refresh balances"}
+              {syncing ? "Refreshing..." : "Refresh bank data"}
             </button>
           </div>
         </div>
@@ -636,14 +673,14 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
               <p className="mt-2 text-sm text-slate-300">{primaryInstitution}</p>
             </div>
             <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Linked accounts</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Accounts found</p>
               <p className="mt-3 text-3xl font-semibold text-white">{loadingDetails ? "..." : linkedAccountCount}</p>
               <p className="mt-2 text-sm text-slate-300">Available cash {loadingDetails ? "..." : formatCurrency(availableBalance)}</p>
             </div>
             <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Activity imported</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Transaction history</p>
               <p className="mt-3 text-3xl font-semibold text-white">{loadingDetails ? "..." : transactionsImported}</p>
-              <p className="mt-2 text-sm text-slate-300">Products: {productLabel} · {activeProducts || 1} active</p>
+              <p className="mt-2 text-sm text-slate-300">Coverage: {productLabel} · {activeProducts || 1} active</p>
             </div>
           </div>
         </div>
@@ -657,7 +694,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
               <h3 className="mt-2 text-xl font-semibold text-slate-950">Connected banking relationships</h3>
             </div>
             <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600">
-              {status?.configured ? "Server configured" : "Setup needed"}
+              {status?.configured ? "Secure connection ready" : "Setup needed"}
             </div>
           </div>
 
@@ -705,8 +742,8 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
                 Verified {status?.verifiedBankAccounts ?? 0} · Pending {status?.pendingBankAccounts ?? 0}
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Tokenized accounts: {status?.tokenizedBankAccounts ?? 0}
-                {status?.authMethods?.length ? ` · Auth method: ${status.authMethods.join(", ")}` : ""}
+                Transfer-ready accounts: {status?.tokenizedBankAccounts ?? 0}
+                {status?.authMethods?.length ? ` · Verification method: ${status.authMethods.join(", ")}` : ""}
               </p>
               {connectedInstitutionCount > 0 ? (
                 <button
@@ -746,8 +783,8 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
               <p className="mt-3 text-3xl font-semibold text-slate-950">{loadingDetails ? "..." : formatCurrency(availableBalance)}</p>
             </div>
             <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Primary item</p>
-              <p className="mt-3 text-lg font-semibold text-slate-950">{loadingDetails ? "..." : item?.institutionName ?? "No item linked"}</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Connected bank login</p>
+              <p className="mt-3 text-lg font-semibold text-slate-950">{loadingDetails ? "..." : item?.institutionName ?? "No bank login connected"}</p>
             </div>
           </div>
 
@@ -789,7 +826,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
               <h3 className="mt-2 text-xl font-semibold text-slate-950">Recent transactions</h3>
             </div>
             <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-600">
-              {loadingDetails ? "Loading" : `${transactions.length} imported`}
+              {loadingDetails ? "Loading" : `${transactions.length} rows loaded`}
             </div>
           </div>
 
@@ -823,21 +860,33 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
             ) : (
               <div className="rounded-[22px] border border-dashed border-slate-300 bg-slate-50 p-5 text-sm leading-6 text-slate-600">
                 The bank connection is active, but transaction history has not populated yet. That usually means the institution
-                is still preparing historical data. Try <span className="font-semibold text-slate-950">Manual Sync</span> again in a minute.
+                is still preparing historical data. Try <span className="font-semibold text-slate-950">Refresh bank data</span> again in a minute.
               </div>
             )}
           </div>
 
           {item ? (
             <div className="mt-4 rounded-[22px] border border-slate-200 bg-[linear-gradient(135deg,#fcfdff_0%,#f6f8fb_100%)] p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Link metadata</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Developer details</p>
               <p className="mt-2 text-sm text-slate-700">
-                Item: <span className="font-semibold text-slate-950">{item.institutionName}</span> · Products:{" "}
+                Connected bank login: <span className="font-semibold text-slate-950">{item.institutionName}</span> · Data coverage:{" "}
                 <span className="font-semibold text-slate-950">{item.availableProducts.join(", ")}</span>
               </p>
-              <p className="mt-1 text-sm text-slate-600">Access token status: {item.accessTokenStatus}</p>
+              <p className="mt-1 text-sm text-slate-600">Reference ID: {item.itemId}</p>
             </div>
           ) : null}
+        </div>
+      </div>
+
+      <div className="mt-4 rounded-[22px] border border-slate-200 bg-white/90 px-4 py-4 text-sm text-slate-600 shadow-[0_12px_30px_rgba(15,23,42,0.04)]">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <span className="font-semibold text-slate-950">Bank login handled by Plaid.</span>
+          <span>Data encrypted in transit.</span>
+          <span>Unlink anytime.</span>
+          <span>Advanced money movement features are planned and subject to compliance review.</span>
+          <a href="/security" className="font-semibold text-[var(--ocean)] transition hover:text-[var(--navy)]">
+            Security details
+          </a>
         </div>
       </div>
 
@@ -849,7 +898,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
 
       {!loadingStatus && !status?.configured && status?.configError ? (
         <div className="mt-4 rounded-[22px] border border-amber-200 bg-amber-50 px-4 py-4 text-sm text-amber-900">
-          Plaid setup needed: {status.configError}. Add `PLAID_CLIENT_ID` and `PLAID_SECRET` in your environment.
+          Bank connection is not ready yet.
         </div>
       ) : null}
 

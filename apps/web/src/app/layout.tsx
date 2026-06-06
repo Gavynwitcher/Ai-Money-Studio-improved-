@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     "connected bank accounts"
   ],
   icons: {
-    icon: "/favicon.svg"
+    icon: "/northline-mark.png"
   },
   alternates: {
     canonical: "/"

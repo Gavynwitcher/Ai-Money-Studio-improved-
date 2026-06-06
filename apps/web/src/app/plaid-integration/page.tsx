@@ -9,18 +9,18 @@ import { getPlaidConfig, shouldUseMockPlaid } from "@/lib/plaid/config";
 import { buildMetadata } from "@/lib/seo";
 
 const steps = [
-  "POST /link/token/create to create a short-lived link_token",
-  "Initialize Plaid Link and launch it from the client",
-  "Receive public_token in Link onSuccess",
-  "POST /item/public_token/exchange to get access_token and item_id",
-  "Store the Item and use access_token for /accounts/get and transaction calls",
-  "Layer in transfer flows only when product, cost, and compliance are ready"
+  "Launch secure bank linking from the Northline workspace",
+  "Choose a bank and confirm the accounts you want to share",
+  "Northline verifies the connection and saves the bank login",
+  "Balances and account details are brought into the workspace",
+  "Transaction history is refreshed so owners can review activity in one place",
+  "Transfer workflows are enabled only when product, cost, and compliance checks are ready"
 ];
 
 export const metadata: Metadata = buildMetadata({
   title: "Plaid Integration Demo for Bank Account Linking and Transaction Sync",
   description:
-    "See how Northline uses Plaid Link for bank account connection, public token exchange, account syncing, balance visibility, and transaction imports.",
+    "See how Northline uses Plaid Link for secure bank connection, account syncing, balance visibility, and transaction history.",
   path: "/plaid-integration",
   keywords: [
     "Plaid Link demo",
@@ -39,11 +39,11 @@ export default function PlaidIntegrationPage() {
     <>
       <PageHero
         eyebrow="Plaid integration"
-        title={liveMode ? "Live Plaid Link is wired into the platform." : "A polished mock flow with clear Plaid handoff points."}
+        title={liveMode ? "Secure bank linking is live in Northline." : "A polished mock flow with clear Plaid handoff points."}
         description={
           liveMode
-            ? "The Plaid page now uses the real Link flow, token exchange, item persistence, transaction sync, and unlink endpoints. Keep Sandbox on while validating credentials and institution coverage."
-            : "The UI is already shaped around the API lifecycle needed for a real Plaid integration: link token creation, public token exchange, item storage, account fetches, balance visibility, transactions sync, and transfer initiation."
+            ? "Connect your bank, bring balances and transaction history into one workspace, and keep your Northline profile refreshed through secure Plaid connectivity."
+            : "The UI is already shaped around the bank-linking lifecycle needed for a real Plaid integration: connection launch, bank login storage, account imports, balance visibility, transaction sync, and transfer readiness."
         }
         primaryCta={{ href: "#plaid-demo", label: liveMode ? "Open Plaid Link" : "Launch mock connect flow" }}
         secondaryCta={{ href: "/security", label: "Review security notes" }}
@@ -59,10 +59,9 @@ export default function PlaidIntegrationPage() {
         <section className="page-section pt-0">
           <Container>
             <Card className="rounded-[28px] border-amber-200 bg-amber-50">
-              <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Plaid credentials still needed</h2>
+              <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Bank connection is not ready yet</h2>
               <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                Live mode is enabled, but this environment still needs `PLAID_CLIENT_ID` and `PLAID_SECRET`.
-                Once those are added and the app is restarted, the Connect button will launch a real Plaid Sandbox session.
+                This environment still needs the secure bank-linking setup to be completed before customers can connect an institution here.
               </p>
             </Card>
           </Container>
@@ -74,7 +73,7 @@ export default function PlaidIntegrationPage() {
           <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
             <Card className="rounded-[32px]">
               <h2 className="font-heading text-3xl font-semibold tracking-[-0.04em] text-[var(--navy)]">
-                Integration flow staging
+                How the bank connection works
               </h2>
               <div className="mt-6 grid gap-3">
                 {steps.map((step, index) => (
@@ -88,7 +87,7 @@ export default function PlaidIntegrationPage() {
 
             <Card className="rounded-[32px]">
               <h2 className="font-heading text-3xl font-semibold tracking-[-0.04em] text-[var(--navy)]">
-                MVP guardrails
+                Product guardrails
               </h2>
               <div className="mt-6 space-y-4 text-sm leading-7 text-[var(--muted)]">
                 <p>
@@ -113,10 +112,10 @@ export default function PlaidIntegrationPage() {
         <Container>
           <div className="grid gap-5 lg:grid-cols-3">
             <Card className="rounded-[30px]">
-              <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">What Plaid calls an Item</h2>
+              <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Connected bank login</h2>
               <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                The quickstart defines an Item as a login at a financial institution, not a single account.
-                One Item can contain multiple accounts like checking and savings under the same bank login.
+                One connected bank login can include multiple accounts, such as checking, savings, or credit, under the
+                same financial institution.
               </p>
             </Card>
             <Card className="rounded-[30px]">
@@ -127,10 +126,10 @@ export default function PlaidIntegrationPage() {
               </p>
             </Card>
             <Card className="rounded-[30px]">
-              <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Client and server roles</h2>
+              <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">What happens behind the scenes</h2>
               <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                The docs split responsibility clearly: the server creates the link token and exchanges the public token,
-                while the client launches Link and handles callbacks like `onSuccess`, `onExit`, and `onEvent`.
+                Northline opens the bank-linking flow in the browser while the secure server side handles connection
+                setup, account retrieval, and ongoing data refresh.
               </p>
             </Card>
           </div>

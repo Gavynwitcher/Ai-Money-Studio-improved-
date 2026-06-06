@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/site/brand-logo";
 import { Container } from "@/components/ui/container";
 import { footerColumns, legalLinks } from "@/data/site";
 
@@ -9,6 +10,7 @@ export function Footer() {
         <div className="bank-shell rounded-[32px] px-6 py-8 text-white sm:px-8 sm:py-10">
           <div className="grid gap-10 lg:grid-cols-[1.15fr_repeat(3,1fr)]">
             <div>
+              <BrandLogo className="mb-5" />
               <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-cyan-100/75">
                 Banking-grade clarity
               </p>

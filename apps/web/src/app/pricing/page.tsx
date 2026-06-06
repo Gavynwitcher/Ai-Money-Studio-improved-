@@ -26,8 +26,8 @@ export default function PricingPage() {
     <>
       <PageHero
         eyebrow="Pricing"
-        title="A premium fintech experience without enterprise-tool pricing."
-        description="The MVP pricing model is designed to test cost sensitivity, subscription appetite, and transfer-fee tolerance across consumers and small businesses."
+        title="Simple pricing built for connected banking, not enterprise overhead."
+        description="Northline keeps the launch model straightforward: free visibility to get started, a full workspace tier for active users, and transfer pricing that stays transparent before review."
         primaryCta={{ href: "/signup", label: "Start free" }}
         secondaryCta={{ href: "/contact", label: "Request custom demo" }}
       />
@@ -36,34 +36,73 @@ export default function PricingPage() {
         <Container>
           <div className="grid gap-5 lg:grid-cols-3">
             {pricingPlans.map((plan) => (
-              <Card
+              <div
                 key={plan.name}
-                className={`rounded-[32px] ${plan.accent ? "bg-[var(--navy)] text-white" : ""}`}
+                className={`rounded-[32px] border p-6 ${
+                  plan.accent
+                    ? "border-[#163c8d] bg-gradient-to-b from-[#163c8d] via-[#102b72] to-[#0b1e55] text-white shadow-[0_28px_70px_rgba(16,43,114,0.24)]"
+                    : "bank-panel shadow-[0_18px_42px_rgba(11,31,51,0.08)]"
+                }`}
               >
-                {plan.accent ? <Badge className="bg-white/15 text-white">Most flexible</Badge> : <Badge tone="teal">Launch plan</Badge>}
+                <div className="flex min-h-[35rem] flex-col">
+                <div className="flex items-center justify-between gap-3">
+                  {plan.accent ? (
+                    <Badge className="border border-white/12 bg-white/12 text-white shadow-none">{plan.badge}</Badge>
+                  ) : (
+                    <Badge tone="teal">{plan.badge}</Badge>
+                  )}
+                  {plan.name === "Transfer Flex" ? (
+                    <span className="rounded-full border border-[var(--line)] bg-white/75 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
+                      Same-day
+                    </span>
+                  ) : null}
+                </div>
                 <h2 className="mt-5 font-heading text-3xl font-semibold tracking-[-0.04em]">{plan.name}</h2>
-                <p className={`mt-3 text-5xl font-semibold tracking-[-0.05em] ${plan.accent ? "text-white" : "text-[var(--navy)]"}`}>
+                <p className={`mt-4 text-5xl font-semibold tracking-[-0.05em] ${plan.accent ? "text-white" : "text-[var(--navy)]"}`}>
                   {plan.price}
                 </p>
-                <p className={`mt-4 text-sm leading-7 ${plan.accent ? "text-cyan-50/85" : "text-[var(--muted)]"}`}>{plan.subtitle}</p>
+                <p className={`mt-4 text-sm leading-7 ${plan.accent ? "text-slate-100" : "text-[var(--muted)]"}`}>{plan.subtitle}</p>
+                {"detail" in plan && plan.detail ? (
+                  <div
+                    className={`mt-5 rounded-[22px] border px-4 py-4 text-sm leading-6 ${
+                      plan.accent
+                        ? "border-white/14 bg-[#eff6ff] text-[#17345f] shadow-[inset_0_1px_0_rgba(255,255,255,0.7)]"
+                        : "border-[var(--line)] bg-[var(--sky)] text-[var(--navy)]"
+                    }`}
+                  >
+                    {plan.detail}
+                  </div>
+                ) : null}
                 <div className="mt-6 grid gap-3">
                   {plan.bullets.map((bullet) => (
                     <div
                       key={bullet}
                       className={`rounded-[20px] border px-4 py-3 text-sm ${
-                        plan.accent ? "border-white/10 bg-white/10 text-white" : "border-[var(--line)] bg-white/75 text-[var(--navy)]"
+                        plan.accent
+                          ? "border-white/12 bg-white/8 text-slate-50"
+                          : "border-[var(--line)] bg-white/75 text-[var(--navy)]"
                       }`}
                     >
                       {bullet}
                     </div>
                   ))}
                 </div>
-                <div className="mt-6">
-                  <Button href="/signup" variant={plan.accent ? "secondary" : "primary"}>
+                <div className="mt-auto pt-7">
+                  <Button
+                    href="/signup"
+                    variant={plan.accent ? "secondary" : "primary"}
+                    className={plan.accent ? "w-full" : "w-full"}
+                  >
                     {plan.cta}
                   </Button>
+                  {plan.name === "Transfer Flex" ? (
+                    <p className="mt-3 text-xs leading-6 text-[var(--muted)]">
+                      Final per-transfer fee may vary by route, bank coverage, timing, and compliance requirements.
+                    </p>
+                  ) : null}
                 </div>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         </Container>
@@ -75,7 +114,7 @@ export default function PricingPage() {
             <div className="border-b border-[var(--line)] px-6 py-6 sm:px-8">
               <h2 className="font-heading text-3xl font-semibold tracking-[-0.04em] text-[var(--navy)]">Plan comparison</h2>
               <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-                Structured for experimentation across free, subscription, and pay-as-you-go pricing models.
+                Structured to compare the free workspace, the premium Northline Plus tier, and same-day transfer pricing.
               </p>
             </div>
             <div className="overflow-x-auto">
