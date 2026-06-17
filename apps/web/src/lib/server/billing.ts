@@ -43,7 +43,7 @@ async function getAuthenticatedUser() {
 
 export async function getBillingOverview(): Promise<BillingOverview> {
   const user = await getAuthenticatedUser();
-  const checkoutReadyPlans = (["hub_plus", "transfer_flex"] as BillingPlanKey[]).filter((planKey) =>
+  const checkoutReadyPlans = (["northline_plus", "pro"] as BillingPlanKey[]).filter((planKey) =>
     Boolean(getBillingPlanConfig(planKey).stripePriceId)
   );
 
@@ -212,8 +212,11 @@ function mapPlanKey(subscription: Stripe.Subscription): BillingPlanKey {
   }
 
   const metadataPlan = subscription.metadata.planKey;
-  if (metadataPlan === "hub_plus" || metadataPlan === "transfer_flex" || metadataPlan === "starter") {
+  if (metadataPlan === "northline_plus" || metadataPlan === "pro" || metadataPlan === "starter") {
     return metadataPlan;
+  }
+  if (metadataPlan === "hub_plus") {
+    return "northline_plus";
   }
 
   return "starter";

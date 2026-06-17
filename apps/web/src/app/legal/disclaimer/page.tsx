@@ -17,7 +17,7 @@ export default function DisclaimerPage() {
               Northline is not a bank, lender, or credit bureau. The platform is presented as a software product that may use secure third-party integrations to help users view account information and navigate financial workflows.
             </p>
             <p>
-              Any transfer-related, credit-related, debt-assistance, or other regulated features described on this website are planned or subject to compliance review, partner support, legal approval, and future product releases.
+              Any credit-related, debt-assistance, or other regulated features described on this website are planned or subject to compliance review, partner support, legal approval, and future product releases.
             </p>
             <p>
               The dashboard, forms, alerts, and score-related widgets on this MVP are illustrative. They should not be interpreted as guarantees, approvals, financial advice, or regulated account services.

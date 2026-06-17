@@ -32,27 +32,27 @@ const signupPlanCards: Array<{
     badge: "Free"
   },
   {
-    key: "hub_plus",
-    title: "Hub Plus",
+    key: "northline_plus",
+    title: "Northline Plus",
     price: "$19/mo",
-    description: "Create your account and continue directly into Stripe Checkout for the monthly subscription.",
+    description: "Create your account and continue into Stripe Checkout for the monthly subscription.",
     badge: "Subscription"
   },
   {
-    key: "transfer_flex",
-    title: "Transfer Flex",
-    price: "From $2",
-    description: "Create your account and continue into Stripe Checkout for the pay-as-you-go transfer path.",
-    badge: "Usage-based"
+    key: "pro",
+    title: "Pro",
+    price: "$39/mo",
+    description: "Upgrade for advanced insights, exports, tax reserve tracking, and recurring expense detection.",
+    badge: "Advanced"
   }
 ];
 
 function isBillingPlanKey(value: string | null): value is BillingPlanKey {
-  return value === "starter" || value === "hub_plus" || value === "transfer_flex";
+  return value === "starter" || value === "northline_plus" || value === "pro";
 }
 
 function isPaidPlan(plan: BillingPlanKey): plan is CheckoutPlanKey {
-  return plan === "hub_plus" || plan === "transfer_flex";
+  return plan === "northline_plus" || plan === "pro";
 }
 
 export function AuthForm({ mode, signupOptions }: { mode: AuthMode; signupOptions?: SignupOptions }) {
@@ -79,7 +79,7 @@ export function AuthForm({ mode, signupOptions }: { mode: AuthMode; signupOption
     }
     if (mode === "verify" && code.trim().length < 6) return "Enter the 6-digit verification code.";
     if (mode === "signup" && isPaidPlan(selectedPlan) && (!signupOptions?.stripeConfigured || !checkoutReadyPlans.has(selectedPlan))) {
-      return "This payment option is not ready yet. Choose Starter or finish Stripe setup first.";
+      return "This billing option is not ready yet. Choose Starter or finish Stripe setup first.";
     }
     return "";
   }, [acceptedTerms, checkoutReadyPlans, code, email, mode, name, password, selectedPlan, signupOptions?.stripeConfigured]);
@@ -87,7 +87,7 @@ export function AuthForm({ mode, signupOptions }: { mode: AuthMode; signupOption
   const titles: Record<AuthMode, { title: string; body: string; button: string }> = {
     signin: {
       title: "Welcome back",
-      body: "Access balances, linked institutions, and transfer activity in one place.",
+      body: "Access balances, linked institutions, imported transactions, and cash-flow insights in one place.",
       button: "Sign in"
     },
     signup: {
@@ -111,7 +111,7 @@ export function AuthForm({ mode, signupOptions }: { mode: AuthMode; signupOption
     mode === "signup"
       ? selectedPlan === "starter"
         ? "Create account"
-        : `Create account and continue to ${selectedPlan === "hub_plus" ? "Stripe subscription" : "Stripe payment"}`
+        : `Create account and continue to ${selectedPlan === "northline_plus" ? "Northline Plus" : "Pro"}`
       : titles[mode].button;
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -126,8 +126,8 @@ export function AuthForm({ mode, signupOptions }: { mode: AuthMode; signupOption
       setServerError("");
       const callbackUrl =
         typeof window !== "undefined"
-          ? new URLSearchParams(window.location.search).get("callbackUrl") || "/dashboard-demo"
-          : "/dashboard-demo";
+          ? new URLSearchParams(window.location.search).get("callbackUrl") || "/dashboard"
+          : "/dashboard";
 
       if (mode === "signin") {
         const result = await signIn("credentials", {
@@ -203,7 +203,7 @@ export function AuthForm({ mode, signupOptions }: { mode: AuthMode; signupOption
             <div className="flex items-center justify-between gap-3">
               <p className="text-sm font-medium text-[var(--navy)]">Choose how you want to start</p>
               <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
-                Payment handled by Stripe
+                Billing handled by Stripe
               </span>
             </div>
             <div className="grid gap-3">

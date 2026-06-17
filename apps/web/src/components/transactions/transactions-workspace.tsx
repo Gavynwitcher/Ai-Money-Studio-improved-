@@ -46,7 +46,7 @@ function formatCurrency(value: number) {
 function transactionBucket(category: string) {
   const value = category.toLowerCase();
   if (value.includes("income") || value.includes("payroll") || value.includes("deposit")) return "Income";
-  if (value.includes("transfer")) return "Transfers";
+  if (value.includes("transfer")) return "Internal Activity";
   if (value.includes("loan") || value.includes("credit")) return "Credit & Debt";
   if (value.includes("travel")) return "Travel";
   if (value.includes("food") || value.includes("restaurant") || value.includes("grocer")) return "Food & Dining";

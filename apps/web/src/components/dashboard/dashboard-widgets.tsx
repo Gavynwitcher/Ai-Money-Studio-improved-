@@ -3,11 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CategoryChart } from "@/components/charts/category-chart";
 import { CashFlowChart } from "@/components/charts/cash-flow-chart";
+// This is demo data only and must not be displayed as live user financial data.
 import {
   accounts,
   alerts,
-  creditSnapshot,
-  debtProgress,
   institutions,
   transactions
 } from "@/data/mock-finance";
@@ -29,37 +28,33 @@ function MiniTrend({ values }: { values: number[] }) {
   );
 }
 
-function TransferReviewCard() {
-  const fromAccount = accounts[1] ?? accounts[0];
-  const toAccount = accounts[0] ?? accounts[1];
-
+function ReadOnlyInsightCard() {
   return (
     <Card className="lg:col-span-3 rounded-[28px]">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--teal)]">
-            Transfer review
+            Demo insight
           </p>
           <h3 className="mt-3 font-heading text-xl font-semibold text-[var(--navy)]">
-            Plan money movement before you send
+            Understand what changed before you act elsewhere
           </h3>
         </div>
-        <Badge tone="warning">Review</Badge>
+        <Badge tone="warning">Demo data</Badge>
       </div>
 
       <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-        Northline helps preview source, destination, timing, and estimated fees before advanced transfer workflows are enabled.
+        Northline v1 keeps the workspace read-only. Use imported transaction patterns to decide what to verify in your bank, accounting system, or internal workflow.
       </p>
 
       <div className="bank-panel-muted mt-5 rounded-[24px] p-4">
-        <p className="text-sm font-semibold text-[var(--navy)]">Suggested route</p>
+        <p className="text-sm font-semibold text-[var(--navy)]">Sample review checklist</p>
         <div className="mt-4 grid gap-3">
           {[
-            ["From", `${fromAccount.institutionName} · ${fromAccount.name}`],
-            ["To", `${toAccount.institutionName} · ${toAccount.name}`],
-            ["Amount", "$2,500"],
-            ["Fee preview", "$2 same-day option"],
-            ["Status", "Ready for team review"]
+            ["Largest category", "Operations"],
+            ["Recurring vendor", "Payroll provider"],
+            ["Cash-flow cue", "Outflow higher than last period"],
+            ["Suggested next step", "Verify in source systems"]
           ].map(([label, value]) => (
             <div key={label} className="ledger-row flex items-center justify-between rounded-[18px] px-4 py-3">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{label}</p>
@@ -72,7 +67,7 @@ function TransferReviewCard() {
       <div className="mt-5 rounded-[24px] border border-[var(--line)] bg-slate-50/80 p-4">
         <p className="text-sm font-semibold text-[var(--navy)]">Compliance-aware demo mode</p>
         <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-          Live transfers are planned and subject to banking partner, Stripe/Plaid availability, and compliance review.
+          This sample card does not represent a live user account and does not execute any financial action.
         </p>
       </div>
 
@@ -81,7 +76,7 @@ function TransferReviewCard() {
           Connect another bank
         </Button>
         <Button href="/pricing" variant="secondary">
-          View transfer pricing
+          Compare plans
         </Button>
       </div>
     </Card>
@@ -171,14 +166,9 @@ export function DashboardWidgets() {
         <div className="mt-6">
           <CashFlowChart />
         </div>
-        <div className="mt-5">
-          <Button href="/accounting" variant="secondary">
-            Open accounting desk
-          </Button>
-        </div>
       </Card>
 
-      <TransferReviewCard />
+      <ReadOnlyInsightCard />
 
       <Card className="lg:col-span-6">
         <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">Recent transactions</h3>
@@ -212,33 +202,12 @@ export function DashboardWidgets() {
         </div>
       </Card>
 
-      <Card className="lg:col-span-3">
-        <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">Credit snapshot</h3>
-        <p className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[var(--navy)]">{creditSnapshot.score}</p>
-        <p className="mt-2 text-sm text-[var(--success)]">{creditSnapshot.trend}</p>
-        <div className="mt-5 space-y-3 text-sm text-[var(--muted)]">
-          <p>Utilization: {creditSnapshot.utilization}</p>
-          <p>{creditSnapshot.nextBestAction}</p>
-        </div>
-        <div className="mt-5">
-          <Button href="/credit" variant="secondary">
-            Open credit workspace
-          </Button>
-        </div>
-      </Card>
-
-      <Card className="lg:col-span-3">
-        <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">Debt progress</h3>
-        <p className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-[var(--navy)]">{currency(debtProgress.remaining)}</p>
-        <p className="mt-2 text-sm text-[var(--muted)]">Remaining balance target</p>
-        <div className="mt-5 h-3 rounded-full bg-[rgba(11,31,51,0.08)]">
-          <div className="h-full rounded-full bg-[var(--teal)]" style={{ width: "26%" }} />
-        </div>
-        <div className="mt-4 space-y-3 text-sm text-[var(--muted)]">
-          <p>Paid down: {currency(debtProgress.paidDown)}</p>
-          <p>Target date: {debtProgress.targetDate}</p>
-          <p>{debtProgress.action}</p>
-        </div>
+      <Card className="lg:col-span-6">
+        <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">Demo guardrails</h3>
+        <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
+          This demo uses sample data only. In the signed-in workspace, Northline prioritizes imported Plaid transactions
+          and read-only cash-flow summaries.
+        </p>
       </Card>
     </div>
   );

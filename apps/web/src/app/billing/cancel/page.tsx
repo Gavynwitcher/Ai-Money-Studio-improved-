@@ -29,7 +29,7 @@ export default function BillingCancelPage() {
               No changes were made to your plan
             </h2>
             <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-              This page is the safe return point after a canceled Stripe Checkout session. Your current access remains unchanged until a completed payment reaches the webhook flow.
+              This page is the safe return point after a canceled Stripe Checkout session. Your current access remains unchanged until a completed checkout reaches the webhook flow.
             </p>
           </Card>
         </Container>

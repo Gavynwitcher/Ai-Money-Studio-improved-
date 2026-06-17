@@ -4,16 +4,21 @@ import { absoluteUrl } from "@/lib/seo";
 const routes = [
   "/",
   "/about",
+  "/accounts",
+  "/cash-flow",
   "/contact",
   "/dashboard-demo",
+  "/dashboard",
   "/faq",
   "/features",
+  "/insights",
   "/legal/disclaimer",
   "/legal/privacy",
   "/legal/terms",
   "/plaid-integration",
   "/pricing",
   "/security",
+  "/settings",
   "/transactions"
 ];
 

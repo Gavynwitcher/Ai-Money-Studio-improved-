@@ -165,7 +165,7 @@ export const spendingCategories = [
 export const alerts = [
   { title: "Tax reserve below target by $3.4K", tone: "warning" },
   { title: "Two institutions synced in the last 15 minutes", tone: "neutral" },
-  { title: "Transfer review ready for approval", tone: "success" }
+  { title: "Recurring vendor activity ready for review", tone: "success" }
 ];
 
 export const creditSnapshot = {

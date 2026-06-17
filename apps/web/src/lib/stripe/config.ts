@@ -1,4 +1,4 @@
-export type BillingPlanKey = "starter" | "hub_plus" | "transfer_flex";
+export type BillingPlanKey = "starter" | "northline_plus" | "pro";
 export type StripeCheckoutMode = "subscription" | "payment";
 
 export type BillingPlanConfig = {
@@ -16,20 +16,20 @@ const billingPlans: Record<BillingPlanKey, BillingPlanConfig> = {
     name: "Starter",
     ctaLabel: "Start free"
   },
-  hub_plus: {
-    key: "hub_plus",
-    name: "Hub Plus",
-    stripePriceId: process.env.STRIPE_PRICE_HUB_PLUS ?? process.env.STRIPE_PRICE_PLUS ?? undefined,
+  northline_plus: {
+    key: "northline_plus",
+    name: "Northline Plus",
+    stripePriceId: process.env.STRIPE_PRICE_NORTHLINE_PLUS ?? process.env.STRIPE_PRICE_HUB_PLUS ?? process.env.STRIPE_PRICE_PLUS ?? undefined,
     checkoutMode: "subscription",
-    ctaLabel: "Subscribe to Hub Plus",
+    ctaLabel: "Subscribe to Northline Plus",
     featured: true
   },
-  transfer_flex: {
-    key: "transfer_flex",
-    name: "Transfer Flex",
-    stripePriceId: process.env.STRIPE_PRICE_TRANSFER_FLEX ?? undefined,
-    checkoutMode: "payment",
-    ctaLabel: "Buy transfer credits"
+  pro: {
+    key: "pro",
+    name: "Pro",
+    stripePriceId: process.env.STRIPE_PRICE_PRO ?? undefined,
+    checkoutMode: "subscription",
+    ctaLabel: "Subscribe to Pro"
   }
 };
 

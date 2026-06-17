@@ -108,7 +108,7 @@ export function ContactForm() {
             value={values.message}
             onChange={(event) => setValues((current) => ({ ...current, message: event.target.value }))}
             className="min-h-[140px] rounded-2xl border border-[var(--line)] bg-white px-4 py-3 outline-none transition focus:border-[var(--teal)]"
-            placeholder="We want to understand how this could reduce account-hopping for our business clients and what transfer readiness would require."
+            placeholder="We want to understand how this could reduce account-hopping for our business clients and improve cash-flow visibility."
           />
         </label>
 

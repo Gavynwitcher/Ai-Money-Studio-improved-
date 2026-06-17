@@ -18,7 +18,7 @@ export default function BillingSuccessPage() {
       <PageHero
         eyebrow="Billing"
         title="Stripe checkout completed."
-        description="Your payment was submitted successfully. Stripe will confirm the subscription or purchase, and the platform will update billing access through the webhook flow."
+        description="Your Stripe checkout session was submitted successfully. Stripe will confirm the subscription, and the platform will update billing access through the webhook flow."
         primaryCta={{ href: "/pricing", label: "Return to pricing" }}
         secondaryCta={{ href: "/dashboard-demo", label: "Open dashboard demo" }}
       />
@@ -35,7 +35,7 @@ export default function BillingSuccessPage() {
               <p>Your paid plan or billing status becomes visible on the pricing page and in future gated features.</p>
             </div>
             <p className="mt-6 text-sm text-[var(--muted)]">
-              Need to review invoices or payment methods later? Use the{" "}
+              Need to review invoices or billing methods later? Use the{" "}
               <Link href="/pricing" className="font-semibold text-[var(--navy)] hover:underline">
                 manage billing
               </Link>{" "}

@@ -1,13 +1,15 @@
 import { featureFlags } from "@/lib/feature-flags";
 
 export const navigation = [
-  { href: "/dashboard-demo", label: "Dashboard" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/accounts", label: "Accounts" },
   { href: "/transactions", label: "Transactions" },
+  { href: "/cash-flow", label: "Cash Flow" },
+  { href: "/insights", label: "Insights" },
   { href: "/plaid-integration", label: "Connect" },
   { href: "/assistant", label: "AI" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/security", label: "Trust" },
-  { href: "/contact", label: "Support" }
+  { href: "/settings", label: "Settings" }
 ];
 
 export const featureCategories = [
@@ -22,8 +24,8 @@ export const featureCategories = [
     title: "Real-time balance visibility",
     status: featureFlags.balances,
     description:
-      "Surface total cash position, account-level balances, and quick cash movement cues from a single dashboard.",
-    bullets: ["Cash position summary", "Available vs. current balance", "Low-balance and deposit alerts"]
+      "Surface total cash position, account-level balances, and read-only account context from a single dashboard.",
+    bullets: ["Cash position summary", "Available vs. current balance", "Account status context"]
   },
   {
     title: "Transaction history and summaries",
@@ -33,60 +35,18 @@ export const featureCategories = [
     bullets: ["Recent transactions feed", "Category summaries", "Cash in / cash out snapshots"]
   },
   {
-    title: "Transfer workflow planning",
-    status: featureFlags.transfers,
+    title: "Cash-flow insights",
+    status: featureFlags.cashFlow,
     description:
-      "Planned review screens for future movement requests, available only after partner, compliance, and legal readiness is complete.",
-    bullets: ["Future transfer review", "Fee visibility planning", "Compliance-gated rollout"]
+      "Summarize inflow, outflow, net cash flow, category pressure, larger expenses, and recurring transaction candidates.",
+    bullets: ["30-day inflow and outflow", "Top categories", "Recurring activity candidates"]
   },
   {
-    title: "Accounting workspace",
-    status: featureFlags.debtAssistance,
+    title: "AI transaction review",
+    status: featureFlags.aiInsights,
     description:
-      "Planned bookkeeping workflows that may help users classify transactions and prepare operating summaries once the visibility layer is stable.",
-    bullets: ["Chart of accounts planning", "Receivables and payables roadmap", "Reconciliation queue concept"]
-  },
-  {
-    title: "Plaid Assets underwriting reports",
-    status: featureFlags.debtAssistance,
-    description:
-      "Future underwriting support that would require additional permissions, pricing review, and compliance approval before any launch.",
-    bullets: ["Asset Report research", "Webhook readiness planning", "Compliance-gated access"]
-  },
-  {
-    title: "Plaid Liabilities debt verification",
-    status: featureFlags.debtAssistance,
-    description:
-      "Future debt visibility research for mortgage, student loan, and credit-card data, not enabled in the private beta.",
-    bullets: ["Debt data research", "Due-date and APR concepts", "Future compliance review"]
-  },
-  {
-    title: "Debt assistance tools",
-    status: featureFlags.debtAssistance,
-    description:
-      "Planned budgeting and payoff coaching that helps users understand balances, due dates, and debt reduction options.",
-    bullets: ["Debt roadmap", "Payment priority prompts", "Guided payoff planning"]
-  },
-  {
-    title: "Credit repair assistant",
-    status: featureFlags.creditRepair,
-    description:
-      "Planned education and action checklists that help users work through credit report issues without overpromising outcomes.",
-    bullets: ["Dispute workflow guidance", "Action checklists", "Education library"]
-  },
-  {
-    title: "Credit monitoring",
-    status: featureFlags.creditMonitoring,
-    description:
-      "Future notifications and score-trend reporting designed to keep users aware of major changes over time.",
-    bullets: ["Score change alerts", "Trend history", "Monitoring overview"]
-  },
-  {
-    title: "Credit simulation",
-    status: featureFlags.creditSimulation,
-    description:
-      "Planned scenario tools that estimate how utilization or payoff changes may influence credit profile directionally.",
-    bullets: ["What-if simulator", "Utilization scenarios", "Education-first forecasts"]
+      "Generate informational summaries from imported Plaid transaction rows for the signed-in user only.",
+    bullets: ["Source-limited context", "Confidence language", "No regulated advice"]
   }
 ];
 
@@ -105,15 +65,15 @@ export const howItWorks = [
   },
   {
     step: "03",
-    title: "Organize cash flow decisions",
+    title: "Understand cash flow",
     copy:
-      "Users can review cash position, transaction patterns, and account health before deciding what action to take outside Northline."
+      "Users can review transaction patterns, recurring expenses, category pressure, and what changed across their accounts."
   },
   {
     step: "04",
-    title: "Grow into financial wellness tools",
+    title: "Review read-only AI insights",
     copy:
-      "As the product expands, users unlock debt support, credit insight tools, and additional online banking assistance."
+      "Northline AI summarizes imported transaction activity for informational review without tax, legal, investment, credit, or lending advice."
   }
 ];
 
@@ -126,7 +86,7 @@ export const trustPillars = [
   {
     title: "Careful compliance positioning",
     copy:
-      "The MVP copy avoids unsupported claims and clearly labels transfer capabilities and advanced services as subject to review and future approvals."
+      "Northline v1 is read-only. It does not hold funds, initiate bank actions, provide tax advice, repair credit, or approve lending."
   },
   {
     title: "Transparent product staging",
@@ -139,7 +99,7 @@ export const audienceCards = [
   {
     title: "Small business owners",
     copy:
-      "Track operating cash across payroll, reserve, and tax accounts without paying for enterprise treasury tooling."
+      "Monitor operating, reserve, payroll, and tax-account activity without paying for enterprise finance tooling."
   },
   {
     title: "Everyday consumers",
@@ -184,37 +144,37 @@ export const pricingPlans = [
     accent: false,
     bullets: [
       "Up to 2 connected institutions",
-      "Unified balances dashboard",
-      "Basic transaction feed",
-      "Waitlist access for future workflow features"
+      "Basic transaction view",
+      "Read-only account overview",
+      "Connection and sync status"
     ]
   },
   {
-    key: "hub_plus",
-    name: "Hub Plus",
+    key: "northline_plus",
+    name: "Northline Plus",
     price: "$19/mo",
     subtitle: "Premium plan for multi-account households and small businesses",
-    cta: "Choose Hub Plus",
+    cta: "Choose Northline Plus",
     accent: true,
     bullets: [
       "Unlimited connected institutions",
-      "Cash flow summaries and alerts",
-      "Priority support and onboarding analytics",
-      "Early access to advanced visibility workflows"
+      "Cash-flow summaries",
+      "AI transaction insights",
+      "Recurring expense detection"
     ]
   },
   {
-    key: "transfer_flex",
-    name: "Transfer Flex",
-    price: "From $2",
-    subtitle: "Planned pay-as-you-go option for future transfer reviews. Not available in private beta.",
-    cta: "Join transfer waitlist",
+    key: "pro",
+    name: "Pro",
+    price: "$39/mo",
+    subtitle: "Advanced read-only insights for operators who need deeper financial review.",
+    cta: "Choose Pro",
     accent: false,
     bullets: [
-      "$2 same-day transfer review concept",
-      "Per-transfer fee may vary by rail and partner",
-      "Status tracking planned for future releases",
-      "Subject to feature availability and compliance review"
+      "Advanced insights",
+      "CSV export planning",
+      "Tax reserve tracking",
+      "Priority onboarding support"
     ]
   }
 ];
@@ -226,7 +186,7 @@ export const comparisonRows = [
     label: "Connected institutions",
     starter: "2",
     plus: "Unlimited",
-    flex: "Up to linked institutions"
+    flex: "Unlimited"
   },
   {
     label: "Balances dashboard",
@@ -238,19 +198,19 @@ export const comparisonRows = [
     label: "Categorized transactions",
     starter: "Basic",
     plus: "Advanced",
-    flex: "Basic"
+    flex: "Advanced"
   },
   {
-    label: "Transfer initiation",
-    starter: "Waitlist",
-    plus: "Planned",
-    flex: "Planned"
+    label: "AI transaction insights",
+    starter: "Limited",
+    plus: "Included",
+    flex: "Advanced"
   },
   {
-    label: "Credit and debt tools",
-    starter: "Planned",
-    plus: "Planned",
-    flex: "Planned"
+    label: "Tax reserve tracking",
+    starter: "Not included",
+    plus: "Basic estimate",
+    flex: "Advanced estimate"
   }
 ];
 
@@ -263,17 +223,17 @@ export const faqs = [
   {
     question: "Can users move money between banks today?",
     answer:
-      "The MVP demonstrates a transfer workflow and can be wired to supported Plaid transfer capabilities later. Production rollout would remain subject to compliance, approvals, and product readiness."
+      "No. Northline v1 is read-only. It helps users connect accounts, review imported transactions, and understand cash flow."
   },
   {
     question: "What is available now versus later?",
     answer:
-      "Account aggregation, balances visibility, dashboard insights, pricing exploration, and the Plaid linking demo are available in the MVP. Debt assistance, credit repair guidance, monitoring, and score simulation are planned features."
+      "Account aggregation, balances visibility, transaction review, cash-flow summaries, pricing, and Plaid linking are the v1 focus. Staged products remain hidden until they are ready for review."
   },
   {
     question: "How does pricing work?",
     answer:
-      "The product supports a free entry path, a monthly subscription for broader usage and premium insights, and a transfer-fee option for users who prefer pay-as-you-go access."
+      "The product supports a free entry path plus monthly Plus and Pro plans for broader read-only usage, cash-flow summaries, AI insights, and exports."
   },
   {
     question: "Is Northline a bank?",
@@ -298,7 +258,7 @@ export const footerColumns = [
     title: "Platform",
     links: [
       { href: "/features", label: "Features" },
-      { href: "/dashboard-demo", label: "Dashboard" },
+      { href: "/dashboard", label: "Dashboard" },
       { href: "/transactions", label: "Transactions" },
       { href: "/plaid-integration", label: "Connect" },
       { href: "/pricing", label: "Pricing" }

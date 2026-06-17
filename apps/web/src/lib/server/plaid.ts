@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { v1FeatureFlags } from "@/lib/feature-flags";
 import { Configuration, CountryCode, PlaidApi, PlaidEnvironments, Products } from "plaid";
 
 type PlaidEnvironment = "sandbox" | "development" | "production";
@@ -191,7 +192,7 @@ function getPlaidClient() {
   return plaidClient;
 }
 
-function resolveConfiguredProducts() {
+export function resolveConfiguredProducts() {
   const raw = process.env.PLAID_PRODUCTS?.trim();
   if (!raw) {
     return [Products.Auth, Products.Transactions];
@@ -217,7 +218,13 @@ function resolveConfiguredProducts() {
     .map((value) => productMap[value])
     .filter((value): value is Products => Boolean(value));
 
-  return products.length > 0 ? products : [Products.Auth, Products.Transactions];
+  const allowedForV1 = new Set<Products>([Products.Auth, Products.Transactions]);
+  if (v1FeatureFlags.transfers) allowedForV1.add(Products.Transfer);
+  if (v1FeatureFlags.assets) allowedForV1.add(Products.Assets);
+  if (v1FeatureFlags.liabilities) allowedForV1.add(Products.Liabilities);
+
+  const safeProducts = products.filter((product) => allowedForV1.has(product));
+  return safeProducts.length > 0 ? safeProducts : [Products.Auth, Products.Transactions];
 }
 
 export async function createPlaidLinkToken(userId: string) {

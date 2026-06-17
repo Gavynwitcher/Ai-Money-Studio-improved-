@@ -103,7 +103,7 @@ export function WaitlistForm() {
             className="rounded-2xl border border-[var(--line)] bg-white px-4 py-3 outline-none transition focus:border-[var(--teal)]"
           >
             <option value="aggregation">Account aggregation</option>
-            <option value="transfers">Money movement</option>
+            <option value="cash_flow">Cash-flow visibility</option>
             <option value="credit">Credit tools</option>
             <option value="debt">Debt assistance</option>
           </select>

@@ -8,8 +8,8 @@ export default function DashboardDemoPage() {
     <>
       <PageHero
         eyebrow="Dashboard demo"
-        title="A realistic product surface for balances, transactions, transfers, and future wellness tools."
-        description="This page models the day-one customer experience: total balances, linked accounts, recent transactions, cash flow, transfer reviews, alerts, and staged credit and debt widgets."
+        title="A demo-only product surface for balances, transactions, and cash-flow review."
+        description="This page uses sample data for presentation only. The signed-in dashboard uses imported Plaid data when accounts are connected."
         primaryCta={{ href: "/plaid-integration", label: "Try the Plaid demo flow" }}
         secondaryCta={{ href: "/transactions", label: "Open transactions" }}
       />

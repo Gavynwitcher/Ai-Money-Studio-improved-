@@ -8,15 +8,15 @@ import { featureCategories } from "@/data/site";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
-  title: "Bank Account Aggregation, Transfers, and Financial Wellness Features",
+  title: "Bank Account Aggregation and Transaction Intelligence Features",
   description:
-    "Explore Northline features for multi-bank account aggregation, balance visibility, transaction summaries, transfer workflows, and future credit and debt support tools.",
+    "Explore Northline features for multi-bank account aggregation, balance visibility, transaction summaries, cash-flow review, and AI transaction insights.",
   path: "/features",
   keywords: [
     "bank account aggregation features",
     "plaid integration features",
-    "bank transfer workflow app",
-    "financial wellness tools"
+    "transaction intelligence app",
+    "cash flow visibility tools"
   ]
 });
 
@@ -25,9 +25,9 @@ export default function FeaturesPage() {
     <>
       <PageHero
         eyebrow="Platform features"
-        title="Everything the MVP needs today, with a roadmap users can trust."
-        description="Northline is structured to validate account visibility, linked-institution management, transaction summaries, transfer workflow interest, and future demand for financial wellness tools."
-        primaryCta={{ href: "/dashboard-demo", label: "View dashboard demo" }}
+        title="Read-only visibility for connected accounts and imported transactions."
+        description="Northline v1 focuses on account aggregation, linked-institution management, transaction summaries, cash-flow review, and AI insights based only on imported transaction rows."
+        primaryCta={{ href: "/dashboard", label: "Open dashboard" }}
         secondaryCta={{ href: "/pricing", label: "Explore pricing" }}
       />
 

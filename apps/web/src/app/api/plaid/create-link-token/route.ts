@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
 import { createLinkToken } from "@/lib/plaid/service";
 import { resolveActiveUserId } from "@/lib/server/user";
-import { createPlaidLinkToken, getPlaidConfigError } from "@/lib/server/plaid";
+import { createPlaidLinkToken, getPlaidConfigError, resolveConfiguredProducts } from "@/lib/server/plaid";
 import { getPlaidErrorMessage } from "@/lib/server/plaidErrors";
 import { isDbUnavailableError } from "@/lib/server/moneyCopilotFallback";
-import { getPlaidConfig, shouldUseMockPlaid } from "@/lib/plaid/config";
+import { shouldUseMockPlaid } from "@/lib/plaid/config";
 import { authRequiredJson } from "@/lib/server/http";
 import { isAuthRequiredError } from "@/lib/server/user";
 
 export async function POST() {
   try {
-    const config = getPlaidConfig();
     const userId = await resolveActiveUserId();
 
     if (shouldUseMockPlaid()) {
@@ -31,7 +30,7 @@ export async function POST() {
       environment: process.env.PLAID_ENV || "sandbox",
       mockMode: false,
       clientName: "Northline",
-      products: config.products,
+      products: resolveConfiguredProducts().map((product) => product.toString()),
       countryCodes: ["US"]
     });
   } catch (error) {

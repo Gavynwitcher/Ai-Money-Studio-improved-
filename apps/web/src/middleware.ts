@@ -21,7 +21,9 @@ const stagedPagePrefixes = [
   "/assets",
   "/credit",
   "/heloc-application",
-  "/liabilities"
+  "/liabilities",
+  "/marketpilot",
+  "/marketing-os"
 ];
 
 const protectedPagePrefixes = [
@@ -29,6 +31,11 @@ const protectedPagePrefixes = [
   "/goals-debt",
   "/actions",
   "/assistant",
+  "/dashboard",
+  "/accounts",
+  "/transactions",
+  "/cash-flow",
+  "/insights",
   "/scenarios",
   "/settings",
   "/operations-dashboard",
@@ -103,9 +110,16 @@ export const config = {
     "/credit/:path*",
     "/heloc-application/:path*",
     "/liabilities/:path*",
+    "/marketpilot/:path*",
+    "/marketing-os/:path*",
     "/goals-debt/:path*",
     "/actions/:path*",
     "/assistant/:path*",
+    "/dashboard/:path*",
+    "/accounts/:path*",
+    "/transactions/:path*",
+    "/cash-flow/:path*",
+    "/insights/:path*",
     "/scenarios/:path*",
     "/settings/:path*",
     "/operations-dashboard/:path*",

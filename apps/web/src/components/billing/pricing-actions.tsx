@@ -121,7 +121,7 @@ export function PricingActions(props: PricingActionsProps) {
               Subscription controls
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-[var(--muted)]">
-              Launch Stripe Checkout for paid plans and send active customers into the Stripe Billing Portal for plan changes, payment updates, and cancellation controls.
+              Launch Stripe Checkout for paid plans and send active customers into the Stripe Billing Portal for plan changes, billing updates, and cancellation controls.
             </p>
           </div>
           <div className="rounded-full bg-slate-100 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600">
@@ -144,24 +144,24 @@ export function PricingActions(props: PricingActionsProps) {
         <div className="mt-6 flex flex-wrap gap-3">
           <button
             type="button"
-            onClick={() => startTransition(() => launchCheckout("hub_plus"))}
-            disabled={isPending || state.loadingPlan !== null || !checkoutReady.has("hub_plus")}
+            onClick={() => startTransition(() => launchCheckout("northline_plus"))}
+            disabled={isPending || state.loadingPlan !== null || !checkoutReady.has("northline_plus")}
             className="inline-flex items-center justify-center rounded-2xl border border-[rgba(11,31,51,0.18)] bg-[var(--navy)] px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_36px_rgba(11,31,51,0.18)] transition hover:bg-[#122c46] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {state.loadingPlan === "hub_plus" ? "Redirecting..." : checkoutReady.has("hub_plus") ? "Subscribe to Hub Plus" : "Hub Plus not configured"}
+            {state.loadingPlan === "northline_plus" ? "Redirecting..." : checkoutReady.has("northline_plus") ? "Subscribe to Northline Plus" : "Northline Plus not configured"}
           </button>
 
           <button
             type="button"
-            onClick={() => startTransition(() => launchCheckout("transfer_flex"))}
-            disabled={isPending || state.loadingPlan !== null || !checkoutReady.has("transfer_flex")}
+            onClick={() => startTransition(() => launchCheckout("pro"))}
+            disabled={isPending || state.loadingPlan !== null || !checkoutReady.has("pro")}
             className="inline-flex items-center justify-center rounded-2xl border border-[var(--line-strong)] bg-white px-5 py-3 text-sm font-semibold text-[var(--navy)] transition hover:border-[var(--ocean)] disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {state.loadingPlan === "transfer_flex"
+            {state.loadingPlan === "pro"
               ? "Redirecting..."
-              : checkoutReady.has("transfer_flex")
-                ? "Buy transfer credits"
-                : "Transfer Flex not configured"}
+              : checkoutReady.has("pro")
+                ? "Subscribe to Pro"
+                : "Pro not configured"}
           </button>
 
           <button

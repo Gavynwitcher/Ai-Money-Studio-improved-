@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 function isBillingPlanKey(value: string | undefined): value is Exclude<BillingPlanKey, "starter"> {
-  return value === "hub_plus" || value === "transfer_flex";
+  return value === "northline_plus" || value === "pro";
 }
 
 export default async function BillingLaunchPage({

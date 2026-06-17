@@ -105,14 +105,6 @@ type PlaidTransactionsPayload = {
   error?: string;
 };
 
-type PlaidTransferPayload = {
-  transferId: string;
-  status: "review" | "scheduled";
-  amount: number;
-  fee: number;
-  eta: string;
-};
-
 type PlaidPublicMetadata = {
   institution?: {
     name?: string | null;
@@ -214,15 +206,8 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
   const [launching, setLaunching] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [unlinking, setUnlinking] = useState(false);
-  const [submittingTransfer, setSubmittingTransfer] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [transferFeedback, setTransferFeedback] = useState<string | null>(null);
-  const [transferError, setTransferError] = useState<string | null>(null);
-  const [transferResult, setTransferResult] = useState<PlaidTransferPayload | null>(null);
-  const [fromAccountId, setFromAccountId] = useState("");
-  const [toAccountId, setToAccountId] = useState("");
-  const [transferAmount, setTransferAmount] = useState("2500");
 
   const loadStatus = useCallback(async () => {
     const res = await fetch("/api/plaid/status", { cache: "no-store" });
@@ -285,16 +270,6 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
       canceled = true;
     };
   }, [loadDetails, loadStatus, onStatusChange]);
-
-  useEffect(() => {
-    if (accounts.length === 0) return;
-    if (!fromAccountId) {
-      setFromAccountId(accounts[0]?.id ?? "");
-    }
-    if (!toAccountId) {
-      setToAccountId(accounts[1]?.id ?? accounts[0]?.id ?? "");
-    }
-  }, [accounts, fromAccountId, toAccountId]);
 
   const refreshAll = useCallback(async () => {
     const [nextStatus] = await Promise.all([loadStatus(), loadDetails()]);
@@ -489,21 +464,13 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
   }, [launchPlaid, loadingStatus, status, syncing, launching, syncPlaidData, unlinking, refreshAll]);
 
   const modeLabel = status?.environment ? status.environment.toUpperCase() : "LIVE";
-  const treasuryTone = status?.connected ? "bg-emerald-500" : "bg-amber-500";
+  const connectionTone = status?.connected ? "bg-emerald-500" : "bg-amber-500";
   const connectionLabel = loadingStatus ? "Loading..." : status?.connected ? "Bank connected" : "Ready to connect";
   const syncLabel = loadingStatus ? "-" : formatRelativeTimestamp(status?.lastSyncedAt ?? null);
   const totalBalance = accounts.reduce((sum, account) => sum + account.currentBalance, 0);
   const availableBalance = accounts.reduce((sum, account) => sum + account.availableBalance, 0);
   const primaryInstitution = institutions[0]?.institutionName ?? status?.institutions?.[0] ?? "No institution linked yet";
   const connectedInstitutionCount = status?.connectedItems ?? 0;
-  const parsedTransferAmount = Number(transferAmount) || 0;
-  const fromAccount = accounts.find((account) => account.id === fromAccountId) ?? accounts[0] ?? null;
-  const toAccount = accounts.find((account) => account.id === toAccountId) ?? accounts[1] ?? accounts[0] ?? null;
-  const plaidTransferReady =
-    Boolean(status?.connected) &&
-    (status?.products?.includes("transfer") ?? false) &&
-    (status?.verifiedBankAccounts ?? 0) > 0 &&
-    accounts.length >= 2;
   const canManageConnections =
     !loadingStatus && !launching && !syncing && !unlinking && Boolean(status?.configured);
   const addInstitutionLabel = connectedInstitutionCount === 0 ? "Connect first bank" : "Add another bank";
@@ -521,46 +488,6 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
       }
     });
   }, [launchPlaid, onControlsReady, refreshAll, syncPlaidData]);
-
-  const submitTransferReview = useCallback(async () => {
-    if (!fromAccount || !toAccount || !parsedTransferAmount || parsedTransferAmount <= 0) {
-      setTransferError("Choose source, destination, and a positive amount before submitting.");
-      return;
-    }
-
-    try {
-      setSubmittingTransfer(true);
-      setTransferError(null);
-      setTransferFeedback(null);
-
-      const res = await fetch("/api/plaid/initiate-transfer", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          fromAccountId: fromAccount.id,
-          toAccountId: toAccount.id,
-          amount: parsedTransferAmount
-        })
-      });
-
-      const payload = (await res.json()) as PlaidTransferPayload | { error?: string };
-      if (!res.ok) {
-        throw new Error((payload as { error?: string }).error ?? "Failed to prepare Plaid transfer review");
-      }
-
-      const transfer = payload as PlaidTransferPayload;
-      setTransferResult(transfer);
-      setTransferFeedback(
-        plaidTransferReady
-          ? `Transfer review prepared for ${formatCurrency(transfer.amount)} from ${fromAccount.name} to ${toAccount.name}.`
-          : `Transfer review prepared for ${formatCurrency(transfer.amount)}. Plaid transfer execution still depends on product enablement, account verification, and compliance approval.`
-      );
-    } catch (caughtError) {
-      setTransferError(toMessage(caughtError, "Failed to prepare Plaid transfer review"));
-    } finally {
-      setSubmittingTransfer(false);
-    }
-  }, [fromAccount, parsedTransferAmount, plaidTransferReady, toAccount]);
 
   return (
     <section
@@ -631,7 +558,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
           <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Bank connection</p>
             <div className="mt-3 flex items-center gap-3">
-              <span className={`h-3 w-3 rounded-full ${treasuryTone}`} />
+              <span className={`h-3 w-3 rounded-full ${connectionTone}`} />
               <p className="text-lg font-semibold text-white">{connectionLabel}</p>
             </div>
             <p className="mt-2 text-sm text-slate-300">{primaryInstitution}</p>
@@ -707,19 +634,19 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
         </div>
 
         <div className="rounded-[28px] border border-slate-200 bg-white/90 p-5 shadow-[0_15px_45px_rgba(15,23,42,0.05)]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Operating guidance</p>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">User guidance</p>
           <h3 className="mt-2 text-xl font-semibold text-slate-950">Connection controls</h3>
           <div className="mt-4 grid gap-3">
             <div className="rounded-[20px] border border-slate-200 bg-[linear-gradient(135deg,#f8fbff_0%,#eef5ff_100%)] p-4">
-              <p className="text-sm font-semibold text-slate-950">Production environment</p>
+              <p className="text-sm font-semibold text-slate-950">Read-only visibility</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Link tokens are now issued against Plaid production, and stale sandbox records are cleared automatically if they conflict.
+                Plaid helps Northline show supported balances, accounts, and transaction history. Northline does not store bank passwords.
               </p>
             </div>
             <div className="rounded-[20px] border border-slate-200 bg-[linear-gradient(135deg,#fbfcfe_0%,#f4f7fb_100%)] p-4">
               <p className="text-sm font-semibold text-slate-950">Recommended flow</p>
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Add one bank at a time through Plaid Link, then run a sync to refresh balances and historical activity across every linked institution before enabling downstream workflows.
+                Add one bank at a time through Plaid Link, then refresh bank data to update balances and historical activity across linked institutions.
               </p>
             </div>
           </div>
@@ -833,147 +760,16 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
 
           {item ? (
             <div className="mt-4 rounded-[22px] border border-slate-200 bg-[linear-gradient(135deg,#fcfdff_0%,#f6f8fb_100%)] p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Link metadata</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Developer details</p>
               <p className="mt-2 text-sm text-slate-700">
-                Item: <span className="font-semibold text-slate-950">{item.institutionName}</span> · Products:{" "}
-                <span className="font-semibold text-slate-950">{item.availableProducts.join(", ")}</span>
+                Connected bank login: <span className="font-semibold text-slate-950">{item.institutionName}</span>
               </p>
-              <p className="mt-1 text-sm text-slate-600">Access token status: {item.accessTokenStatus}</p>
+              <p className="mt-1 text-sm text-slate-600">
+                Technical implementation keeps server-side token exchange and stored credentials out of the browser.
+              </p>
             </div>
           ) : null}
         </div>
-      </div>
-
-      <div className="mt-5 rounded-[28px] border border-slate-200 bg-white/90 p-5 shadow-[0_15px_45px_rgba(15,23,42,0.05)]">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">Transfer desk</p>
-            <h3 className="mt-2 text-xl font-semibold text-slate-950">Move funds between linked Plaid accounts</h3>
-          </div>
-          <div
-            className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] ${
-              plaidTransferReady
-                ? "bg-emerald-50 text-emerald-700"
-                : "bg-amber-50 text-amber-700"
-            }`}
-          >
-            {plaidTransferReady ? "Transfer-ready" : "Review only"}
-          </div>
-        </div>
-
-        <div className="mt-4 grid gap-3 md:grid-cols-4">
-          <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Transfer product</p>
-            <p className="mt-3 text-lg font-semibold text-slate-950">
-              {status?.products?.includes("transfer") ? "Included" : "Not enabled"}
-            </p>
-          </div>
-          <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Verified accounts</p>
-            <p className="mt-3 text-lg font-semibold text-slate-950">{status?.verifiedBankAccounts ?? 0}</p>
-          </div>
-          <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Linked endpoints</p>
-            <p className="mt-3 text-lg font-semibold text-slate-950">{accounts.length}</p>
-          </div>
-          <div className="rounded-[22px] border border-slate-200 bg-slate-50 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Auth posture</p>
-            <p className="mt-3 text-sm font-semibold text-slate-950">
-              {status?.authMethods?.length ? status.authMethods.join(", ") : "No auth method reported yet"}
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_1fr_0.8fr]">
-          <label className="grid gap-2 text-sm text-slate-600">
-            From account
-            <select
-              value={fromAccountId}
-              onChange={(event) => setFromAccountId(event.target.value)}
-              className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-950 outline-none"
-              disabled={accounts.length === 0}
-            >
-              {accounts.map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.institutionName} · {account.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="grid gap-2 text-sm text-slate-600">
-            To account
-            <select
-              value={toAccountId}
-              onChange={(event) => setToAccountId(event.target.value)}
-              className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-950 outline-none"
-              disabled={accounts.length === 0}
-            >
-              {accounts.map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.institutionName} · {account.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="grid gap-2 text-sm text-slate-600">
-            Amount
-            <input
-              value={transferAmount}
-              onChange={(event) => setTransferAmount(event.target.value)}
-              inputMode="decimal"
-              placeholder="2500"
-              className="rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-sm font-medium text-slate-950 outline-none"
-            />
-          </label>
-        </div>
-
-        <div className="mt-4 rounded-[22px] border border-slate-200 bg-[linear-gradient(135deg,#fbfdff_0%,#f4f8fd_100%)] p-4">
-          <p className="text-sm font-semibold text-slate-950">
-            {fromAccount && toAccount
-              ? `${formatCurrency(parsedTransferAmount)} from ${fromAccount.name} to ${toAccount.name}`
-              : "Connect accounts to prepare a transfer review"}
-          </p>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            {plaidTransferReady
-              ? "This workspace has the minimum signals needed to prepare a Plaid transfer review."
-              : "This workspace can prepare a live transfer review, but real execution still depends on enabled transfer product access, verified accounts, and additional compliance steps."}
-          </p>
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={submitTransferReview}
-            disabled={submittingTransfer || accounts.length < 2}
-            className="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white shadow-[0_18px_45px_rgba(8,22,40,0.18)] disabled:cursor-not-allowed disabled:bg-slate-300"
-          >
-            {submittingTransfer ? "Preparing review..." : "Prepare Plaid transfer"}
-          </button>
-          <button
-            type="button"
-            onClick={syncPlaidData}
-            disabled={syncing || accounts.length === 0}
-            className="rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-950 disabled:cursor-not-allowed disabled:text-slate-400"
-          >
-            {syncing ? "Syncing..." : "Refresh transfer data"}
-          </button>
-        </div>
-
-        {transferResult ? (
-          <div className="mt-4 rounded-[22px] border border-slate-200 bg-slate-50 p-4">
-            <p className="text-sm font-semibold text-slate-950">Latest transfer review</p>
-            <p className="mt-2 text-sm text-slate-600">
-              Transfer ID: <span className="font-semibold text-slate-950">{transferResult.transferId}</span>
-            </p>
-            <p className="mt-1 text-sm text-slate-600">
-              Status: <span className="font-semibold text-slate-950">{transferResult.status}</span> · Fee{" "}
-              <span className="font-semibold text-slate-950">{formatCurrency(transferResult.fee)}</span>
-            </p>
-            <p className="mt-1 text-sm text-slate-600">{transferResult.eta}</p>
-          </div>
-        ) : null}
       </div>
 
       {!loadingStatus && status?.resetRequired && status?.resetMessage ? (
@@ -998,17 +794,6 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
         <div className="mt-4 rounded-[22px] border border-rose-200 bg-rose-50 px-4 py-4 text-sm text-rose-800">{error}</div>
       ) : null}
 
-      {transferFeedback ? (
-        <div className="mt-4 rounded-[22px] border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-900">
-          {transferFeedback}
-        </div>
-      ) : null}
-
-      {transferError ? (
-        <div className="mt-4 rounded-[22px] border border-rose-200 bg-rose-50 px-4 py-4 text-sm text-rose-800">
-          {transferError}
-        </div>
-      ) : null}
     </section>
   );
 }

@@ -14,7 +14,7 @@ import type { BillingPlanKey } from "@/lib/stripe/config";
 export const metadata: Metadata = buildMetadata({
   title: "Pricing for Multi-Bank Account Aggregation and Plaid-Powered Banking Tools",
   description:
-    "Review pricing for Northline, including free and paid options for connected bank accounts, transaction visibility, and future transfer workflows.",
+    "Review pricing for Northline read-only connected account visibility, transaction intelligence, cash-flow summaries, and AI insights.",
   path: "/pricing",
   keywords: [
     "bank account aggregation pricing",
@@ -31,8 +31,8 @@ export default async function PricingPage() {
     <>
       <PageHero
         eyebrow="Pricing"
-        title="A premium fintech experience without enterprise-tool pricing."
-        description="The MVP pricing model is designed to test cost sensitivity, subscription appetite, and transfer-fee tolerance across consumers and small businesses."
+        title="Read-only financial visibility without enterprise-tool pricing."
+        description="Northline pricing is designed around connected accounts, transaction intelligence, cash-flow summaries, recurring expense detection, and AI insights. Northline does not move money or hold funds."
         primaryCta={{ href: "/signup", label: "Start free" }}
         secondaryCta={{ href: "/contact", label: "Request custom demo" }}
       />
@@ -112,8 +112,8 @@ export default async function PricingPage() {
                   <tr>
                     <th className="px-6 py-4 font-semibold">Capability</th>
                     <th className="px-6 py-4 font-semibold">Starter</th>
-                    <th className="px-6 py-4 font-semibold">Hub Plus</th>
-                    <th className="px-6 py-4 font-semibold">Transfer Flex</th>
+                    <th className="px-6 py-4 font-semibold">Northline Plus</th>
+                    <th className="px-6 py-4 font-semibold">Pro</th>
                   </tr>
                 </thead>
                 <tbody>

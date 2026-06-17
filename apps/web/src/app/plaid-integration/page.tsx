@@ -27,7 +27,7 @@ const trustCards = [
   },
   {
     title: "Built for visibility first",
-    copy: "Northline focuses on balances, transactions, cash flow, and account organization before advanced transfer features."
+    copy: "Northline focuses on balances, transactions, cash flow, and account organization in a read-only v1 workspace."
   }
 ];
 

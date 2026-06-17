@@ -52,7 +52,7 @@ export function NorthlineAssistant() {
     {
       role: "assistant",
       content:
-        "Ask me about imported transactions in Northline. I only use transaction records supplied by the app, and I will not use dashboard totals, account balances, or transfer panels as source data."
+        "Ask me about imported transactions in Northline. I only use transaction records supplied by the app, and I will not use dashboard totals, account balances, or non-transaction panels as source data."
     }
   ]);
   const [input, setInput] = useState("");
@@ -212,7 +212,7 @@ export function NorthlineAssistant() {
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--teal)]">Guardrails</p>
           <div className="mt-5 grid gap-3 text-sm leading-7 text-[var(--muted)]">
             <p>Answers stay grounded in imported transaction records supplied to the assistant.</p>
-            <p>Money movement, legal, tax, investment, credit repair, and lending decisions stay outside the assistant.</p>
+            <p>Banking actions, legal, tax, investment, credit repair, and lending decisions stay outside the assistant.</p>
             <p>If transaction data is missing, Northline AI should ask for an import or sync instead of guessing.</p>
           </div>
         </Card>

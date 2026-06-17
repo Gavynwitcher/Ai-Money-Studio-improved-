@@ -13,7 +13,7 @@ export function Footer() {
                 Northline
               </p>
               <h2 className="mt-3 font-heading text-3xl font-semibold tracking-[-0.05em] text-white">
-                One workspace for linked accounts, transaction insight, and financial operations.
+                A read-only workspace for linked accounts, transaction insight, and cash-flow clarity.
               </h2>
               <p className="mt-4 max-w-md text-sm leading-7 text-slate-200">
                 Northline is a fintech operating layer for consumers and small business owners who need a clearer view
@@ -21,7 +21,7 @@ export function Footer() {
               </p>
               <div className="mt-6 grid gap-2 text-sm text-slate-200">
                 <p>Plaid-powered connectivity</p>
-                <p>Built for affordability, clarity, and staged compliance rollout</p>
+                <p>Read-only visibility. No fund custody or banking execution.</p>
               </div>
             </div>
 
@@ -43,8 +43,8 @@ export function Footer() {
 
           <div className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-6 text-sm text-slate-300 sm:flex-row sm:items-center sm:justify-between">
             <p>
-              Advanced transfer, credit, and lending workflows remain planned and subject to partner support,
-              compliance review, and staged product availability.
+              Northline does not hold funds, initiate banking actions, or provide tax, legal, investment,
+              credit-repair, or lending advice. Insights are informational and should be verified before decisions.
             </p>
             <div className="flex flex-wrap gap-4">
               {legalLinks.map((link) => (

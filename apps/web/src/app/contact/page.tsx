@@ -46,7 +46,7 @@ export default function ContactPage() {
             <Card className="rounded-[30px]">
               <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Guided walkthrough</h2>
               <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                Request a guided walkthrough of account linking, dashboard visibility, debt verification, and transfer readiness.
+                Request a guided walkthrough of account linking, dashboard visibility, transaction review, and cash-flow summaries.
               </p>
             </Card>
             <Card className="rounded-[30px]">
@@ -58,7 +58,7 @@ export default function ContactPage() {
             <Card className="rounded-[30px]">
               <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Usage signals</h2>
               <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                Track whether customers are asking most about aggregation, transfers, accounting, debt verification, or credit tools.
+                Track whether customers are asking most about aggregation, transaction review, cash-flow visibility, AI insights, or pricing.
               </p>
             </Card>
           </div>

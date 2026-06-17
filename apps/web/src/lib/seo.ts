@@ -11,7 +11,7 @@ export const siteConfig = {
   name: "Northline",
   shortName: "Northline",
   description:
-    "Northline is a multi-bank finance workspace for consumers and small business owners who need one place to monitor balances, transactions, debt posture, and transfer-ready workflows.",
+    "Northline is a multi-bank finance workspace for consumers and small business owners who need one place to monitor balances, transactions, cash flow, and read-only financial activity.",
   siteUrl: normalizeUrl(process.env.NEXT_PUBLIC_SITE_URL ?? process.env.SITE_URL),
   ogImage: "/opengraph-image"
 };

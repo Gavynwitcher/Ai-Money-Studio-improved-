@@ -59,7 +59,7 @@ export default function OpenGraphImage() {
             Connect bank accounts, track balances, and monitor transactions in one place.
           </div>
           <div style={{ fontSize: "28px", lineHeight: 1.4, color: "#d7e7ef" }}>
-            Plaid-powered account aggregation, categorized transaction views, and transfer-ready banking workflows.
+            Plaid-powered account aggregation, categorized transaction views, and cash-flow visibility.
           </div>
         </div>
 

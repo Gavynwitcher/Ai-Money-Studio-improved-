@@ -20,7 +20,7 @@ export default function TermsPage() {
               Users are responsible for providing accurate information during account linking, safeguarding their login credentials, and using the service only for lawful purposes.
             </p>
             <p>
-              Additional commercial terms, billing conditions, and product-specific rules may apply to premium features, transfer workflows, or future financial wellness services.
+              Additional commercial terms, billing conditions, and product-specific rules may apply to premium features or future financial wellness services.
             </p>
           </Card>
         </Container>

@@ -47,7 +47,7 @@ export default function AboutPage() {
             <Card className="rounded-[30px]">
               <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Approach</h2>
               <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                Start with account visibility and transfer workflow validation, then expand thoughtfully into debt support, credit guidance, and additional financial wellness tools.
+                Start with account visibility, transaction review, and cash-flow summaries, then expand thoughtfully only after additional compliance and product review.
               </p>
             </Card>
           </div>

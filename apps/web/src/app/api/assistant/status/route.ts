@@ -9,8 +9,8 @@ export async function GET() {
     openai,
     guardrails: [
       "Answers are limited to imported transaction records provided to Northline AI.",
-      "Northline AI does not move money, approve transfers, repair credit, or provide legal, tax, or investment advice.",
-      "Advanced transfer, credit, and debt workflows remain subject to partner availability and compliance review."
+      "Northline AI does not initiate bank actions, repair credit, or provide legal, tax, or investment advice.",
+      "Advanced credit and debt workflows remain subject to partner availability and compliance review."
     ]
   });
 }

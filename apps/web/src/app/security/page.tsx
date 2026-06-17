@@ -9,7 +9,7 @@ const sections = [
   {
     title: "Data privacy overview",
     copy:
-      "Northline is positioned to collect only the information needed to deliver account visibility, transaction summaries, and approved transfer workflows, while relying on secure third-party connectivity for institution-level linking."
+      "Northline is positioned to collect only the information needed to deliver account visibility, transaction summaries, and cash-flow review, while relying on secure third-party connectivity for institution-level linking."
   },
   {
     title: "Plaid-powered secure connection",
@@ -24,7 +24,7 @@ const sections = [
   {
     title: "Compliance disclaimer",
     copy:
-      "The MVP intentionally avoids claiming regulated status, guaranteed approvals, or instant transfer capabilities. Advanced movement and regulated services may require additional reviews, approvals, partner configuration, and legal oversight."
+      "The MVP intentionally avoids claiming regulated status, guaranteed approvals, or bank-action capabilities. Any future regulated services would require additional reviews, approvals, partner configuration, and legal oversight."
   }
 ];
 
@@ -47,7 +47,7 @@ export default function SecurityPage() {
       <PageHero
         eyebrow="Security and compliance"
         title="Trustworthy language for customers, investors, and compliance stakeholders."
-        description="The site copy is designed to feel secure and credible without making unsupported claims about regulated services or transfer speed."
+        description="The site copy is designed to feel secure and credible without making unsupported claims about regulated services or bank-action capabilities."
         primaryCta={{ href: "/legal/disclaimer", label: "Read disclaimer" }}
         secondaryCta={{ href: "/plaid-integration", label: "See integration flow" }}
       />

@@ -18,7 +18,7 @@ export default async function SignUpPage({
 }) {
   const billing = await getBillingOverview();
   const defaultPlan =
-    searchParams?.plan === "hub_plus" || searchParams?.plan === "transfer_flex" || searchParams?.plan === "starter"
+    searchParams?.plan === "northline_plus" || searchParams?.plan === "pro" || searchParams?.plan === "starter"
       ? searchParams.plan
       : "starter";
 
