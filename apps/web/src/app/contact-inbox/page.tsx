@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/container";
 import { PageHero } from "@/components/ui/page-hero";
 import { authOptions } from "@/lib/auth";
 import { buildMetadata } from "@/lib/seo";
-import { getContactInbox } from "@/lib/server/contact";
+import { getContactInbox, isContactInboxAuthorized } from "@/lib/server/contact";
 
 export const metadata: Metadata = {
   ...buildMetadata({
@@ -34,6 +34,9 @@ export default async function ContactInboxPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     redirect("/signin?callbackUrl=/contact-inbox");
+  }
+  if (!isContactInboxAuthorized(session.user.email)) {
+    redirect("/dashboard-demo");
   }
 
   const inquiries = await getContactInbox();

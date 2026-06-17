@@ -13,6 +13,10 @@ model User {
   name                        String?
   passwordHash                String
   stripeCustomerId            String?                           @unique
+  emailVerifiedAt             DateTime?
+  termsAcceptedAt             DateTime?
+  termsAcceptedIp             String?
+  termsAcceptedVersion        String?
   stripeConnectedAccounts     StripeConnectedAccount[]
   billingPlan                 String                            @default("starter")
   billingStatus               String                            @default("inactive")

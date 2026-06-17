@@ -1,7 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { Footer } from "@/components/site/footer";
-import { Header } from "@/components/site/header";
+import { Analytics } from "@vercel/analytics/react";
+import { AppShell } from "@/components/site/app-shell";
 import { absoluteUrl, siteConfig } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -56,18 +56,15 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: "#0b1f33"
+  themeColor: "#183b67"
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body className="bg-[var(--canvas)] text-slate-950">
-        <div className="site-shell min-h-screen">
-          <Header />
-          <main className="relative">{children}</main>
-          <Footer />
-        </div>
+        <AppShell>{children}</AppShell>
+        <Analytics />
       </body>
     </html>
   );

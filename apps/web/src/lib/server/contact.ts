@@ -37,6 +37,19 @@ function normalizeEmail(email: string) {
   return email.trim().toLowerCase();
 }
 
+export function isContactInboxAuthorized(email: string) {
+  const normalized = normalizeEmail(email);
+  const ownerRecipient = getContactOwnerRecipient();
+  const allowlist = [
+    ownerRecipient,
+    ...(process.env.CONTACT_INBOX_ALLOWLIST?.split(",").map((value) => value.trim()).filter(Boolean) ?? [])
+  ]
+    .map(normalizeEmail)
+    .filter(Boolean);
+
+  return allowlist.includes(normalized);
+}
+
 function validateInput(input: ContactSubmissionInput) {
   const name = input.name.trim();
   const email = normalizeEmail(input.email);

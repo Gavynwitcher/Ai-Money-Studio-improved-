@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 import { errorJson } from "@/lib/server/http";
-import { createContactInquiry, getContactInquiriesByEmail } from "@/lib/server/contact";
+import { authOptions } from "@/lib/auth";
+import { createContactInquiry, getContactInquiriesByEmail, isContactInboxAuthorized } from "@/lib/server/contact";
+
+function normalizeEmail(value: string) {
+  return value.trim().toLowerCase();
+}
 
 export async function GET(request: NextRequest) {
   const email = request.nextUrl.searchParams.get("email")?.trim();
@@ -9,6 +15,18 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const session = await getServerSession(authOptions);
+    const signedInEmail = session?.user?.email ? normalizeEmail(session.user.email) : null;
+    const requestedEmail = normalizeEmail(email);
+
+    if (!signedInEmail) {
+      return errorJson("Authentication required to review contact history.", 401);
+    }
+
+    if (signedInEmail !== requestedEmail && !isContactInboxAuthorized(signedInEmail)) {
+      return errorJson("You are not allowed to review contact history for this email.", 403);
+    }
+
     const inquiries = await getContactInquiriesByEmail(email);
     return NextResponse.json({ inquiries });
   } catch (error) {

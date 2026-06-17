@@ -20,7 +20,7 @@ export function getPlaidConfig() {
     environment: getPlaidEnvironment(),
     webhookUrl: readEnv("PLAID_WEBHOOK_URL"),
     redirectUri: readEnv("PLAID_REDIRECT_URI"),
-    products: readEnv("PLAID_PRODUCTS", "auth,transactions,transfer")
+    products: readEnv("PLAID_PRODUCTS", "auth,transactions")
       .split(",")
       .map((item) => item.trim())
       .filter(Boolean)

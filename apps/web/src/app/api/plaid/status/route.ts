@@ -7,12 +7,14 @@ import {
   getPlaidConnectionStatus,
   isPlaidConfigured
 } from "@/lib/server/plaid";
-import { resolveActiveUserId } from "@/lib/server/user";
+import { isAuthRequiredError, resolveActiveUserId } from "@/lib/server/user";
 import { isDbUnavailableError } from "@/lib/server/moneyCopilotFallback";
+import { authRequiredJson } from "@/lib/server/http";
 
 export async function GET() {
   try {
     const config = getPlaidConfig();
+    const userId = await resolveActiveUserId();
 
     if (shouldUseMockPlaid()) {
       const [institutions, accounts] = await Promise.all([fetchLinkedInstitutions(), fetchLinkedAccounts()]);
@@ -38,7 +40,6 @@ export async function GET() {
       });
     }
 
-    const userId = await resolveActiveUserId();
     const reset = await ensurePlaidItemsMatchEnvironment(userId);
     const status = await getPlaidConnectionStatus(userId);
 
@@ -55,6 +56,10 @@ export async function GET() {
       ...status
     });
   } catch (error) {
+    if (isAuthRequiredError(error)) {
+      return authRequiredJson("Please sign in to view bank connection status.");
+    }
+
     if (isDbUnavailableError(error)) {
       return NextResponse.json(
         {

@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CategoryChart } from "@/components/charts/category-chart";
 import { CashFlowChart } from "@/components/charts/cash-flow-chart";
-import { StripeTransferWorkspace } from "@/components/stripe/stripe-transfer-workspace";
 import {
   accounts,
   alerts,
@@ -27,6 +26,65 @@ function MiniTrend({ values }: { values: number[] }) {
         />
       ))}
     </div>
+  );
+}
+
+function TransferReviewCard() {
+  const fromAccount = accounts[1] ?? accounts[0];
+  const toAccount = accounts[0] ?? accounts[1];
+
+  return (
+    <Card className="lg:col-span-3 rounded-[28px]">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--teal)]">
+            Transfer review
+          </p>
+          <h3 className="mt-3 font-heading text-xl font-semibold text-[var(--navy)]">
+            Plan money movement before you send
+          </h3>
+        </div>
+        <Badge tone="warning">Review</Badge>
+      </div>
+
+      <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
+        Northline helps preview source, destination, timing, and estimated fees before advanced transfer workflows are enabled.
+      </p>
+
+      <div className="bank-panel-muted mt-5 rounded-[24px] p-4">
+        <p className="text-sm font-semibold text-[var(--navy)]">Suggested route</p>
+        <div className="mt-4 grid gap-3">
+          {[
+            ["From", `${fromAccount.institutionName} · ${fromAccount.name}`],
+            ["To", `${toAccount.institutionName} · ${toAccount.name}`],
+            ["Amount", "$2,500"],
+            ["Fee preview", "$2 same-day option"],
+            ["Status", "Ready for team review"]
+          ].map(([label, value]) => (
+            <div key={label} className="ledger-row flex items-center justify-between rounded-[18px] px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--muted)]">{label}</p>
+              <p className="text-right text-sm font-semibold text-[var(--navy)]">{value}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-[24px] border border-[var(--line)] bg-slate-50/80 p-4">
+        <p className="text-sm font-semibold text-[var(--navy)]">Compliance-aware demo mode</p>
+        <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
+          Live transfers are planned and subject to banking partner, Stripe/Plaid availability, and compliance review.
+        </p>
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-3">
+        <Button href="/plaid-integration" className="px-4 py-3">
+          Connect another bank
+        </Button>
+        <Button href="/pricing" variant="secondary">
+          View transfer pricing
+        </Button>
+      </div>
+    </Card>
   );
 }
 
@@ -120,7 +178,7 @@ export function DashboardWidgets() {
         </div>
       </Card>
 
-      <StripeTransferWorkspace />
+      <TransferReviewCard />
 
       <Card className="lg:col-span-6">
         <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">Recent transactions</h3>

@@ -1,11 +1,17 @@
+import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 export function Card({
   children,
-  className
+  className,
+  ...props
 }: {
   children: React.ReactNode;
   className?: string;
-}) {
-  return <div className={cn("bank-panel rounded-[28px] p-6", className)}>{children}</div>;
+} & HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div className={cn("bank-panel rounded-[28px] p-6", className)} {...props}>
+      {children}
+    </div>
+  );
 }

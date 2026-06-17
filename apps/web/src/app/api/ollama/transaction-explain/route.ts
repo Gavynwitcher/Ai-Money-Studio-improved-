@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { errorJson } from "@/lib/server/http";
 import { OllamaMessage, runOllamaChat } from "@/lib/server/ollama";
+import { getOpenAiConfig, runOpenAiChat } from "@/lib/server/openai";
 
 type ExplainPayload = {
   model?: string;
@@ -92,13 +93,21 @@ export async function POST(req: NextRequest) {
       ].join("\n")
     };
 
-    const result = await runOllamaChat({
-      model: payload.model,
-      messages: [systemMessage, userMessage]
-    });
+    const openAiConfig = getOpenAiConfig();
+    const result = openAiConfig.configured
+      ? await runOpenAiChat({
+          model: payload.model,
+          messages: [systemMessage, userMessage],
+          maxOutputTokens: 220
+        })
+      : await runOllamaChat({
+          model: payload.model,
+          messages: [systemMessage, userMessage]
+        });
 
     return NextResponse.json({
       explanation: result.reply,
+      provider: "provider" in result ? result.provider : "ollama",
       model: result.model,
       createdAt: result.createdAt
     });

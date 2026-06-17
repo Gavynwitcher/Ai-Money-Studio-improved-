@@ -5,13 +5,16 @@ import { createPlaidLinkToken, getPlaidConfigError } from "@/lib/server/plaid";
 import { getPlaidErrorMessage } from "@/lib/server/plaidErrors";
 import { isDbUnavailableError } from "@/lib/server/moneyCopilotFallback";
 import { getPlaidConfig, shouldUseMockPlaid } from "@/lib/plaid/config";
+import { authRequiredJson } from "@/lib/server/http";
+import { isAuthRequiredError } from "@/lib/server/user";
 
 export async function POST() {
   try {
     const config = getPlaidConfig();
+    const userId = await resolveActiveUserId();
 
     if (shouldUseMockPlaid()) {
-      const result = await createLinkToken();
+      const result = await createLinkToken(userId);
       return NextResponse.json(result);
     }
 
@@ -20,7 +23,6 @@ export async function POST() {
       return NextResponse.json({ error: configError }, { status: 400 });
     }
 
-    const userId = await resolveActiveUserId();
     const result = await createPlaidLinkToken(userId);
 
     return NextResponse.json({
@@ -33,6 +35,10 @@ export async function POST() {
       countryCodes: ["US"]
     });
   } catch (error) {
+    if (isAuthRequiredError(error)) {
+      return authRequiredJson("Please sign in before connecting a bank account.");
+    }
+
     if (isDbUnavailableError(error)) {
       return NextResponse.json({ error: "Database unavailable. Start the app database before connecting Plaid." }, { status: 503 });
     }

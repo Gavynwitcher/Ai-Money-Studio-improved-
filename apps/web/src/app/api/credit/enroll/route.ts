@@ -1,21 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
-import { errorJson } from "@/lib/server/http";
-import { enrollInCreditMonitoring } from "@/lib/server/credit";
+import { NextRequest } from "next/server";
+import { privateBetaUnavailableJson } from "@/lib/server/http";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
-  try {
-    const body = (await request.json().catch(() => ({}))) as {
-      monitoringEnabled?: boolean;
-      reportsEnabled?: boolean;
-      scoreAccessEnabled?: boolean;
-      bureauScope?: string;
-    };
-
-    const overview = await enrollInCreditMonitoring(body);
-    return NextResponse.json(overview, { status: 201 });
-  } catch (error) {
-    return errorJson(error instanceof Error ? error.message : "Failed to enroll in credit monitoring.", 400);
-  }
+  await request.json().catch(() => ({}));
+  return privateBetaUnavailableJson("Credit monitoring enrollment");
 }

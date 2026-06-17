@@ -44,16 +44,16 @@ export function PageHero({
             <div className="grid gap-3">
               <div className="bank-stat-dark rounded-[24px] p-5 text-white">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/75">Operating model</p>
-                <p className="mt-3 text-lg font-semibold">Connected accounts, disciplined books, and approval-aware movement.</p>
+                <p className="mt-3 text-lg font-semibold">Connected cash visibility with guided next actions</p>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="bank-stat-dark rounded-[22px] p-4 text-white">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/75">Institution-ready</p>
-                  <p className="mt-3 text-sm leading-6 text-slate-200">Calm hierarchy, ledger-style panels, and conservative product language.</p>
+                  <p className="mt-3 text-sm leading-6 text-slate-200">Structured surfaces, approval-aware copy, and balance-first hierarchy.</p>
                 </div>
                 <div className="bank-stat-dark rounded-[22px] p-4 text-white">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/75">Operational signal</p>
-                  <p className="mt-3 text-sm leading-6 text-slate-200">Built to validate linkage, close workflows, transfer intent, and credit demand.</p>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/75">Customer signal</p>
+                  <p className="mt-3 text-sm leading-6 text-slate-200">Built to validate account connection, cash review, and transfer intent.</p>
                 </div>
               </div>
             </div>

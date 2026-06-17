@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-const defaultSiteUrl = "https://unified-banking-hub-three.vercel.app";
+const defaultSiteUrl = "https://usenorthline.com";
 
 function normalizeUrl(value?: string | null) {
   if (!value) return defaultSiteUrl;
@@ -11,7 +11,7 @@ export const siteConfig = {
   name: "Northline",
   shortName: "Northline",
   description:
-    "Northline helps consumers and small businesses connect multiple bank accounts, track balances and transactions, and explore Plaid-powered money movement workflows in one place.",
+    "Northline is a multi-bank finance workspace for consumers and small business owners who need one place to monitor balances, transactions, debt posture, and transfer-ready workflows.",
   siteUrl: normalizeUrl(process.env.NEXT_PUBLIC_SITE_URL ?? process.env.SITE_URL),
   ogImage: "/opengraph-image"
 };

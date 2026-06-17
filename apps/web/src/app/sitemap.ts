@@ -4,9 +4,7 @@ import { absoluteUrl } from "@/lib/seo";
 const routes = [
   "/",
   "/about",
-  "/accounting",
   "/contact",
-  "/credit",
   "/dashboard-demo",
   "/faq",
   "/features",

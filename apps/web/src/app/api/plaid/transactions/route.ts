@@ -2,11 +2,14 @@ import { NextResponse } from "next/server";
 import { fetchTransactions } from "@/lib/plaid/service";
 import { shouldUseMockPlaid } from "@/lib/plaid/config";
 import { prisma } from "@/lib/prisma";
-import { resolveActiveUserId } from "@/lib/server/user";
+import { isAuthRequiredError, resolveActiveUserId } from "@/lib/server/user";
 import { isDbUnavailableError } from "@/lib/server/moneyCopilotFallback";
+import { authRequiredJson } from "@/lib/server/http";
 
 export async function GET() {
   try {
+    const userId = await resolveActiveUserId();
+
     if (shouldUseMockPlaid()) {
       const transactions = await fetchTransactions();
       return NextResponse.json({
@@ -14,7 +17,6 @@ export async function GET() {
       });
     }
 
-    const userId = await resolveActiveUserId();
     const transactions = await prisma.moneyCopilotTransaction.findMany({
       where: {
         userId,
@@ -44,6 +46,10 @@ export async function GET() {
       }))
     });
   } catch (error) {
+    if (isAuthRequiredError(error)) {
+      return authRequiredJson("Please sign in before viewing transactions.");
+    }
+
     if (isDbUnavailableError(error)) {
       return NextResponse.json({ error: "Database unavailable. Start the app database before reading Plaid transactions." }, { status: 503 });
     }

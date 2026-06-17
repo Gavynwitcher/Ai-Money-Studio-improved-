@@ -41,7 +41,7 @@ export function MobileNav() {
             className="mt-2 rounded-full bg-[var(--navy)] px-4 py-3 text-center text-sm font-semibold text-white"
             onClick={() => setOpen(false)}
           >
-            Request access
+            Create account
           </Link>
         </div>
       </div>

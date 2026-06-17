@@ -5,9 +5,13 @@ import { resolveActiveUserId } from "@/lib/server/user";
 import { ensurePlaidItemsMatchEnvironment, syncPlaidDataForUser } from "@/lib/server/plaid";
 import { getPlaidErrorMessage } from "@/lib/server/plaidErrors";
 import { isDbUnavailableError } from "@/lib/server/moneyCopilotFallback";
+import { authRequiredJson } from "@/lib/server/http";
+import { isAuthRequiredError } from "@/lib/server/user";
 
 export async function POST() {
   try {
+    const userId = await resolveActiveUserId();
+
     if (shouldUseMockPlaid()) {
       const [balances, transactions] = await Promise.all([fetchBalances(), fetchTransactions()]);
 
@@ -22,7 +26,6 @@ export async function POST() {
       });
     }
 
-    const userId = await resolveActiveUserId();
     const reset = await ensurePlaidItemsMatchEnvironment(userId);
     if (reset?.resetRequired) {
       return NextResponse.json({
@@ -40,6 +43,10 @@ export async function POST() {
     const result = await syncPlaidDataForUser(userId);
     return NextResponse.json(result);
   } catch (error) {
+    if (isAuthRequiredError(error)) {
+      return authRequiredJson("Please sign in before refreshing bank data.");
+    }
+
     if (isDbUnavailableError(error)) {
       return NextResponse.json({ error: "Database unavailable. Start the app database before syncing Plaid data." }, { status: 503 });
     }

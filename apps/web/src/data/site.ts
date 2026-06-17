@@ -1,16 +1,13 @@
 import { featureFlags } from "@/lib/feature-flags";
 
 export const navigation = [
-  { href: "/", label: "Home" },
-  { href: "/features", label: "Features" },
   { href: "/dashboard-demo", label: "Dashboard" },
   { href: "/transactions", label: "Transactions" },
-  { href: "/accounting", label: "Accounting" },
   { href: "/plaid-integration", label: "Connect" },
-  { href: "/credit", label: "Credit" },
+  { href: "/assistant", label: "AI" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/security", label: "Security" },
-  { href: "/contact", label: "Contact" }
+  { href: "/security", label: "Trust" },
+  { href: "/contact", label: "Support" }
 ];
 
 export const featureCategories = [
@@ -36,18 +33,32 @@ export const featureCategories = [
     bullets: ["Recent transactions feed", "Category summaries", "Cash in / cash out snapshots"]
   },
   {
-    title: "Transfer workflows between linked institutions",
+    title: "Transfer workflow planning",
     status: featureFlags.transfers,
     description:
-      "Provide a compliant, guided workflow for moving funds between approved linked accounts as capabilities mature.",
-    bullets: ["Transfer initiation flow", "Fee visibility", "Transfer status timeline"]
+      "Planned review screens for future movement requests, available only after partner, compliance, and legal readiness is complete.",
+    bullets: ["Future transfer review", "Fee visibility planning", "Compliance-gated rollout"]
   },
   {
     title: "Accounting workspace",
-    status: featureFlags.transactions,
+    status: featureFlags.debtAssistance,
     description:
-      "Operate a clean set of books with chart of accounts visibility, journal review, receivables, payables, and reconciliation work tied to linked bank data.",
-    bullets: ["Chart of accounts", "Accounts receivable and payable", "Reconciliation queue"]
+      "Planned bookkeeping workflows that may help users classify transactions and prepare operating summaries once the visibility layer is stable.",
+    bullets: ["Chart of accounts planning", "Receivables and payables roadmap", "Reconciliation queue concept"]
+  },
+  {
+    title: "Plaid Assets underwriting reports",
+    status: featureFlags.debtAssistance,
+    description:
+      "Future underwriting support that would require additional permissions, pricing review, and compliance approval before any launch.",
+    bullets: ["Asset Report research", "Webhook readiness planning", "Compliance-gated access"]
+  },
+  {
+    title: "Plaid Liabilities debt verification",
+    status: featureFlags.debtAssistance,
+    description:
+      "Future debt visibility research for mortgage, student loan, and credit-card data, not enabled in the private beta.",
+    bullets: ["Debt data research", "Due-date and APR concepts", "Future compliance review"]
   },
   {
     title: "Debt assistance tools",
@@ -94,9 +105,9 @@ export const howItWorks = [
   },
   {
     step: "03",
-    title: "Take action with guided money movement",
+    title: "Organize cash flow decisions",
     copy:
-      "Users can review a transfer path, expected timing, and fees before initiating supported movement between linked institutions."
+      "Users can review cash position, transaction patterns, and account health before deciding what action to take outside Northline."
   },
   {
     step: "04",
@@ -138,7 +149,7 @@ export const audienceCards = [
   {
     title: "Cost-sensitive users",
     copy:
-      "Choose a lightweight free or starter path first, then upgrade only when premium insights or transfer features matter."
+      "Choose a lightweight free or starter path first, then upgrade only when premium visibility and support features matter."
   }
 ];
 
@@ -175,7 +186,7 @@ export const pricingPlans = [
       "Up to 2 connected institutions",
       "Unified balances dashboard",
       "Basic transaction feed",
-      "Waitlist access for transfer features"
+      "Waitlist access for future workflow features"
     ]
   },
   {
@@ -189,20 +200,20 @@ export const pricingPlans = [
       "Unlimited connected institutions",
       "Cash flow summaries and alerts",
       "Priority support and onboarding analytics",
-      "Early access to money movement workflows"
+      "Early access to advanced visibility workflows"
     ]
   },
   {
     key: "transfer_flex",
     name: "Transfer Flex",
     price: "From $2",
-    subtitle: "Pay-as-you-go path for users who want transfer access without a full subscription",
-    cta: "View transfer pricing",
+    subtitle: "Planned pay-as-you-go option for future transfer reviews. Not available in private beta.",
+    cta: "Join transfer waitlist",
     accent: false,
     bullets: [
-      "Per-transfer fee model",
-      "Transparent fee preview",
-      "Status tracking and transfer history",
+      "$2 same-day transfer review concept",
+      "Per-transfer fee may vary by rail and partner",
+      "Status tracking planned for future releases",
       "Subject to feature availability and compliance review"
     ]
   }
@@ -232,8 +243,8 @@ export const comparisonRows = [
   {
     label: "Transfer initiation",
     starter: "Waitlist",
-    plus: "Priority access",
-    flex: "Per transfer"
+    plus: "Planned",
+    flex: "Planned"
   },
   {
     label: "Credit and debt tools",
@@ -289,9 +300,7 @@ export const footerColumns = [
       { href: "/features", label: "Features" },
       { href: "/dashboard-demo", label: "Dashboard" },
       { href: "/transactions", label: "Transactions" },
-      { href: "/accounting", label: "Accounting" },
       { href: "/plaid-integration", label: "Connect" },
-      { href: "/credit", label: "Credit" },
       { href: "/pricing", label: "Pricing" }
     ]
   },
@@ -299,8 +308,8 @@ export const footerColumns = [
     title: "Company",
     links: [
       { href: "/about", label: "About" },
-      { href: "/security", label: "Security" },
-      { href: "/contact", label: "Contact" },
+      { href: "/security", label: "Trust" },
+      { href: "/contact", label: "Support" },
       { href: "/faq", label: "FAQ" }
     ]
   },

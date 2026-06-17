@@ -16,6 +16,262 @@ function providerConfigured() {
   return Boolean(process.env.QUICKBOOKS_CLIENT_ID || process.env.ACCOUNTING_PROVIDER_API_KEY);
 }
 
+function buildDemoAccountingOverview(): AccountingOverview {
+  const now = new Date();
+  const day = 24 * 60 * 60 * 1000;
+
+  const accounts: AccountingAccountPayload[] = [
+    {
+      id: "acct_demo_1000",
+      code: "1000",
+      name: "Operating Checking",
+      category: "asset",
+      subtype: "bank",
+      balance: 82450,
+      direction: "debit",
+      status: "active",
+      institutionRef: "Mercury"
+    },
+    {
+      id: "acct_demo_1010",
+      code: "1010",
+      name: "Reserve Savings",
+      category: "asset",
+      subtype: "bank",
+      balance: 38820,
+      direction: "debit",
+      status: "active",
+      institutionRef: "Chase"
+    },
+    {
+      id: "acct_demo_1100",
+      code: "1100",
+      name: "Accounts Receivable",
+      category: "asset",
+      subtype: "receivable",
+      balance: 18640,
+      direction: "debit",
+      status: "active",
+      institutionRef: null
+    },
+    {
+      id: "acct_demo_2000",
+      code: "2000",
+      name: "Accounts Payable",
+      category: "liability",
+      subtype: "payable",
+      balance: 9640,
+      direction: "credit",
+      status: "active",
+      institutionRef: null
+    },
+    {
+      id: "acct_demo_4000",
+      code: "4000",
+      name: "Service Revenue",
+      category: "income",
+      subtype: "operating_income",
+      balance: 142300,
+      direction: "credit",
+      status: "active",
+      institutionRef: null
+    },
+    {
+      id: "acct_demo_6100",
+      code: "6100",
+      name: "Payroll Expense",
+      category: "expense",
+      subtype: "payroll",
+      balance: 47800,
+      direction: "debit",
+      status: "active",
+      institutionRef: null
+    },
+    {
+      id: "acct_demo_6300",
+      code: "6300",
+      name: "Software Expense",
+      category: "expense",
+      subtype: "software",
+      balance: 8920,
+      direction: "debit",
+      status: "active",
+      institutionRef: null
+    }
+  ];
+
+  const journalEntries: AccountingJournalEntryPayload[] = [
+    {
+      id: "journal_demo_1",
+      entryDate: new Date(now.getTime() - 2 * day).toISOString(),
+      reference: "DEP-4821",
+      memo: "Client retainer received and applied to open invoice.",
+      debitAccountCode: "1000",
+      creditAccountCode: "1100",
+      amount: 6400,
+      source: "bank_sync",
+      status: "posted"
+    },
+    {
+      id: "journal_demo_2",
+      entryDate: new Date(now.getTime() - 3 * day).toISOString(),
+      reference: "PAY-1882",
+      memo: "Semi-monthly payroll batch posted.",
+      debitAccountCode: "6100",
+      creditAccountCode: "1000",
+      amount: 5400,
+      source: "manual",
+      status: "posted"
+    },
+    {
+      id: "journal_demo_3",
+      entryDate: new Date(now.getTime() - 5 * day).toISOString(),
+      reference: "SUB-3011",
+      memo: "Software subscriptions accrued for April.",
+      debitAccountCode: "6300",
+      creditAccountCode: "2000",
+      amount: 1282,
+      source: "rules_engine",
+      status: "posted"
+    }
+  ];
+
+  const invoices: AccountingInvoicePayload[] = [
+    {
+      id: "invoice_demo_1",
+      invoiceNumber: "INV-1048",
+      customerName: "Harbor Lane Studio",
+      issueDate: new Date(now.getTime() - 18 * day).toISOString(),
+      dueDate: new Date(now.getTime() - 3 * day).toISOString(),
+      amount: 6400,
+      amountPaid: 6400,
+      status: "paid"
+    },
+    {
+      id: "invoice_demo_2",
+      invoiceNumber: "INV-1051",
+      customerName: "Northfield Services",
+      issueDate: new Date(now.getTime() - 9 * day).toISOString(),
+      dueDate: new Date(now.getTime() + 6 * day).toISOString(),
+      amount: 8240,
+      amountPaid: 2400,
+      status: "partial"
+    },
+    {
+      id: "invoice_demo_3",
+      invoiceNumber: "INV-1053",
+      customerName: "Bright Harbor Health",
+      issueDate: new Date(now.getTime() - 4 * day).toISOString(),
+      dueDate: new Date(now.getTime() + 11 * day).toISOString(),
+      amount: 10800,
+      amountPaid: 0,
+      status: "open"
+    }
+  ];
+
+  const bills: AccountingBillPayload[] = [
+    {
+      id: "bill_demo_1",
+      vendorName: "Gusto",
+      billNumber: "BILL-2091",
+      issueDate: new Date(now.getTime() - 8 * day).toISOString(),
+      dueDate: new Date(now.getTime() + 4 * day).toISOString(),
+      amount: 5400,
+      amountPaid: 0,
+      status: "open",
+      expenseCode: "6100"
+    },
+    {
+      id: "bill_demo_2",
+      vendorName: "Microsoft 365",
+      billNumber: "BILL-2095",
+      issueDate: new Date(now.getTime() - 13 * day).toISOString(),
+      dueDate: new Date(now.getTime() - 1 * day).toISOString(),
+      amount: 682,
+      amountPaid: 0,
+      status: "overdue",
+      expenseCode: "6300"
+    },
+    {
+      id: "bill_demo_3",
+      vendorName: "Ramp Card Payment",
+      billNumber: "BILL-2101",
+      issueDate: new Date(now.getTime() - 2 * day).toISOString(),
+      dueDate: new Date(now.getTime() + 10 * day).toISOString(),
+      amount: 3558,
+      amountPaid: 900,
+      status: "partial",
+      expenseCode: "6300"
+    }
+  ];
+
+  const reconciliation: AccountingReconciliationPayload[] = [
+    {
+      id: "recon_demo_1",
+      source: "Plaid Chase Reserve",
+      statementDate: new Date(now.getTime() - day).toISOString(),
+      description: "ACH CREDIT 241981 settlement not matched to invoice",
+      amount: 2400,
+      status: "needs_review",
+      suggestedAccountCode: "1100"
+    },
+    {
+      id: "recon_demo_2",
+      source: "Plaid Mercury Operating",
+      statementDate: new Date(now.getTime() - 2 * day).toISOString(),
+      description: "Card spend batch awaiting software split",
+      amount: -1282,
+      status: "needs_split",
+      suggestedAccountCode: "6300"
+    },
+    {
+      id: "recon_demo_3",
+      source: "Plaid Mercury Operating",
+      statementDate: new Date(now.getTime() - 4 * day).toISOString(),
+      description: "Vendor debit missing supporting bill image",
+      amount: -682,
+      status: "needs_document",
+      suggestedAccountCode: "6300"
+    }
+  ];
+
+  const cash = accounts
+    .filter((account) => account.subtype === "bank")
+    .reduce((sum, account) => sum + account.balance, 0);
+  const receivables = invoices.reduce((sum, invoice) => sum + (invoice.amount - invoice.amountPaid), 0);
+  const payables = bills.reduce((sum, bill) => sum + (bill.amount - bill.amountPaid), 0);
+  const monthlyRevenue = accounts
+    .filter((account) => account.category === "income")
+    .reduce((sum, account) => sum + account.balance, 0);
+  const monthlyExpenses = accounts
+    .filter((account) => account.category === "expense")
+    .reduce((sum, account) => sum + account.balance, 0);
+  const overdueInvoices = invoices.filter((invoice) => invoice.status === "overdue").length;
+  const overdueBills = bills.filter((bill) => bill.status === "overdue").length;
+  const itemsToReconcile = reconciliation.filter((item) => item.status !== "cleared").length;
+
+  return {
+    mode: ACCOUNTING_MODE,
+    configured: providerConfigured(),
+    summary: {
+      cash,
+      receivables,
+      payables,
+      monthlyRevenue,
+      monthlyExpenses,
+      netOperatingIncome: monthlyRevenue - monthlyExpenses,
+      overdueInvoices,
+      overdueBills,
+      itemsToReconcile
+    },
+    accounts,
+    journalEntries,
+    invoices,
+    bills,
+    reconciliation
+  };
+}
+
 async function seedAccountingWorkspace(userId: string) {
   const existing = await prisma.accountingAccount.findFirst({
     where: { userId },
@@ -353,69 +609,74 @@ function serializeReconciliation(item: {
 }
 
 export async function getAccountingOverview(): Promise<AccountingOverview> {
-  const userId = await resolveActiveUserId();
-  await seedAccountingWorkspace(userId);
+  try {
+    const userId = await resolveActiveUserId();
+    await seedAccountingWorkspace(userId);
 
-  const [accounts, journalEntries, invoices, bills, reconciliation] = await Promise.all([
-    prisma.accountingAccount.findMany({
-      where: { userId },
-      orderBy: [{ category: "asc" }, { code: "asc" }]
-    }),
-    prisma.accountingJournalEntry.findMany({
-      where: { userId },
-      orderBy: { entryDate: "desc" },
-      take: 12
-    }),
-    prisma.accountingInvoice.findMany({
-      where: { userId },
-      orderBy: { dueDate: "asc" },
-      take: 12
-    }),
-    prisma.accountingBill.findMany({
-      where: { userId },
-      orderBy: { dueDate: "asc" },
-      take: 12
-    }),
-    prisma.accountingReconciliationItem.findMany({
-      where: { userId },
-      orderBy: { statementDate: "desc" },
-      take: 12
-    })
-  ]);
+    const [accounts, journalEntries, invoices, bills, reconciliation] = await Promise.all([
+      prisma.accountingAccount.findMany({
+        where: { userId },
+        orderBy: [{ category: "asc" }, { code: "asc" }]
+      }),
+      prisma.accountingJournalEntry.findMany({
+        where: { userId },
+        orderBy: { entryDate: "desc" },
+        take: 12
+      }),
+      prisma.accountingInvoice.findMany({
+        where: { userId },
+        orderBy: { dueDate: "asc" },
+        take: 12
+      }),
+      prisma.accountingBill.findMany({
+        where: { userId },
+        orderBy: { dueDate: "asc" },
+        take: 12
+      }),
+      prisma.accountingReconciliationItem.findMany({
+        where: { userId },
+        orderBy: { statementDate: "desc" },
+        take: 12
+      })
+    ]);
 
-  const cash = accounts
-    .filter((account) => account.subtype === "bank")
-    .reduce((sum, account) => sum + account.balance, 0);
-  const receivables = invoices.reduce((sum, invoice) => sum + (invoice.amount - invoice.amountPaid), 0);
-  const payables = bills.reduce((sum, bill) => sum + (bill.amount - bill.amountPaid), 0);
-  const monthlyRevenue = accounts
-    .filter((account) => account.category === "income")
-    .reduce((sum, account) => sum + account.balance, 0);
-  const monthlyExpenses = accounts
-    .filter((account) => account.category === "expense")
-    .reduce((sum, account) => sum + account.balance, 0);
-  const overdueInvoices = invoices.filter((invoice) => invoice.status === "overdue").length;
-  const overdueBills = bills.filter((bill) => bill.status === "overdue").length;
-  const itemsToReconcile = reconciliation.filter((item) => item.status !== "cleared").length;
+    const cash = accounts
+      .filter((account) => account.subtype === "bank")
+      .reduce((sum, account) => sum + account.balance, 0);
+    const receivables = invoices.reduce((sum, invoice) => sum + (invoice.amount - invoice.amountPaid), 0);
+    const payables = bills.reduce((sum, bill) => sum + (bill.amount - bill.amountPaid), 0);
+    const monthlyRevenue = accounts
+      .filter((account) => account.category === "income")
+      .reduce((sum, account) => sum + account.balance, 0);
+    const monthlyExpenses = accounts
+      .filter((account) => account.category === "expense")
+      .reduce((sum, account) => sum + account.balance, 0);
+    const overdueInvoices = invoices.filter((invoice) => invoice.status === "overdue").length;
+    const overdueBills = bills.filter((bill) => bill.status === "overdue").length;
+    const itemsToReconcile = reconciliation.filter((item) => item.status !== "cleared").length;
 
-  return {
-    mode: ACCOUNTING_MODE,
-    configured: providerConfigured(),
-    summary: {
-      cash,
-      receivables,
-      payables,
-      monthlyRevenue,
-      monthlyExpenses,
-      netOperatingIncome: monthlyRevenue - monthlyExpenses,
-      overdueInvoices,
-      overdueBills,
-      itemsToReconcile
-    },
-    accounts: accounts.map(serializeAccount),
-    journalEntries: journalEntries.map(serializeJournal),
-    invoices: invoices.map(serializeInvoice),
-    bills: bills.map(serializeBill),
-    reconciliation: reconciliation.map(serializeReconciliation)
-  };
+    return {
+      mode: ACCOUNTING_MODE,
+      configured: providerConfigured(),
+      summary: {
+        cash,
+        receivables,
+        payables,
+        monthlyRevenue,
+        monthlyExpenses,
+        netOperatingIncome: monthlyRevenue - monthlyExpenses,
+        overdueInvoices,
+        overdueBills,
+        itemsToReconcile
+      },
+      accounts: accounts.map(serializeAccount),
+      journalEntries: journalEntries.map(serializeJournal),
+      invoices: invoices.map(serializeInvoice),
+      bills: bills.map(serializeBill),
+      reconciliation: reconciliation.map(serializeReconciliation)
+    };
+  } catch (error) {
+    console.error("Accounting workspace fell back to internal demo data.", error);
+    return buildDemoAccountingOverview();
+  }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { errorJson } from "@/lib/server/http";
 import { OllamaMessage, runOllamaChat } from "@/lib/server/ollama";
+import { getOpenAiConfig, runOpenAiChat } from "@/lib/server/openai";
 import { prisma } from "@/lib/prisma";
 import { resolveActiveUserId } from "@/lib/server/user";
 import { isDbUnavailableError } from "@/lib/server/moneyCopilotFallback";
@@ -10,15 +11,19 @@ const MAX_MESSAGES = 20;
 const MAX_TOTAL_CHARS = 25_000;
 
 const SYSTEM_PROMPT =
+  process.env.NORTHLINE_AI_SYSTEM_PROMPT?.trim() ||
   process.env.OLLAMA_SYSTEM_PROMPT?.trim() ||
   [
-    "You are AI Money Copilot, a blunt, no-excuses budgeting coach.",
-    "Use direct, high-accountability, action-first language.",
-    "Be firm but never insulting, demeaning, or abusive.",
+    "You are Northline AI, a practical financial operations assistant for Northline users.",
+    "Answer only from the account, transaction, cash-flow, budgeting, and Plaid-derived context provided in the request.",
+    "If the user asks for something outside the provided data, say what data is missing and suggest the next safe product step.",
+    "Use clear business-owner language and avoid developer jargon.",
     "Quantify impact in dollars whenever possible.",
     "Prioritize essentials first: housing, utilities, food, transport, minimum debt payments.",
-    "Offer concrete 7-day actions and weekly targets.",
-    "Do not provide legal or tax advice. Avoid guarantees about outcomes."
+    "Offer concrete next steps, review checklists, and budgeting observations.",
+    "Do not provide legal, tax, investment, credit repair, lending approval, or regulatory advice.",
+    "Do not claim to move money, approve transfers, repair credit, guarantee outcomes, or replace a bank.",
+    "Advanced transfer, credit, and debt features are subject to partner availability and compliance review."
   ].join(" ");
 
 type ToolPermissions = {
@@ -51,6 +56,7 @@ type MoneySummaryContext = {
 };
 
 type ChatPayload = {
+  provider?: "openai" | "ollama" | "auto";
   model?: string;
   messages?: Array<{
     role?: string;
@@ -83,6 +89,37 @@ function normalizeMessages(input: ChatPayload["messages"]): OllamaMessage[] {
   }
 
   return parsed.slice(-MAX_MESSAGES);
+}
+
+async function runNorthlineAiChat(params: { payload: ChatPayload; messages: OllamaMessage[] }) {
+  const openAiConfig = getOpenAiConfig();
+  const preferredProvider = params.payload.provider || process.env.NORTHLINE_AI_PROVIDER || "auto";
+  const shouldUseOpenAi =
+    preferredProvider === "openai" || (preferredProvider === "auto" && openAiConfig.configured);
+
+  if (shouldUseOpenAi) {
+    try {
+      return await runOpenAiChat({
+        model: params.payload.model,
+        messages: params.messages,
+        maxOutputTokens: 1400
+      });
+    } catch (error) {
+      if (preferredProvider === "openai") {
+        throw error;
+      }
+    }
+  }
+
+  const result = await runOllamaChat({
+    model: params.payload.model,
+    messages: params.messages
+  });
+
+  return {
+    provider: "ollama" as const,
+    ...result
+  };
 }
 
 function normalizeToolPermissions(input?: ToolPermissions) {
@@ -239,8 +276,8 @@ export async function POST(req: NextRequest) {
       content: systemParts.join(" ")
     };
 
-    const result = await runOllamaChat({
-      model: payload.model,
+    const result = await runNorthlineAiChat({
+      payload,
       messages: [systemMessage, ...normalizedMessages]
     });
 
@@ -261,6 +298,6 @@ export async function POST(req: NextRequest) {
       killSwitchPaused
     });
   } catch (error) {
-    return errorJson(error instanceof Error ? error.message : "Failed to call Ollama", 500);
+    return errorJson(error instanceof Error ? error.message : "Failed to call Northline AI", 500);
   }
 }

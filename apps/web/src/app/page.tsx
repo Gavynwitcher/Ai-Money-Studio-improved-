@@ -1,144 +1,311 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { CtaBanner } from "@/components/marketing/cta-banner";
-import { StatusChip } from "@/components/marketing/status-chip";
-import { DashboardWidgets } from "@/components/dashboard/dashboard-widgets";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
-import { SectionHeading } from "@/components/ui/section-heading";
-import {
-  audienceCards,
-  comparisonRows,
-  faqs,
-  featureCategories,
-  howItWorks,
-  pricingPlans,
-  testimonials,
-  trustPillars
-} from "@/data/site";
-import { buildMetadata, organizationJsonLd, websiteJsonLd } from "@/lib/seo";
-import { currency } from "@/lib/utils";
+import { alerts, accounts, monthlyCashFlow, spendingCategories, transactions } from "@/data/mock-finance";
+import { featureCategories, faqs, testimonials, trustPillars } from "@/data/site";
+import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   title: "Multi-Bank Account Dashboard for Consumers and Small Businesses",
   description:
-    "Manage bank accounts from multiple institutions in one dashboard with Plaid-powered connectivity, transaction visibility, and transfer workflow previews.",
+    "Manage all your bank accounts in one place with Northline. Connect institutions, monitor balances and transactions, and simplify transfers with an affordable platform built for consumers and small businesses.",
   path: "/",
   keywords: [
-    "multi bank account dashboard",
-    "plaid powered banking app",
-    "bank account aggregation for small business",
-    "consumer financial dashboard",
-    "bank transaction dashboard"
+    "northline banking platform",
+    "multi-bank dashboard",
+    "plaid banking app",
+    "small business treasury dashboard",
+    "connected account management"
   ]
 });
 
-export default function HomePage() {
-  const homeSchema = [organizationJsonLd(), websiteJsonLd()];
+const heroStats = [
+  ["Target users", "Consumers + SMBs"],
+  ["Core MVP scope", "Aggregation + transfers"],
+  ["Pricing posture", "Premium feel, lower cost"]
+];
 
+const roadmapSignals = ["Available now", "MVP", "Coming soon"];
+
+const featurePreview = featureCategories.slice(0, 4);
+
+function formatCurrency(value: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0
+  }).format(value);
+}
+
+function formatSignedCurrency(value: number) {
+  const formatted = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0
+  }).format(Math.abs(value));
+  return value < 0 ? `-${formatted}` : formatted;
+}
+
+function StatusBadge({ children }: { children: string }) {
+  const normalized = children.toLowerCase().replace(/-/g, " ");
+  return (
+    <span className="rounded-full bg-[rgba(30,142,99,0.12)] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--success)]">
+      {normalized}
+    </span>
+  );
+}
+
+function HeroProductMockup() {
+  return (
+    <div className="rounded-[34px] bg-[linear-gradient(145deg,#0c2238_0%,#173f62_100%)] p-6 text-white shadow-[0_30px_80px_rgba(8,23,41,0.22)]">
+      <div className="rounded-[28px] border border-white/12 bg-white/10 p-6">
+        <p className="text-[13px] font-semibold uppercase tracking-[0.32em] text-cyan-100/80">Unified balance</p>
+        <p className="mt-4 font-heading text-5xl font-semibold tracking-[-0.05em]">$259,370</p>
+        <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          {[
+            ["Institutions", "3 linked"],
+            ["Transfers", "1 in review"],
+            ["Monitoring", "Credit soon"]
+          ].map(([label, value]) => (
+            <div key={label} className="rounded-[18px] border border-white/12 bg-white/8 p-4">
+              <p className="text-sm text-slate-200">{label}</p>
+              <p className="mt-2 font-semibold">{value}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-4 md:grid-cols-[0.95fr_1fr]">
+        <div className="rounded-[24px] bg-white p-5 text-[var(--navy)]">
+          <h3 className="font-heading text-lg font-semibold">Transfer workflow</h3>
+          <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
+            Review routing, fee visibility, and status steps before initiating supported movement.
+          </p>
+          <div className="mt-5 rounded-[20px] border border-[var(--line)] bg-slate-50 px-4 py-4 text-sm">
+            Reserve to Operating · $2,500 · fee preview $2
+          </div>
+        </div>
+        <div className="rounded-[24px] bg-white p-5 text-[var(--navy)]">
+          <h3 className="font-heading text-lg font-semibold">Roadmap signals</h3>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {roadmapSignals.map((signal, index) => (
+              <span
+                key={signal}
+                className={`rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] ${
+                  index === 0
+                    ? "bg-[rgba(30,142,99,0.14)] text-[var(--success)]"
+                    : index === 1
+                      ? "bg-slate-100 text-slate-600"
+                      : "bg-[rgba(216,166,53,0.18)] text-[var(--gold)]"
+                }`}
+              >
+                {signal}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DashboardPreview() {
+  return (
+    <div className="rounded-[34px] border border-[var(--line)] bg-white p-5 shadow-[0_24px_70px_rgba(8,23,41,0.08)]">
+      <div className="rounded-[26px] bg-[linear-gradient(135deg,#082044_0%,#103d67_100%)] p-6 text-white">
+        <div className="flex flex-wrap items-start justify-between gap-5">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--gold)]">Unified balance</p>
+            <p className="mt-3 font-heading text-4xl font-semibold tracking-[-0.05em]">$259,370</p>
+            <p className="mt-3 text-sm text-slate-200">Available cash $257,920 across 3 institutions</p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-[20px] bg-white/10 p-4">
+              <p className="text-xs text-slate-200">30-day inflow</p>
+              <p className="mt-2 text-xl font-semibold">$61,200</p>
+              <p className="mt-2 text-sm text-emerald-300">+6.2%</p>
+            </div>
+            <div className="rounded-[20px] bg-white/10 p-4">
+              <p className="text-xs text-slate-200">30-day outflow</p>
+              <p className="mt-2 text-xl font-semibold">$42,100</p>
+              <p className="mt-2 text-sm text-orange-300">-2.8%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_0.9fr_0.8fr]">
+        <div className="rounded-[24px] border border-[var(--line)] p-5">
+          <div className="flex items-center justify-between">
+            <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">Linked accounts</h3>
+            <StatusBadge>3 active</StatusBadge>
+          </div>
+          <div className="mt-4 grid gap-3">
+            {accounts.map((account) => (
+              <div key={account.id} className="flex items-start justify-between gap-4 rounded-[18px] bg-slate-50 p-4">
+                <div>
+                  <p className="text-sm font-semibold text-[var(--navy)]">
+                    {account.institutionName} · {account.name}
+                  </p>
+                  <p className="mt-1 text-xs text-[var(--muted)]">
+                    {account.subtype} · •••• {account.mask}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-semibold text-[var(--navy)]">{formatCurrency(account.currentBalance)}</p>
+                  <p className="mt-1 text-xs text-[var(--muted)]">Available {formatCurrency(account.availableBalance)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-[24px] border border-[var(--line)] p-5">
+          <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">Cash flow summary</h3>
+          <p className="mt-2 text-xs text-[var(--muted)]">Six-month snapshot of inflow versus outflow.</p>
+          <div className="mt-5 grid gap-3">
+            {monthlyCashFlow.map((month) => (
+              <div key={month.label} className="grid grid-cols-[36px_1fr] items-center gap-3">
+                <span className="text-xs text-[var(--muted)]">{month.label}</span>
+                <div className="grid gap-1">
+                  <div className="h-2 rounded-full bg-slate-100">
+                    <div className="h-2 rounded-full bg-[var(--teal)]" style={{ width: `${month.inflow}%` }} />
+                  </div>
+                  <div className="h-2 rounded-full bg-slate-100">
+                    <div className="h-2 rounded-full bg-[var(--navy)]" style={{ width: `${month.outflow}%` }} />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-[24px] border border-[var(--line)] p-5">
+          <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">Transfer panel</h3>
+          <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
+            Guided movement between approved linked institutions with transparent review.
+          </p>
+          <div className="mt-4 rounded-[20px] border border-[var(--line)] bg-slate-50 p-4 text-sm text-[var(--navy)]">
+            <p className="font-semibold">Ready for review</p>
+            <p className="mt-2">$5,000 from Reserve to Operating</p>
+            <p className="mt-2 text-[var(--muted)]">Transfer fee: $2</p>
+            <p className="text-[var(--muted)]">Status: review</p>
+            <p className="text-[var(--muted)]">ETA: Same day review, subject to bank timing</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-5 grid gap-5 lg:grid-cols-3">
+        <div className="rounded-[24px] border border-[var(--line)] p-5 lg:col-span-2">
+          <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">Recent transactions</h3>
+          <div className="mt-4 grid gap-3">
+            {transactions.map((transaction) => (
+              <div key={transaction.id} className="flex items-center justify-between rounded-[18px] bg-slate-50 p-4">
+                <div>
+                  <p className="font-semibold text-[var(--navy)]">{transaction.merchant}</p>
+                  <p className="mt-1 text-sm text-[var(--muted)]">
+                    {transaction.category} · {transaction.accountName} · {transaction.date}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className={transaction.direction === "inflow" ? "font-semibold text-[var(--success)]" : "font-semibold text-[var(--navy)]"}>
+                    {formatSignedCurrency(transaction.direction === "inflow" ? transaction.amount : -transaction.amount)}
+                  </p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">{transaction.status}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-[24px] border border-[var(--line)] p-5">
+          <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">Spending categories</h3>
+          <div className="mt-4 grid gap-3">
+            {spendingCategories.map((category) => (
+              <div key={category.label}>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-[var(--navy)]">{category.label}</span>
+                  <span className="text-[var(--muted)]">{category.value}%</span>
+                </div>
+                <div className="mt-2 h-2 rounded-full bg-slate-100">
+                  <div className="h-2 rounded-full bg-[var(--teal)]" style={{ width: `${category.value}%` }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function HomePage() {
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(homeSchema) }}
-      />
-      <section className="page-section overflow-hidden pt-16 sm:pt-20">
+      <section className="page-section pt-16 sm:pt-20">
         <Container>
           <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-            <div className="reveal">
-              <Badge tone="gold">Affordable alternative to enterprise treasury and bookkeeping stacks</Badge>
-              <h1 className="mt-6 max-w-3xl font-heading text-5xl font-semibold tracking-[-0.06em] text-[var(--ink)] sm:text-6xl lg:text-7xl">
-                Run banking, books, and cash visibility from one place.
+            <div>
+              <Badge tone="gold">Affordable alternative to enterprise treasury tools</Badge>
+              <h1 className="mt-6 max-w-3xl font-heading text-5xl font-semibold tracking-[-0.06em] text-slate-950 sm:text-6xl lg:text-7xl">
+                Manage all your bank accounts in one place.
               </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--muted)]">
-                Connect accounts across institutions, monitor balances and transactions, review accounting workflows, and
-                simplify transfers with an affordable platform built for consumers and small business owners.
+              <p className="mt-6 max-w-3xl text-lg leading-9 text-[var(--muted)]">
+                Connect accounts across institutions, monitor balances and transactions, and simplify transfers with an
+                affordable platform built for consumers and small business owners.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Button href="/plaid-integration">Connect your bank</Button>
-                <Button href="/accounting" variant="secondary">
-                  Explore accounting
-                </Button>
+                <Link
+                  href="/plaid-integration"
+                  className="inline-flex items-center justify-center rounded-2xl bg-[var(--navy)] px-6 py-3 text-sm font-semibold text-white shadow-[0_18px_36px_rgba(11,31,51,0.18)]"
+                >
+                  Connect your bank
+                </Link>
+                <Link
+                  href="/dashboard-demo"
+                  className="inline-flex items-center justify-center rounded-2xl border border-[var(--line-strong)] bg-white/90 px-6 py-3 text-sm font-semibold text-[var(--navy)]"
+                >
+                  Explore the dashboard
+                </Link>
               </div>
               <div className="mt-10 grid gap-4 sm:grid-cols-3">
-                <div className="bank-stat rounded-[24px] p-4">
-                  <p className="text-sm uppercase tracking-[0.16em] text-[var(--muted)]">Target users</p>
-                  <p className="mt-2 text-2xl font-semibold text-[var(--navy)]">Consumers + SMBs</p>
-                </div>
-                <div className="bank-stat rounded-[24px] p-4">
-                  <p className="text-sm uppercase tracking-[0.16em] text-[var(--muted)]">Core MVP scope</p>
-                  <p className="mt-2 text-2xl font-semibold text-[var(--navy)]">Banking + accounting</p>
-                </div>
-                <div className="bank-stat rounded-[24px] p-4">
-                  <p className="text-sm uppercase tracking-[0.16em] text-[var(--muted)]">Pricing posture</p>
-                  <p className="mt-2 text-2xl font-semibold text-[var(--navy)]">Premium feel, lower cost</p>
-                </div>
+                {heroStats.map(([label, value]) => (
+                  <div key={label} className="rounded-[22px] border border-[var(--line)] bg-white/85 p-5 shadow-[0_18px_40px_rgba(8,23,41,0.04)]">
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.24em] text-[var(--muted)]">{label}</p>
+                    <p className="mt-3 font-heading text-2xl font-semibold text-[var(--navy)]">{value}</p>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="bank-shell reveal relative overflow-hidden rounded-[36px] p-5 text-white sm:p-6">
-              <div className="hero-orb -left-2 top-14 h-24 w-24 bg-[rgba(25,106,117,0.18)]" />
-              <div className="hero-orb right-6 top-6 h-20 w-20 bg-[rgba(200,164,90,0.16)]" />
-              <div className="grid gap-5">
-                <div className="bank-stat-dark rounded-[30px] p-6 text-white">
-                  <p className="text-sm uppercase tracking-[0.24em] text-cyan-100/80">Unified balance</p>
-                  <p className="mt-3 font-heading text-5xl font-semibold tracking-[-0.05em]">{currency(259370)}</p>
-                  <div className="mt-5 grid grid-cols-3 gap-3 text-sm">
-                    <div className="bank-stat-dark rounded-[20px] p-3">
-                      <p className="text-cyan-100/80">Institutions</p>
-                      <p className="mt-2 font-semibold">3 linked</p>
-                    </div>
-                    <div className="bank-stat-dark rounded-[20px] p-3">
-                      <p className="text-cyan-100/80">Transfers</p>
-                      <p className="mt-2 font-semibold">1 in review</p>
-                    </div>
-                    <div className="bank-stat-dark rounded-[20px] p-3">
-                      <p className="text-cyan-100/80">Books</p>
-                      <p className="mt-2 font-semibold">Close ready</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="bank-stat rounded-[26px] p-5 text-[var(--navy)]">
-                    <p className="text-sm font-semibold text-[var(--navy)]">Accounting workflow</p>
-                    <p className="mt-3 text-sm leading-7 text-[var(--muted)]">
-                      Review receivables, payables, and reconciliation exceptions without leaving the banking workspace.
-                    </p>
-                    <div className="bank-panel-muted mt-4 rounded-[20px] p-4 text-sm text-[var(--navy)]">
-                      AR aging · {currency(18640)} open · 3 items need action
-                    </div>
-                  </div>
-                  <div className="bank-stat rounded-[26px] p-5 text-[var(--navy)]">
-                    <p className="text-sm font-semibold text-[var(--navy)]">Roadmap signals</p>
-                    <div className="mt-4 space-y-3">
-                      <StatusChip status="available-now" />
-                      <StatusChip status="mvp" />
-                      <StatusChip status="coming-soon" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <HeroProductMockup />
           </div>
         </Container>
       </section>
 
       <section className="page-section pt-0">
         <Container>
-          <Card className="rounded-[32px] p-8 sm:p-10">
-            <SectionHeading
-              eyebrow="Core problem"
-              title="Too many users still manage money by bank login roulette."
-              description="Consumers and small business owners often spread funds across multiple institutions, but most tools either feel fragmented, too expensive, or built for much larger finance teams."
-            />
-            <div className="mt-8 grid gap-4 md:grid-cols-3">
-              {audienceCards.map((card) => (
-                <div key={card.title} className="rounded-[26px] border border-[var(--line)] bg-white/70 p-5">
-                  <h3 className="font-heading text-2xl font-semibold text-[var(--navy)]">{card.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-[var(--muted)]">{card.copy}</p>
+          <Card className="rounded-[34px]">
+            <Badge tone="teal">Core problem</Badge>
+            <h2 className="mt-5 max-w-4xl font-heading text-4xl font-semibold tracking-[-0.05em] text-slate-950">
+              Too many users still manage money by bank login roulette.
+            </h2>
+            <p className="mt-6 max-w-3xl text-base leading-8 text-[var(--muted)]">
+              Consumers and small business owners often spread funds across multiple institutions, but most tools either
+              feel fragmented, too expensive, or built for much larger finance teams.
+            </p>
+            <div className="mt-8 grid gap-4 lg:grid-cols-3">
+              {[
+                ["Small business owners", "Track operating cash across payroll, reserve, and tax accounts without paying for enterprise treasury tooling."],
+                ["Everyday consumers", "Monitor checking, savings, and spending accounts from multiple banks without piecing together separate logins."],
+                ["Cost-sensitive users", "Choose a lightweight free or starter path first, then upgrade only when premium insights or transfer features matter."]
+              ].map(([title, copy]) => (
+                <div key={title} className="rounded-[24px] border border-[var(--line)] bg-white/80 p-5">
+                  <p className="font-semibold text-[var(--navy)]">{title}</p>
+                  <p className="mt-3 text-sm leading-7 text-[var(--muted)]">{copy}</p>
                 </div>
               ))}
             </div>
@@ -148,36 +315,58 @@ export default function HomePage() {
 
       <section className="page-section">
         <Container>
-          <SectionHeading
-            eyebrow="How it works"
-            title="A simple path from fragmented banking to one connected operating view."
-            description="The MVP is designed to validate whether users want one place to connect accounts, see balances, review transactions, and start money movement workflows."
-          />
-          <div className="mt-10 grid gap-4 lg:grid-cols-4">
-            {howItWorks.map((item) => (
-              <Card key={item.step} className="rounded-[28px]">
-                <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--teal)]">{item.step}</p>
-                <h3 className="mt-4 font-heading text-2xl font-semibold text-[var(--navy)]">{item.title}</h3>
-                <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{item.copy}</p>
-              </Card>
-            ))}
+          <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr]">
+            <div>
+              <Badge tone="teal">How it works</Badge>
+              <h2 className="mt-5 font-heading text-4xl font-semibold tracking-[-0.05em] text-[var(--navy)]">
+                A simple path from fragmented banking to one connected operating view.
+              </h2>
+              <p className="mt-5 text-base leading-8 text-[var(--muted)]">
+                The platform is organized around a short, understandable flow: connect institutions, review cash and
+                transactions, then move into the workflows that matter.
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              {[
+                ["01", "Connect institutions securely", "Users launch a Plaid-powered linking flow, pick their bank, and authorize the account connections they want included."],
+                ["02", "See balances and transactions in one place", "Northline consolidates balances, account health, and transaction activity into one dashboard built for clarity."],
+                ["03", "Take action with guided money movement", "Users can review a transfer path, expected timing, and fees before initiating supported movement between linked institutions."],
+                ["04", "Grow into financial wellness tools", "As the product expands, users unlock debt support, credit insight tools, and additional online banking assistance."]
+              ].map(([step, title, copy]) => (
+                <Card key={step} className="rounded-[28px]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--teal)]">{step}</p>
+                  <h3 className="mt-3 font-heading text-2xl font-semibold text-[var(--navy)]">{title}</h3>
+                  <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{copy}</p>
+                </Card>
+              ))}
+            </div>
           </div>
         </Container>
       </section>
 
-      <section className="page-section">
+      <section className="page-section pt-0">
         <Container>
-          <SectionHeading
-            eyebrow="Feature preview"
-            title="Built for visibility first, then action."
-            description="The product roadmap is explicit about what’s live in the experience today and which wellness tools are planned for later releases."
-          />
-          <div className="mt-10 grid gap-4 md:grid-cols-2">
-            {featureCategories.slice(0, 6).map((feature) => (
-              <Card key={feature.title} className="rounded-[28px]">
-                <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <Badge tone="gold">Feature preview</Badge>
+              <h2 className="mt-5 font-heading text-4xl font-semibold tracking-[-0.05em] text-[var(--navy)]">
+                Built for visibility first, then action.
+              </h2>
+              <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted)]">
+                The product stays focused on the core day-to-day banking workflows first, with more advanced tools clearly
+                staged for later.
+              </p>
+            </div>
+            <Link href="/features" className="text-sm font-semibold text-[var(--navy)] underline-offset-4 hover:underline">
+              View all platform features
+            </Link>
+          </div>
+          <div className="grid gap-5 lg:grid-cols-4">
+            {featurePreview.map((feature) => (
+              <Card key={feature.title} className="rounded-[30px]">
+                <div className="flex items-start justify-between gap-3">
                   <h3 className="font-heading text-2xl font-semibold text-[var(--navy)]">{feature.title}</h3>
-                  <StatusChip status={feature.status} />
+                  <StatusBadge>{feature.status}</StatusBadge>
                 </div>
                 <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{feature.description}</p>
                 <div className="mt-5 grid gap-2 text-sm text-[var(--navy)]">
@@ -188,134 +377,73 @@ export default function HomePage() {
               </Card>
             ))}
           </div>
-          <div className="mt-8">
-            <Button href="/features" variant="secondary">
-              View all platform features
-            </Button>
-          </div>
         </Container>
       </section>
 
-      <section className="page-section">
+      <section className="page-section pt-0">
         <Container>
-          <SectionHeading
-            eyebrow="Dashboard demo"
-            title="A premium dashboard that still feels approachable."
-            description="The mock product experience is styled for investor demos and early customer testing, with realistic cards, alerts, cash flow summaries, and staged wellness widgets."
-          />
-          <div className="mt-10">
-            <DashboardWidgets />
+          <div className="mb-8">
+            <Badge tone="teal">Dashboard demo</Badge>
+            <h2 className="mt-5 font-heading text-4xl font-semibold tracking-[-0.05em] text-[var(--navy)]">
+              A premium dashboard that still feels approachable.
+            </h2>
+            <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted)]">
+              The mock product experience is styled as a real operating workspace, with realistic cards, alerts, cash flow
+              summaries, and staged wellness widgets.
+            </p>
           </div>
+          <DashboardPreview />
         </Container>
       </section>
 
-      <section className="page-section">
+      <section className="page-section pt-0">
         <Container>
-          <SectionHeading
-            eyebrow="Trust and security"
-            title="Clear enough for customers, careful enough for compliance review."
-            description="Messaging emphasizes secure third-party integrations, honest staging of capabilities, and realistic language around transfer approvals and regulated services."
-          />
-          <div className="mt-10 grid gap-4 md:grid-cols-3">
-            {trustPillars.map((pillar) => (
-              <Card key={pillar.title} className="rounded-[28px]">
-                <h3 className="font-heading text-2xl font-semibold text-[var(--navy)]">{pillar.title}</h3>
-                <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{pillar.copy}</p>
-              </Card>
-            ))}
-          </div>
-        </Container>
-      </section>
-
-      <section className="page-section">
-        <Container>
-          <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
+          <div className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
             <Card className="rounded-[32px]">
-              <SectionHeading
-                eyebrow="Pricing preview"
-                title="Flexible enough for cost-sensitive users."
-                description="The pricing model supports free entry, subscription upside, and a path for transfer-fee testing."
-              />
-              <div className="mt-8 grid gap-4">
-                {pricingPlans.map((plan) => (
-                  <div
-                    key={plan.name}
-                    className={`rounded-[26px] border p-5 ${
-                      plan.accent
-                        ? "border-[rgba(10,37,64,0.12)] bg-[var(--navy)] text-white"
-                        : "border-[var(--line)] bg-white/75"
-                    }`}
-                  >
-                    <div className="flex flex-wrap items-end justify-between gap-3">
-                      <div>
-                        <p className={`text-sm font-semibold uppercase tracking-[0.2em] ${plan.accent ? "text-cyan-100/80" : "text-[var(--teal)]"}`}>
-                          {plan.name}
-                        </p>
-                        <p className="mt-2 font-heading text-4xl font-semibold tracking-[-0.04em]">{plan.price}</p>
-                      </div>
-                      <Link href="/pricing" className={`text-sm font-semibold ${plan.accent ? "text-white" : "text-[var(--navy)]"}`}>
-                        {plan.cta}
-                      </Link>
-                    </div>
-                    <p className={`mt-3 text-sm leading-7 ${plan.accent ? "text-cyan-50/85" : "text-[var(--muted)]"}`}>
-                      {plan.subtitle}
-                    </p>
-                  </div>
-                ))}
-              </div>
+              <Badge tone="gold">Trust and security</Badge>
+              <h2 className="mt-5 font-heading text-4xl font-semibold tracking-[-0.05em] text-[var(--navy)]">
+                Clear enough for customers, careful enough for compliance review.
+              </h2>
+              <p className="mt-5 text-base leading-8 text-[var(--muted)]">
+                Messaging emphasizes secure third-party integrations, honest staging of capabilities, and realistic
+                language around transfer approvals and regulated services.
+              </p>
             </Card>
-
-            <Card className="rounded-[32px]">
-              <h3 className="font-heading text-3xl font-semibold tracking-[-0.04em] text-[var(--navy)]">
-                What the business can learn from this MVP
-              </h3>
-              <div className="mt-6 grid gap-3 text-sm leading-7 text-[var(--muted)]">
-                <p>• Number of users who connect at least one account and multiple institutions</p>
-                <p>• Transfer workflow engagement rate and pricing page conversion</p>
-                <p>• Demand split between consumers, small businesses, and investors or partners</p>
-                <p>• Feature interest across aggregation, transfers, debt help, and credit tools</p>
-                <p>• Onboarding drop-off between account connection, pricing review, and waitlist conversion</p>
-              </div>
-              <div className="mt-8 overflow-hidden rounded-[26px] border border-[var(--line)]">
-                <table className="min-w-full bg-white/70 text-left text-sm">
-                  <thead className="bg-slate-900/5 text-[var(--navy)]">
-                    <tr>
-                      <th className="px-4 py-3 font-semibold">Capability</th>
-                      <th className="px-4 py-3 font-semibold">Starter</th>
-                      <th className="px-4 py-3 font-semibold">Hub Plus</th>
-                      <th className="px-4 py-3 font-semibold">Transfer Flex</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {comparisonRows.map((row) => (
-                      <tr key={row.label} className="border-t border-[var(--line)] text-[var(--muted)]">
-                        <td className="px-4 py-3 font-medium text-[var(--navy)]">{row.label}</td>
-                        <td className="px-4 py-3">{row.starter}</td>
-                        <td className="px-4 py-3">{row.plus}</td>
-                        <td className="px-4 py-3">{row.flex}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
+            <div className="grid gap-5 lg:grid-cols-3">
+              {trustPillars.map((pillar) => (
+                <Card key={pillar.title} className="rounded-[28px]">
+                  <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">{pillar.title}</h3>
+                  <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{pillar.copy}</p>
+                </Card>
+              ))}
+            </div>
           </div>
         </Container>
       </section>
 
-      <section className="page-section">
+      <section className="page-section pt-0">
         <Container>
-          <SectionHeading
-            eyebrow="Social proof"
-            title="Positioned to feel premium even before launch."
-            description="These demo testimonials are crafted as investor-ready placeholders to show how real customer validation can be surfaced later."
-          />
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
-            {testimonials.map((testimonial) => (
-              <Card key={testimonial.name} className="rounded-[28px]">
-                <p className="text-base leading-8 text-[var(--navy)]">“{testimonial.quote}”</p>
-                <p className="mt-6 font-semibold text-[var(--navy)]">{testimonial.name}</p>
-                <p className="text-sm text-[var(--muted)]">{testimonial.role}</p>
+          <div className="mb-8">
+            <Badge tone="teal">Pricing preview</Badge>
+            <h2 className="mt-5 font-heading text-4xl font-semibold tracking-[-0.05em] text-[var(--navy)]">
+              Flexible enough for cost-sensitive users.
+            </h2>
+            <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted)]">
+              Northline keeps the plan structure simple so users can start with visibility and grow into richer workflows
+              when they need them.
+            </p>
+          </div>
+          <div className="grid gap-5 lg:grid-cols-3">
+            {[
+              ["Starter", "$0", "Start free", "Entry plan for users who want linked-account visibility and a clean daily workspace."],
+              ["Northline Plus", "$19/mo", "Choose Northline Plus", "Full workspace plan for multi-account households and small businesses."],
+              ["Transfer Flex", "$2 same-day", "View transfer pricing", "Pay-as-you-go path for users who want guided same-day transfer access without a full subscription."]
+            ].map(([name, price, cta, copy]) => (
+              <Card key={name} className="rounded-[30px]">
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--teal)]">{name}</p>
+                <h3 className="mt-3 font-heading text-4xl font-semibold tracking-[-0.05em] text-[var(--navy)]">{price}</h3>
+                <p className="mt-3 text-sm font-semibold text-[var(--navy)]">{cta}</p>
+                <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{copy}</p>
               </Card>
             ))}
           </div>
@@ -325,13 +453,76 @@ export default function HomePage() {
       <section className="page-section pt-0">
         <Container>
           <Card className="rounded-[32px]">
-            <SectionHeading
-              eyebrow="Quick FAQ"
-              title="Short answers for the most common launch questions."
-              description="The full FAQ page covers security, pricing, feature staging, and how account linking works."
-            />
-            <div className="mt-8 grid gap-4 lg:grid-cols-2">
-              {faqs.slice(0, 4).map((faq) => (
+            <Badge tone="gold">Included now</Badge>
+            <h2 className="mt-5 font-heading text-4xl font-semibold tracking-[-0.05em] text-[var(--navy)]">
+              Start with the essentials and keep the workflow focused.
+            </h2>
+            <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted)]">
+              The platform is easiest to use when it emphasizes a few clear tasks: connect accounts, review transactions,
+              understand balances, and get help when you need it.
+            </p>
+            <div className="mt-7 grid gap-3 lg:grid-cols-2">
+              {[
+                "One connected view for balances across institutions",
+                "Categorized transaction review with cash flow context",
+                "A guided Plaid connection flow with live handoff points",
+                "Clear pricing and support paths without enterprise complexity"
+              ].map((item) => (
+                <div key={item} className="rounded-[20px] border border-[var(--line)] bg-white/80 px-5 py-4 text-sm font-medium text-[var(--navy)]">
+                  {item}
+                </div>
+              ))}
+            </div>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Link href="/pricing" className="rounded-2xl bg-[var(--navy)] px-5 py-3 text-sm font-semibold text-white">
+                Compare plans
+              </Link>
+              <Link href="/contact" className="rounded-2xl border border-[var(--line-strong)] bg-white px-5 py-3 text-sm font-semibold text-[var(--navy)]">
+                Talk to the team
+              </Link>
+            </div>
+          </Card>
+        </Container>
+      </section>
+
+      <section className="page-section pt-0">
+        <Container>
+          <div className="mb-8">
+            <Badge tone="teal">Customer voice</Badge>
+            <h2 className="mt-5 font-heading text-4xl font-semibold tracking-[-0.05em] text-[var(--navy)]">
+              Clear enough for everyday users and disciplined enough for operators.
+            </h2>
+            <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted)]">
+              The interface is intentionally designed to feel calm, understandable, and useful across both consumer and
+              small-business use cases.
+            </p>
+          </div>
+          <div className="grid gap-5 lg:grid-cols-3">
+            {testimonials.map((testimonial) => (
+              <Card key={testimonial.name} className="rounded-[30px]">
+                <p className="text-base leading-8 text-[var(--navy)]">&ldquo;{testimonial.quote}&rdquo;</p>
+                <div className="mt-5">
+                  <p className="text-sm font-semibold text-[var(--navy)]">{testimonial.name}</p>
+                  <p className="text-sm text-[var(--muted)]">{testimonial.role}</p>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </Container>
+      </section>
+
+      <section className="page-section pt-0">
+        <Container>
+          <Card className="rounded-[32px]">
+            <Badge tone="gold">Quick FAQ</Badge>
+            <h2 className="mt-5 font-heading text-4xl font-semibold tracking-[-0.05em] text-[var(--navy)]">
+              Short answers to the most common questions.
+            </h2>
+            <p className="mt-4 max-w-3xl text-base leading-8 text-[var(--muted)]">
+              The full FAQ page covers security, pricing, feature staging, and how account linking works.
+            </p>
+            <div className="mt-7 grid gap-4 lg:grid-cols-3">
+              {faqs.slice(0, 3).map((faq) => (
                 <div key={faq.question} className="rounded-[24px] border border-[var(--line)] bg-white/80 p-5">
                   <h3 className="font-heading text-xl font-semibold text-[var(--navy)]">{faq.question}</h3>
                   <p className="mt-3 text-sm leading-7 text-[var(--muted)]">{faq.answer}</p>

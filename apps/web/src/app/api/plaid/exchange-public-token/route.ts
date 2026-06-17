@@ -5,6 +5,8 @@ import { resolveActiveUserId } from "@/lib/server/user";
 import { exchangePublicTokenAndSync } from "@/lib/server/plaid";
 import { getPlaidErrorMessage } from "@/lib/server/plaidErrors";
 import { isDbUnavailableError } from "@/lib/server/moneyCopilotFallback";
+import { authRequiredJson } from "@/lib/server/http";
+import { isAuthRequiredError } from "@/lib/server/user";
 
 type ExchangePayload = {
   publicToken?: string;
@@ -19,12 +21,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Missing publicToken" }, { status: 400 });
     }
 
+    const userId = await resolveActiveUserId();
+
     if (shouldUseMockPlaid()) {
       const result = await exchangePublicToken(body.publicToken, body.institutionName);
       return NextResponse.json(result);
     }
 
-    const userId = await resolveActiveUserId();
     const result = await exchangePublicTokenAndSync(userId, body.publicToken, body.institutionName);
 
     return NextResponse.json({
@@ -36,6 +39,10 @@ export async function POST(request: NextRequest) {
       mockMode: false
     });
   } catch (error) {
+    if (isAuthRequiredError(error)) {
+      return authRequiredJson("Please sign in before saving a bank connection.");
+    }
+
     if (isDbUnavailableError(error)) {
       return NextResponse.json({ error: "Database unavailable. Start the app database before syncing Plaid data." }, { status: 503 });
     }

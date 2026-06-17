@@ -4,20 +4,20 @@
 
 :root {
   color-scheme: light;
-  --canvas: #edf2f6;
-  --canvas-strong: #dde6ee;
+  --canvas: #eef3f7;
+  --canvas-strong: #dde7f0;
   --panel: rgba(255, 255, 255, 0.9);
   --panel-strong: rgba(255, 255, 255, 0.96);
   --line: rgba(15, 23, 42, 0.09);
   --line-strong: rgba(15, 23, 42, 0.18);
   --ink: #08111d;
-  --muted: #5f7387;
-  --navy: #0b1f33;
-  --ocean: #214c6b;
-  --teal: #196a75;
-  --mint: #d9efe7;
-  --gold: #c8a45a;
-  --rose: #fff0e6;
+  --muted: #5c6f85;
+  --navy: #183b67;
+  --ocean: #2d5a92;
+  --teal: #355f86;
+  --mint: #e7eef6;
+  --gold: #d8a635;
+  --rose: #fff4de;
   --success: #1e8e63;
   --warning: #b96f19;
   --danger: #b24343;
@@ -46,9 +46,10 @@ body {
   min-width: 320px;
   font-family: var(--font-body), sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(25, 106, 117, 0.08), transparent 24%),
-    linear-gradient(180deg, rgba(11, 31, 51, 0.04) 0%, rgba(11, 31, 51, 0) 16%),
-    linear-gradient(180deg, #f8fbfd 0%, #edf2f6 54%, #e7edf3 100%);
+    radial-gradient(circle at top left, rgba(24, 59, 103, 0.08), transparent 24%),
+    radial-gradient(circle at top right, rgba(216, 166, 53, 0.08), transparent 26%),
+    linear-gradient(180deg, rgba(24, 59, 103, 0.05) 0%, rgba(24, 59, 103, 0) 16%),
+    linear-gradient(180deg, #fbfcfe 0%, #eef3f7 54%, #e6edf5 100%);
   background-size:
     auto,
     auto;
@@ -81,7 +82,7 @@ textarea {
   left: -10rem;
   height: 24rem;
   width: 20rem;
-  background: linear-gradient(180deg, rgba(25, 106, 117, 0.12), rgba(25, 106, 117, 0));
+  background: linear-gradient(180deg, rgba(24, 59, 103, 0.16), rgba(24, 59, 103, 0));
 }
 
 .site-shell::after {
@@ -89,7 +90,7 @@ textarea {
   bottom: 6rem;
   height: 20rem;
   width: 20rem;
-  background: linear-gradient(180deg, rgba(200, 164, 90, 0.1), rgba(200, 164, 90, 0));
+  background: linear-gradient(180deg, rgba(216, 166, 53, 0.14), rgba(216, 166, 53, 0));
 }
 
 .font-heading {

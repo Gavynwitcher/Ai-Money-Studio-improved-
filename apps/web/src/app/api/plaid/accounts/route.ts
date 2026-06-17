@@ -2,11 +2,14 @@ import { NextResponse } from "next/server";
 import { fetchItemSummary, fetchLinkedAccounts, fetchLinkedInstitutions } from "@/lib/plaid/service";
 import { shouldUseMockPlaid, getPlaidConfig } from "@/lib/plaid/config";
 import { prisma } from "@/lib/prisma";
-import { resolveActiveUserId } from "@/lib/server/user";
+import { isAuthRequiredError, resolveActiveUserId } from "@/lib/server/user";
 import { isDbUnavailableError } from "@/lib/server/moneyCopilotFallback";
+import { authRequiredJson } from "@/lib/server/http";
 
 export async function GET() {
   try {
+    const userId = await resolveActiveUserId();
+
     if (shouldUseMockPlaid()) {
       const [institutions, accounts, item] = await Promise.all([
         fetchLinkedInstitutions(),
@@ -21,7 +24,6 @@ export async function GET() {
       });
     }
 
-    const userId = await resolveActiveUserId();
     const [items, accounts] = await Promise.all([
       prisma.plaidItem.findMany({
         where: { userId },
@@ -86,6 +88,10 @@ export async function GET() {
       item
     });
   } catch (error) {
+    if (isAuthRequiredError(error)) {
+      return authRequiredJson("Please sign in before viewing linked bank accounts.");
+    }
+
     if (isDbUnavailableError(error)) {
       return NextResponse.json({ error: "Database unavailable. Start the app database before reading Plaid accounts." }, { status: 503 });
     }

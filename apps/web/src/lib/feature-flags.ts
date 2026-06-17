@@ -2,7 +2,7 @@ export const featureFlags = {
   aggregation: "available-now",
   balances: "available-now",
   transactions: "mvp",
-  transfers: "mvp",
+  transfers: "coming-soon",
   debtAssistance: "coming-soon",
   creditRepair: "coming-soon",
   creditMonitoring: "coming-soon",
