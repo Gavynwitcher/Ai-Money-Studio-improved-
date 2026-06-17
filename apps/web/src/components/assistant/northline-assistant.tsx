@@ -1,10 +1,9 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState, useTransition } from "react";
+import { FormEvent, useEffect, useState, useTransition } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { transactions } from "@/data/mock-finance";
 
 type AssistantMessage = {
   role: "user" | "assistant";
@@ -18,6 +17,22 @@ type AssistantStatus = {
     defaultModel?: string;
     error?: string | null;
   };
+};
+
+type ImportedTransaction = {
+  id: string;
+  merchant: string;
+  category: string;
+  amount: number;
+  accountName: string;
+  date: string;
+  direction: "inflow" | "outflow";
+  status: "posted" | "pending" | string;
+};
+
+type TransactionsPayload = {
+  transactions?: ImportedTransaction[];
+  error?: string;
 };
 
 const starterPrompts = [
@@ -43,9 +58,11 @@ export function NorthlineAssistant() {
   const [input, setInput] = useState("");
   const [error, setError] = useState("");
   const [status, setStatus] = useState<AssistantStatus | null>(null);
+  const [importedTransactions, setImportedTransactions] = useState<ImportedTransaction[]>([]);
+  const [transactionsLoading, setTransactionsLoading] = useState(true);
+  const [transactionsError, setTransactionsError] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  const importedTransactions = useMemo(() => transactions, []);
   const openAiReady = status?.openai?.available === true;
   const providerTone = openAiReady ? "success" : "muted";
   const providerLabel = openAiReady ? "OpenAI connected" : "Checking";
@@ -60,6 +77,39 @@ export function NorthlineAssistant() {
       .catch(() => {
         if (active) setStatus({ provider: "unavailable" });
       });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadTransactions() {
+      try {
+        setTransactionsLoading(true);
+        setTransactionsError("");
+        const res = await fetch("/api/plaid/transactions", { cache: "no-store" });
+        const payload = (await res.json().catch(() => ({}))) as TransactionsPayload;
+        if (!res.ok) {
+          throw new Error(payload.error || "Could not load imported transactions.");
+        }
+        if (active) {
+          setImportedTransactions(Array.isArray(payload.transactions) ? payload.transactions : []);
+        }
+      } catch (nextError) {
+        if (active) {
+          setImportedTransactions([]);
+          setTransactionsError(
+            nextError instanceof Error ? nextError.message : "Could not load imported transactions."
+          );
+        }
+      } finally {
+        if (active) setTransactionsLoading(false);
+      }
+    }
+
+    void loadTransactions();
     return () => {
       active = false;
     };
@@ -96,8 +146,7 @@ export function NorthlineAssistant() {
               role: message.role,
               content: message.content
             }))
-          ],
-          transactions: importedTransactions
+          ]
         })
       });
       const payload = (await res.json().catch(() => ({}))) as { reply?: string; error?: string };
@@ -133,7 +182,7 @@ export function NorthlineAssistant() {
             <Badge tone={providerTone}>{providerLabel}</Badge>
           </div>
           <p className="mt-5 text-sm leading-7 text-[var(--muted)]">
-            Northline uses OpenAI in production to interpret imported transaction records only.
+            Northline uses OpenAI in production to interpret transaction records imported from your connected banks only.
           </p>
           <div className="mt-5 grid gap-3 text-sm">
             <div className="rounded-[22px] border border-[var(--line)] bg-slate-50/80 px-4 py-3">
@@ -142,7 +191,19 @@ export function NorthlineAssistant() {
             </div>
             <div className="rounded-[22px] border border-[var(--line)] bg-slate-50/80 px-4 py-3">
               <p className="font-semibold text-[var(--navy)]">Data boundary</p>
-              <p className="mt-1 text-[var(--muted)]">Imported transactions only. Dashboard totals and account balances are excluded.</p>
+              <p className="mt-1 text-[var(--muted)]">
+                Live imported Plaid transactions only. Demo dashboard data, balances, and account totals are excluded.
+              </p>
+            </div>
+            <div className="rounded-[22px] border border-[var(--line)] bg-slate-50/80 px-4 py-3">
+              <p className="font-semibold text-[var(--navy)]">Imported transaction source</p>
+              <p className="mt-1 text-[var(--muted)]">
+                {transactionsLoading
+                  ? "Checking your imported transaction history..."
+                  : transactionsError
+                    ? transactionsError
+                    : `${importedTransactions.length} live imported transaction${importedTransactions.length === 1 ? "" : "s"} available.`}
+              </p>
             </div>
           </div>
         </Card>
@@ -169,7 +230,7 @@ export function NorthlineAssistant() {
                 Get plain-language observations from imported transaction records, merchant activity, categories, amounts, dates, and posting status.
               </p>
             </div>
-            <Badge tone="teal">Transaction data</Badge>
+            <Badge tone="teal">{transactionsLoading ? "Loading transactions" : `${importedTransactions.length} imported`}</Badge>
           </div>
         </div>
 
@@ -221,6 +282,12 @@ export function NorthlineAssistant() {
           </p>
         ) : null}
 
+        {transactionsError ? (
+          <p className="mt-5 rounded-[22px] border border-[rgba(178,67,67,0.18)] bg-[rgba(178,67,67,0.09)] px-4 py-3 text-sm leading-7 text-[var(--danger)]">
+            {transactionsError}
+          </p>
+        ) : null}
+
         <form onSubmit={onSubmit} className="mt-6 grid gap-3">
           <label className="text-sm font-semibold text-[var(--navy)]" htmlFor="northline-ai-message">
             Ask a question
@@ -235,9 +302,9 @@ export function NorthlineAssistant() {
           />
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="max-w-xl text-xs leading-6 text-[var(--muted)]">
-              Responses are generated only from imported transaction records and should be reviewed before decisions are made.
+              Responses are generated from live imported Plaid transaction rows stored for your signed-in Northline account.
             </p>
-            <Button type="submit" disabled={isPending || !input.trim()}>
+            <Button type="submit" disabled={isPending || transactionsLoading || !input.trim()}>
               Ask Northline AI
             </Button>
           </div>

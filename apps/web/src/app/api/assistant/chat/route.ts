@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { errorJson } from "@/lib/server/http";
+import { prisma } from "@/lib/prisma";
+import { authRequiredJson, errorJson } from "@/lib/server/http";
+import { isDbUnavailableError } from "@/lib/server/moneyCopilotFallback";
 import { getOpenAiConfig, OpenAiMessage, runOpenAiChat } from "@/lib/server/openai";
+import { isAuthRequiredError, resolveActiveUserId } from "@/lib/server/user";
 
 const MAX_MESSAGES = 20;
 const MAX_TOTAL_CHARS = 25_000;
@@ -34,7 +37,6 @@ type ChatPayload = {
     role?: string;
     content?: string;
   }>;
-  transactions?: ImportedTransaction[];
 };
 
 function normalizeMessages(input: ChatPayload["messages"]): OpenAiMessage[] {
@@ -60,7 +62,7 @@ function normalizeMessages(input: ChatPayload["messages"]): OpenAiMessage[] {
   return parsed.slice(-MAX_MESSAGES);
 }
 
-function normalizeTransactions(input: ChatPayload["transactions"]) {
+function normalizeTransactions(input: ImportedTransaction[]) {
   if (!Array.isArray(input)) return [];
 
   return input.slice(0, 200).map((transaction, index) => ({
@@ -72,6 +74,35 @@ function normalizeTransactions(input: ChatPayload["transactions"]) {
     direction: transaction.direction === "inflow" ? "inflow" : "outflow",
     status: String(transaction.status || "unknown"),
     accountName: String(transaction.accountName || "Imported account")
+  }));
+}
+
+async function loadImportedTransactionsForUser(userId: string) {
+  const rows = await prisma.moneyCopilotTransaction.findMany({
+    where: {
+      userId,
+      providerTransactionId: { not: null }
+    },
+    orderBy: { postedAt: "desc" },
+    take: 200,
+    include: {
+      account: {
+        select: {
+          name: true
+        }
+      }
+    }
+  });
+
+  return rows.map((transaction) => ({
+    id: transaction.providerTransactionId || transaction.id,
+    date: transaction.postedAt.toISOString().slice(0, 10),
+    merchant: transaction.merchantNormalized || transaction.merchantRaw,
+    category: transaction.category,
+    amount: Math.abs(transaction.amount),
+    direction: transaction.amount >= 0 ? ("inflow" as const) : ("outflow" as const),
+    status: "posted",
+    accountName: transaction.account?.name || "Linked account"
   }));
 }
 
@@ -157,9 +188,10 @@ export async function POST(req: NextRequest) {
       return errorJson(`Conversation is too long (${totalChars} chars). Keep it under ${MAX_TOTAL_CHARS}.`, 413);
     }
 
-    const importedTransactions = normalizeTransactions(payload.transactions);
+    const userId = await resolveActiveUserId();
+    const importedTransactions = normalizeTransactions(await loadImportedTransactionsForUser(userId));
     if (!importedTransactions.length) {
-      return errorJson("Northline AI needs imported transaction records before it can answer.", 400);
+      return errorJson("Northline AI needs live imported Plaid transactions before it can answer. Connect a bank or refresh bank data first.", 400);
     }
 
     const citation = buildCitation(importedTransactions);
@@ -196,6 +228,12 @@ export async function POST(req: NextRequest) {
       }
     });
   } catch (error) {
+    if (isAuthRequiredError(error)) {
+      return authRequiredJson("Please sign in before using Northline AI with imported transactions.");
+    }
+    if (isDbUnavailableError(error)) {
+      return errorJson("Northline AI cannot reach the transaction database right now. Try again after the database is available.", 503);
+    }
     return errorJson(friendlyOpenAiError(error), 500);
   }
 }
