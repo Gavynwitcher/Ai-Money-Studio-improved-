@@ -489,9 +489,8 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
   }, [launchPlaid, loadingStatus, status, syncing, launching, syncPlaidData, unlinking, refreshAll]);
 
   const modeLabel = status?.environment ? status.environment.toUpperCase() : "LIVE";
-  const productLabel = status?.products?.length ? status.products.join(", ") : "transactions";
   const treasuryTone = status?.connected ? "bg-emerald-500" : "bg-amber-500";
-  const connectionLabel = loadingStatus ? "Loading..." : status?.connected ? "Treasury rail active" : "Awaiting connection";
+  const connectionLabel = loadingStatus ? "Loading..." : status?.connected ? "Bank connected" : "Ready to connect";
   const syncLabel = loadingStatus ? "-" : formatRelativeTimestamp(status?.lastSyncedAt ?? null);
   const totalBalance = accounts.reduce((sum, account) => sum + account.currentBalance, 0);
   const availableBalance = accounts.reduce((sum, account) => sum + account.availableBalance, 0);
@@ -581,11 +580,11 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
               </span>
             </div>
             <h2 className={`mt-4 font-heading ${compact ? "text-3xl" : "text-4xl"} font-semibold tracking-[-0.05em]`}>
-              Treasury-grade account linking for your banking workspace
+              Secure bank linking for your Northline workspace
             </h2>
             <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-200">
               Securely connect one or many institutions, import balances and transaction history into a single workspace,
-              and keep your Northline profile aligned with the live Plaid environment.
+              and keep your Northline profile current with supported Plaid data.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -613,7 +612,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
               }
               className="rounded-full border border-white/20 bg-white/8 px-5 py-3 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:text-white/40"
             >
-              {syncing ? "Syncing..." : "Manual Sync"}
+              {syncing ? "Refreshing..." : "Refresh bank data"}
             </button>
             <button
               type="button"
@@ -630,7 +629,7 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
 
         <div className="mt-6 grid gap-3 md:grid-cols-4">
           <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Connection rail</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Bank connection</p>
             <div className="mt-3 flex items-center gap-3">
               <span className={`h-3 w-3 rounded-full ${treasuryTone}`} />
               <p className="text-lg font-semibold text-white">{connectionLabel}</p>
@@ -638,12 +637,12 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
             <p className="mt-2 text-sm text-slate-300">{primaryInstitution}</p>
           </div>
           <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Last ledger sync</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Last data refresh</p>
             <p className="mt-3 text-2xl font-semibold text-white">{syncLabel}</p>
             <p className="mt-2 text-sm text-slate-300">Coverage {loadingStatus ? "-" : coverageLabel(status)}</p>
           </div>
           <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Imported accounts</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Accounts found</p>
             <p className="mt-3 text-3xl font-semibold text-white">
               {loadingDetails ? "..." : accounts.length || status?.linkedAccounts || 0}
             </p>
@@ -652,11 +651,11 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
             </p>
           </div>
           <div className="rounded-[24px] border border-white/10 bg-white/8 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Imported transactions</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">Transaction history</p>
             <p className="mt-3 text-3xl font-semibold text-white">
               {loadingDetails ? "..." : transactions.length || status?.importedTransactions || 0}
             </p>
-            <p className="mt-2 text-sm text-slate-300">Products: {productLabel}</p>
+            <p className="mt-2 text-sm text-slate-300">Imported from connected institutions</p>
           </div>
         </div>
       </div>
@@ -826,7 +825,8 @@ export function PlaidConnectCard({ onLinked, onStatusChange, onControlsReady, co
             ) : (
               <div className="rounded-[22px] border border-dashed border-slate-300 bg-slate-50 p-5 text-sm leading-6 text-slate-600">
                 The bank connection is active, but transaction history has not populated yet. That usually means the institution
-                is still preparing historical data. Try <span className="font-semibold text-slate-950">Manual Sync</span> again in a minute.
+                is still preparing historical data. Try{" "}
+                <span className="font-semibold text-slate-950">Refresh bank data</span> again in a minute.
               </div>
             )}
           </div>

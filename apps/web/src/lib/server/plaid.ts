@@ -224,7 +224,7 @@ export async function createPlaidLinkToken(userId: string) {
   const client = getPlaidClient();
   const response = await client.linkTokenCreate({
     user: { client_user_id: userId },
-    client_name: "AI Money Copilot",
+    client_name: "Northline",
     products: resolveConfiguredProducts(),
     country_codes: [CountryCode.Us],
     language: "en",

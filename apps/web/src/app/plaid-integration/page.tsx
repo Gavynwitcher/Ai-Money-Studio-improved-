@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PlaidBankingWorkspaceDemo } from "@/components/plaid/plaid-banking-workspace-demo";
+import { PlaidConnectCard } from "@/components/plaid-connect-card";
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { PageHero } from "@/components/ui/page-hero";
@@ -105,7 +105,7 @@ export default function PlaidIntegrationPage() {
 
       <section className="page-section pt-0" id="plaid-demo">
         <Container>
-          <PlaidBankingWorkspaceDemo />
+          <PlaidConnectCard />
         </Container>
       </section>
 
@@ -155,10 +155,10 @@ export default function PlaidIntegrationPage() {
               </p>
             </Card>
             <Card className="rounded-[30px]">
-              <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Sandbox-first testing</h2>
+              <h2 className="font-heading text-2xl font-semibold text-[var(--navy)]">Production connection path</h2>
               <p className="mt-4 text-sm leading-7 text-[var(--muted)]">
-                The quickstart starts in Plaid Sandbox using test credentials such as `user_good`,
-                `pass_good`, and `1234` for simulated MFA. This page now mirrors that setup explicitly.
+                Northline now requests Plaid production link tokens for live institution connections. Users should only
+                connect accounts they are authorized to access, and availability depends on Plaid and institution support.
               </p>
             </Card>
             <Card className="rounded-[30px]">
