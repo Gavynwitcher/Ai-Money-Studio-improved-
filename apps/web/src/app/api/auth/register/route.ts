@@ -47,10 +47,7 @@ export async function POST(req: NextRequest) {
       data: {
         email,
         passwordHash: hashPassword(password),
-        name: name || null,
-        termsAcceptedAt: new Date(),
-        termsAcceptedIp: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
-        termsAcceptedVersion: "2026-06-private-beta"
+        name: name || null
       },
       select: { id: true }
     });
