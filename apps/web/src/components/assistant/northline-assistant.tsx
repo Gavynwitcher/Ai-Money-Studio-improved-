@@ -17,18 +17,26 @@ type AssistantStatus = {
   openai?: {
     available?: boolean;
     defaultModel?: string;
+    error?: string | null;
   };
   ollama?: {
     available?: boolean;
     defaultModel?: string;
+    error?: string | null;
   };
 };
 
 const starterPrompts = [
-  "What should I review first in my connected accounts?",
-  "Summarize my cash flow risk using the dashboard data.",
-  "Which spending categories deserve attention this week?"
+  "Review my cash flow",
+  "Find spending pressure",
+  "Prep for payroll"
 ];
+
+const promptText: Record<(typeof starterPrompts)[number], string> = {
+  "Review my cash flow": "Summarize my cash flow risk using the dashboard data.",
+  "Find spending pressure": "Which spending categories deserve attention this week?",
+  "Prep for payroll": "What should I review before the next payroll reserve check?"
+};
 
 function buildSummaryContext() {
   const income = transactions
@@ -102,7 +110,7 @@ export function NorthlineAssistant() {
     {
       role: "assistant",
       content:
-        "I can help interpret the connected account, transaction, cash-flow, and budgeting information shown in this Northline demo. I will not claim to move money or provide legal, tax, investment, credit repair, or lending approval advice."
+        "Ask me about the connected accounts, recent transactions, cash-flow patterns, and budgeting context in Northline. I can help interpret the data, but I will not move money or provide legal, tax, investment, credit repair, or lending approval advice."
     }
   ]);
   const [input, setInput] = useState("");
@@ -112,6 +120,9 @@ export function NorthlineAssistant() {
 
   const summaryContext = useMemo(() => buildSummaryContext(), []);
   const accountContext = useMemo(() => buildAccountContext(), []);
+  const openAiReady = status?.openai?.available === true;
+  const providerTone = openAiReady ? "success" : status?.provider === "ollama" ? "warning" : "muted";
+  const providerLabel = openAiReady ? "OpenAI connected" : status?.provider === "ollama" ? "Local fallback" : "Checking";
 
   useEffect(() => {
     let active = true;
@@ -127,6 +138,20 @@ export function NorthlineAssistant() {
       active = false;
     };
   }, []);
+
+  function friendlyError(message: string) {
+    const lower = message.toLowerCase();
+    if (lower.includes("quota") || lower.includes("billing")) {
+      return "OpenAI is connected, but the OpenAI project quota or billing limit needs attention before Northline AI can answer live.";
+    }
+    if (lower.includes("openai_api_key")) {
+      return "OpenAI is not ready yet. Add the OpenAI API key in Vercel and redeploy.";
+    }
+    if (lower.includes("ollama") || lower.includes("localhost")) {
+      return "Northline AI is configured for OpenAI in production. The local Ollama fallback is not used on the live site.";
+    }
+    return message || "Northline AI could not respond. Please try again.";
+  }
 
   async function sendMessage(nextPrompt?: string) {
     const prompt = (nextPrompt ?? input).trim();
@@ -168,7 +193,7 @@ export function NorthlineAssistant() {
       }
       setMessages((current) => [...current, { role: "assistant", content: payload.reply || "" }]);
     } catch (nextError) {
-      setError(nextError instanceof Error ? nextError.message : "Northline AI could not respond.");
+      setError(friendlyError(nextError instanceof Error ? nextError.message : "Northline AI could not respond."));
     }
   }
 
@@ -180,69 +205,77 @@ export function NorthlineAssistant() {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr]">
+    <div className="grid gap-6 lg:grid-cols-[0.62fr_1.38fr]">
       <div className="grid gap-5">
-        <Card className="rounded-[32px]">
-          <div className="flex items-center justify-between gap-3">
+        <Card className="rounded-[32px] border-[rgba(11,31,51,0.08)] bg-white/95 p-6 shadow-[0_24px_70px_rgba(11,31,51,0.08)]">
+          <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--teal)]">
-                AI provider
+                Production AI
               </p>
-              <h2 className="mt-3 font-heading text-3xl font-semibold tracking-[-0.04em] text-[var(--navy)]">
-                OpenAI-backed financial workspace
+              <h2 className="mt-3 font-heading text-2xl font-semibold tracking-[-0.04em] text-[var(--navy)]">
+                OpenAI for connected-account insight
               </h2>
             </div>
-            <Badge tone={status?.provider === "openai" ? "success" : status?.provider === "ollama" ? "warning" : "muted"}>
-              {status?.provider ?? "checking"}
-            </Badge>
+            <Badge tone={providerTone}>{providerLabel}</Badge>
           </div>
           <p className="mt-5 text-sm leading-7 text-[var(--muted)]">
-            Northline AI uses the OpenAI platform when `OPENAI_API_KEY` is configured, with Ollama available as a local fallback.
+            Northline uses OpenAI in production to interpret account visibility, transaction history, cash-flow patterns, and budgeting context.
           </p>
           <div className="mt-5 grid gap-3 text-sm">
-            <div className="ledger-row rounded-[20px] px-4 py-3">
+            <div className="rounded-[22px] border border-[var(--line)] bg-slate-50/80 px-4 py-3">
               <p className="font-semibold text-[var(--navy)]">OpenAI model</p>
               <p className="mt-1 text-[var(--muted)]">{status?.openai?.defaultModel ?? "Configured by OPENAI_MODEL"}</p>
             </div>
-            <div className="ledger-row rounded-[20px] px-4 py-3">
+            <div className="rounded-[22px] border border-[var(--line)] bg-slate-50/80 px-4 py-3">
               <p className="font-semibold text-[var(--navy)]">Data boundary</p>
               <p className="mt-1 text-[var(--muted)]">Connected accounts, transactions, cash flow, categories, and budgeting context only.</p>
             </div>
           </div>
         </Card>
 
-        <Card className="rounded-[32px]">
+        <Card className="rounded-[32px] border-[rgba(11,31,51,0.08)] bg-[linear-gradient(135deg,#ffffff_0%,#f3fbfb_100%)] p-6">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--teal)]">Guardrails</p>
           <div className="mt-5 grid gap-3 text-sm leading-7 text-[var(--muted)]">
-            <p>Northline AI does not move money, approve transfers, or initiate external account actions.</p>
-            <p>It does not provide legal, tax, investment, credit repair, lending approval, or regulatory advice.</p>
-            <p>If data is missing, it should ask for a sync or clearer account context instead of guessing.</p>
+            <p>Answers stay grounded in the account and transaction data available in Northline.</p>
+            <p>Money movement, legal, tax, investment, credit repair, and lending decisions stay outside the assistant.</p>
+            <p>If data is missing, Northline AI should ask for a bank sync or clearer context instead of guessing.</p>
           </div>
         </Card>
       </div>
 
-      <Card className="rounded-[32px]">
-        <div className="flex flex-col gap-4 border-b border-[var(--line)] pb-5 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--teal)]">Northline AI</p>
-            <h2 className="mt-3 font-heading text-3xl font-semibold tracking-[-0.04em] text-[var(--navy)]">
-              Ask about your connected banking picture
-            </h2>
+      <Card className="rounded-[36px] border-[rgba(11,31,51,0.08)] bg-white/95 p-0 shadow-[0_30px_90px_rgba(11,31,51,0.10)]">
+        <div className="rounded-t-[36px] bg-[linear-gradient(135deg,#0b1f33_0%,#163d5d_58%,#1d7778_100%)] px-6 py-6 text-white sm:px-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-100/80">Northline AI</p>
+              <h2 className="mt-3 font-heading text-3xl font-semibold tracking-[-0.04em] text-white">
+                Ask about your banking picture
+              </h2>
+              <p className="mt-3 max-w-2xl text-sm leading-7 text-slate-200">
+                Get plain-language observations from your connected account demo, cash-flow summary, and transaction categories.
+              </p>
+            </div>
+            <Badge tone="teal">Demo data</Badge>
           </div>
-          <Badge tone="teal">Demo data</Badge>
         </div>
 
-        <div className="mt-5 flex flex-wrap gap-2">
+        <div className="p-6 sm:p-8">
+        <div className="flex flex-col gap-4 border-b border-[var(--line)] pb-5 sm:flex-row sm:items-start sm:justify-between">
+          <p className="text-sm font-semibold text-[var(--navy)]">Start with a guided question</p>
+        </div>
+
+        <div className="mt-5 grid gap-3 sm:grid-cols-3">
           {starterPrompts.map((prompt) => (
             <button
               key={prompt}
               type="button"
               onClick={() =>
                 startTransition(() => {
-                  void sendMessage(prompt);
+                  void sendMessage(promptText[prompt]);
                 })
               }
-              className="rounded-full border border-[var(--line)] bg-white px-4 py-2 text-left text-sm font-semibold text-[var(--navy)] transition hover:border-[var(--ocean)]"
+              className="rounded-[22px] border border-[var(--line)] bg-slate-50/80 px-4 py-4 text-left text-sm font-semibold text-[var(--navy)] transition hover:-translate-y-0.5 hover:border-[var(--ocean)] hover:bg-white hover:shadow-[0_14px_34px_rgba(11,31,51,0.08)]"
             >
               {prompt}
             </button>
@@ -256,7 +289,7 @@ export function NorthlineAssistant() {
               className={
                 message.role === "user"
                   ? "ml-auto max-w-[85%] rounded-[24px] bg-[var(--navy)] px-5 py-4 text-sm leading-7 text-white"
-                  : "max-w-[88%] rounded-[24px] border border-[var(--line)] bg-slate-50/90 px-5 py-4 text-sm leading-7 text-[var(--navy)]"
+                  : "max-w-[88%] rounded-[24px] border border-[var(--line)] bg-slate-50/90 px-5 py-4 text-sm leading-7 text-[var(--navy)] shadow-[0_12px_30px_rgba(11,31,51,0.04)]"
               }
             >
               {message.content}
@@ -270,7 +303,7 @@ export function NorthlineAssistant() {
         </div>
 
         {error ? (
-          <p className="mt-5 rounded-[20px] bg-[rgba(178,67,67,0.12)] px-4 py-3 text-sm text-[var(--danger)]">
+          <p className="mt-5 rounded-[22px] border border-[rgba(178,67,67,0.18)] bg-[rgba(178,67,67,0.09)] px-4 py-3 text-sm leading-7 text-[var(--danger)]">
             {error}
           </p>
         ) : null}
@@ -296,6 +329,7 @@ export function NorthlineAssistant() {
             </Button>
           </div>
         </form>
+        </div>
       </Card>
     </div>
   );

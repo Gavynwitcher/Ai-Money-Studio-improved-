@@ -96,6 +96,9 @@ async function runNorthlineAiChat(params: { payload: ChatPayload; messages: Olla
   const preferredProvider = params.payload.provider || process.env.NORTHLINE_AI_PROVIDER || "auto";
   const shouldUseOpenAi =
     preferredProvider === "openai" || (preferredProvider === "auto" && openAiConfig.configured);
+  const allowLocalFallback =
+    preferredProvider === "ollama" ||
+    (!process.env.VERCEL && process.env.NORTHLINE_AI_ALLOW_LOCAL_FALLBACK === "true");
 
   if (shouldUseOpenAi) {
     try {
@@ -105,7 +108,7 @@ async function runNorthlineAiChat(params: { payload: ChatPayload; messages: Olla
         maxOutputTokens: 1400
       });
     } catch (error) {
-      if (preferredProvider === "openai") {
+      if (!allowLocalFallback) {
         throw error;
       }
     }
