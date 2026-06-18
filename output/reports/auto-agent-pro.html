@@ -1,0 +1,1353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auto Agent Pro - AI Car Shopping Assistant</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --surface: #ffffff;
+      --surface-2: #f9fbff;
+      --text: #102130;
+      --muted: #526274;
+      --line: #d8e2ee;
+      --primary: #0d7f91;
+      --primary-strong: #0a6a79;
+      --accent: #f59e0b;
+      --success: #0f9f6f;
+      --danger: #d43c3c;
+      --shadow: 0 16px 40px rgba(16, 33, 48, 0.12);
+      --radius: 14px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Manrope", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at -10% -20%, #b6edf4 0%, transparent 55%),
+        radial-gradient(900px 450px at 120% 0%, #ffe6ba 0%, transparent 60%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    .container {
+      width: min(1360px, 95vw);
+      margin: 0 auto;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(8px);
+      background: rgba(244, 247, 251, 0.78);
+      border-bottom: 1px solid rgba(216, 226, 238, 0.8);
+    }
+
+    .topbar-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 0;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: clamp(1.3rem, 1.8vw, 1.9rem);
+      letter-spacing: -0.03em;
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+
+    .kpi-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      display: flex;
+      gap: 8px;
+      align-items: baseline;
+      box-shadow: 0 2px 8px rgba(16, 33, 48, 0.05);
+    }
+
+    .kpi-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .kpi-value {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .main-layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 22px;
+      padding: 24px 0;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(216, 226, 238, 0.9);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, #ffffff 0%, #f7fbff 100%);
+    }
+
+    .panel-title {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .panel-subtitle {
+      margin: 4px 0 0;
+      font-size: 0.86rem;
+      color: var(--muted);
+    }
+
+    .panel-body {
+      padding: 16px 20px 20px;
+    }
+
+    .chat-messages {
+      height: 390px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      padding: 14px;
+    }
+
+    .message {
+      margin-bottom: 12px;
+      max-width: 88%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      animation: fadeUp 220ms ease;
+    }
+
+    .message .label {
+      font-size: 0.67rem;
+      text-transform: uppercase;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      opacity: 0.75;
+      margin-bottom: 4px;
+    }
+
+    .message.agent {
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .message.user {
+      margin-left: auto;
+      color: #fff;
+      border: 1px solid transparent;
+      background: linear-gradient(130deg, var(--primary) 0%, #12a3b9 100%);
+    }
+
+    .input-row {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+    }
+
+    input, select, button {
+      font-family: inherit;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 0.95rem;
+      color: var(--text);
+      padding: 11px 12px;
+    }
+
+    input:focus,
+    select:focus {
+      outline: 2px solid rgba(13, 127, 145, 0.25);
+      border-color: var(--primary);
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 10px 14px;
+      transition: transform 120ms ease, background-color 120ms ease, box-shadow 120ms ease;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: linear-gradient(140deg, var(--primary) 0%, #169fb4 100%);
+      box-shadow: 0 8px 18px rgba(13, 127, 145, 0.25);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(140deg, var(--primary-strong) 0%, #148ba0 100%);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      border-color: var(--line);
+      color: var(--text);
+    }
+
+    .prefs-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field label {
+      font-size: 0.78rem;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: var(--muted);
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .actions-stack {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .results-wrap {
+      padding-bottom: 30px;
+    }
+
+    .results-head {
+      margin: 0 0 12px;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.2rem;
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 24px rgba(16, 33, 48, 0.09);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: fadeUp 280ms ease both;
+    }
+
+    .card-art {
+      height: 150px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 54px;
+      background:
+        linear-gradient(160deg, rgba(13, 127, 145, 0.09) 0%, rgba(13, 127, 145, 0.01) 50%),
+        radial-gradient(200px 80px at 75% 0%, rgba(245, 158, 11, 0.25) 0%, transparent 65%),
+        #f8fbff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .card-body {
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      font-size: 0.68rem;
+      font-weight: 800;
+      border-radius: 999px;
+      padding: 5px 9px;
+      border: 1px solid transparent;
+    }
+
+    .badge-match {
+      color: var(--primary);
+      background: rgba(13, 127, 145, 0.12);
+      border-color: rgba(13, 127, 145, 0.2);
+    }
+
+    .badge-value {
+      color: #9a5e04;
+      background: rgba(245, 158, 11, 0.16);
+      border-color: rgba(245, 158, 11, 0.22);
+    }
+
+    .vehicle-title {
+      margin: 0;
+      font-size: 1.08rem;
+      font-weight: 800;
+    }
+
+    .vehicle-meta {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .vehicle-price {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin: 0;
+    }
+
+    .feature-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 4px;
+    }
+
+    .feature-list li {
+      font-size: 0.83rem;
+      color: var(--text);
+    }
+
+    .feature-list li::before {
+      content: "✓";
+      color: var(--success);
+      margin-right: 8px;
+      font-weight: 800;
+    }
+
+    .card-actions {
+      margin-top: auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 38px 18px;
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.65);
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(12, 19, 28, 0.58);
+      z-index: 20;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-panel {
+      width: min(840px, 100%);
+      max-height: calc(100vh - 40px);
+      overflow: auto;
+      border-radius: 18px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: 0 24px 56px rgba(10, 19, 28, 0.35);
+    }
+
+    .modal-head {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(5px);
+      z-index: 2;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .modal-head h3 {
+      margin: 0;
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 1.2rem;
+    }
+
+    .modal-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .icon-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 10px;
+      width: 34px;
+      height: 34px;
+      cursor: pointer;
+      font-size: 1.3rem;
+      line-height: 1;
+      color: var(--muted);
+    }
+
+    .modal-body {
+      padding: 16px 20px 20px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .box-title {
+      font-size: 0.9rem;
+      margin: 0 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 800;
+    }
+
+    .price-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .price-box {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-2);
+      padding: 10px;
+      text-align: center;
+    }
+
+    .price-box strong {
+      font-size: 1.3rem;
+      color: var(--primary);
+      display: block;
+      margin-top: 4px;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .chip {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: #fff;
+      padding: 8px 12px;
+      font-size: 0.83rem;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .chip:hover {
+      background: rgba(13, 127, 145, 0.1);
+      border-color: rgba(13, 127, 145, 0.3);
+    }
+
+    .neg-chat {
+      height: 220px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fbfdff;
+      padding: 10px;
+    }
+
+    .neg-msg {
+      margin-bottom: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      max-width: 88%;
+      font-size: 0.9rem;
+    }
+
+    .neg-msg.agent {
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+
+    .neg-msg.user {
+      margin-left: auto;
+      color: #fff;
+      background: linear-gradient(130deg, var(--primary) 0%, #13a4b9 100%);
+    }
+
+    .warranty-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .warranty-card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px;
+      cursor: pointer;
+      transition: border-color 120ms ease, transform 120ms ease;
+    }
+
+    .warranty-card:hover {
+      border-color: rgba(13, 127, 145, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .warranty-card h4 {
+      margin: 0 0 4px;
+      font-size: 0.92rem;
+    }
+
+    .warranty-card p {
+      margin: 0;
+      font-size: 0.81rem;
+      color: var(--muted);
+    }
+
+    .analysis {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface-2);
+      padding: 12px;
+      min-height: 165px;
+    }
+
+    .analysis h4 {
+      margin: 0 0 8px;
+      font-size: 1rem;
+      color: var(--primary);
+    }
+
+    .pros-cons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .mini-list {
+      margin: 0;
+      padding-left: 16px;
+      font-size: 0.82rem;
+      color: var(--text);
+      display: grid;
+      gap: 4px;
+    }
+
+    .quotes {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .quote {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      padding: 10px;
+    }
+
+    .quote.reco {
+      border-color: rgba(13, 127, 145, 0.35);
+      background: rgba(13, 127, 145, 0.05);
+    }
+
+    .quote-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .quote-head strong {
+      font-size: 1.2rem;
+      color: var(--primary);
+    }
+
+    .quote-meta {
+      margin-top: 6px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .modal-foot {
+      position: sticky;
+      bottom: 0;
+      background: #fff;
+      border-top: 1px solid var(--line);
+      padding: 14px 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1020px) {
+      .main-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .topbar-inner {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .kpi-row {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .results {
+        grid-template-columns: 1fr;
+      }
+
+      .price-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .warranty-grid,
+      .pros-cons {
+        grid-template-columns: 1fr;
+      }
+
+      .card-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <h1>Auto Agent Pro</h1>
+        <p>AI-assisted car shopping, negotiation prep, and warranty analysis</p>
+      </div>
+      <div class="kpi-row" aria-label="Summary">
+        <div class="kpi"><span class="kpi-label">Matches</span><span class="kpi-value" id="matchCount">0</span></div>
+        <div class="kpi"><span class="kpi-label">Avg Price</span><span class="kpi-value" id="avgPrice">$0</span></div>
+        <div class="kpi"><span class="kpi-label">Location</span><span class="kpi-value" id="headerZip">98366</span></div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="main-layout">
+      <section class="panel" aria-labelledby="chatTitle">
+        <div class="panel-head">
+          <h2 class="panel-title" id="chatTitle">AI Shopping Agent</h2>
+          <p class="panel-subtitle">Describe what you need and the assistant will tune recommendations.</p>
+        </div>
+        <div class="panel-body">
+          <div class="chat-messages" id="chatMessages" aria-live="polite">
+            <div class="message agent">
+              <div class="label">Agent</div>
+              <div>Tell me what you want in your next vehicle. Example: "family SUV under 40k with good MPG".</div>
+            </div>
+          </div>
+          <div class="input-row">
+            <label for="userInput" class="sr-only">Chat input</label>
+            <input type="text" id="userInput" placeholder="Ask for recommendations, comparisons, or MPG-focused picks..." />
+            <button class="btn btn-primary" id="sendMessageBtn" type="button">Send</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel" aria-labelledby="prefTitle">
+        <div class="panel-head">
+          <h2 class="panel-title" id="prefTitle">Your Preferences</h2>
+          <p class="panel-subtitle">Set hard filters, then run Smart Search.</p>
+        </div>
+        <div class="panel-body">
+          <div class="prefs-grid">
+            <div class="field">
+              <label for="vehicleType">Vehicle type</label>
+              <select id="vehicleType">
+                <option value="">Any</option>
+                <option value="sedan">Sedan</option>
+                <option value="suv">SUV</option>
+                <option value="truck">Truck</option>
+                <option value="coupe">Coupe</option>
+                <option value="hatchback">Hatchback</option>
+                <option value="minivan">Minivan</option>
+                <option value="electric">Electric</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="maxBudget">Max budget ($)</label>
+              <input type="number" id="maxBudget" placeholder="45000" min="0" />
+            </div>
+            <div class="field">
+              <label for="minYear">Min year</label>
+              <input type="number" id="minYear" placeholder="2020" min="1990" max="2030" />
+            </div>
+            <div class="field">
+              <label for="maxMileage">Max mileage</label>
+              <input type="number" id="maxMileage" placeholder="50000" min="0" />
+            </div>
+            <div class="field">
+              <label for="location">ZIP code</label>
+              <input type="text" id="location" placeholder="98366" pattern="[0-9]{5}" maxlength="5" />
+            </div>
+          </div>
+
+          <div class="actions-stack">
+            <button class="btn btn-secondary" id="smartSearchBtn" type="button">Smart Search</button>
+            <button class="btn btn-primary" id="openNegotiatorBtn" type="button">Negotiate Price</button>
+            <button class="btn btn-primary" id="openWarrantyBtn" type="button">Warranty Guide</button>
+            <button class="btn btn-secondary" id="resetBtn" type="button">Reset</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <section class="results-wrap">
+      <h2 class="results-head">Recommended Vehicles</h2>
+      <div id="results" class="results" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <div class="modal" id="negotiationModal" aria-hidden="true">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="negTitle">
+      <div class="modal-head">
+        <div>
+          <h3 id="negTitle">AI Price Negotiation Assistant</h3>
+          <p>Market comps, leverage tactics, and offer language.</p>
+        </div>
+        <button class="icon-btn" type="button" data-close-modal="negotiationModal" aria-label="Close negotiation modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <section>
+          <h4 class="box-title">Price Analysis</h4>
+          <div class="price-grid">
+            <div class="price-box">Dealer Ask<strong id="dealerPrice">$0</strong></div>
+            <div class="price-box">Fair Market<strong id="fairPrice">$0</strong></div>
+            <div class="price-box">Potential Save<strong id="savePrice">$0</strong></div>
+          </div>
+        </section>
+        <section>
+          <h4 class="box-title">Strategy Library</h4>
+          <div class="chip-row" id="strategyChips"></div>
+        </section>
+        <section>
+          <h4 class="box-title">Negotiation Chat</h4>
+          <div class="neg-chat" id="negChat" aria-live="polite"></div>
+          <div class="input-row">
+            <label for="negInput" class="sr-only">Negotiation input</label>
+            <input id="negInput" type="text" placeholder="Ask for opening offer, counters, or fee strategy..." />
+            <button class="btn btn-primary" type="button" id="sendNegBtn">Send</button>
+          </div>
+        </section>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" type="button" data-close-modal="negotiationModal">Close</button>
+        <button class="btn btn-primary" type="button" id="offerLetterBtn">Generate Offer Letter</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="warrantyModal" aria-hidden="true">
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="warTitle">
+      <div class="modal-head">
+        <div>
+          <h3 id="warTitle">Warranty Intelligence Center</h3>
+          <p>Coverage explainer, tradeoffs, and live quote simulation.</p>
+        </div>
+        <button class="icon-btn" type="button" data-close-modal="warrantyModal" aria-label="Close warranty modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <section>
+          <h4 class="box-title">Warranty Types</h4>
+          <div class="warranty-grid" id="warrantyCards"></div>
+        </section>
+
+        <section>
+          <h4 class="box-title">AI Analysis</h4>
+          <div class="analysis" id="warrantyAnalysis">
+            Select a warranty type to see coverage, pros, cons, and recommendation.
+          </div>
+        </section>
+
+        <section>
+          <h4 class="box-title">Quote Inputs</h4>
+          <div class="warranty-grid">
+            <div class="field">
+              <label for="coverageTerm">Coverage term</label>
+              <select id="coverageTerm">
+                <option value="3/36">3 Years / 36,000 Miles</option>
+                <option value="5/60">5 Years / 60,000 Miles</option>
+                <option value="7/100" selected>7 Years / 100,000 Miles</option>
+                <option value="10/150">10 Years / 150,000 Miles</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="coverageLevel">Coverage level</label>
+              <select id="coverageLevel">
+                <option value="powertrain">Powertrain Only</option>
+                <option value="stated">Stated Component</option>
+                <option value="exclusionary" selected>Exclusionary</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="deductible">Deductible</label>
+              <select id="deductible">
+                <option value="0" selected>$0 per visit</option>
+                <option value="50">$50 per visit</option>
+                <option value="100">$100 per visit</option>
+                <option value="200">$200 per visit</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="annualMileage">Annual mileage</label>
+              <select id="annualMileage">
+                <option value="10000">10,000 miles/year</option>
+                <option value="12000" selected>12,000 miles/year</option>
+                <option value="15000">15,000 miles/year</option>
+                <option value="20000">20,000 miles/year</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-top: 10px;">
+            <button class="btn btn-primary" id="quoteBtn" type="button">Get Quotes from Providers</button>
+          </div>
+          <div class="quotes" id="quotes"></div>
+        </section>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" type="button" data-close-modal="warrantyModal">Close</button>
+        <button class="btn btn-primary" type="button" id="contactProviderBtn">Contact Top Provider</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      preferences: {
+        vehicleType: "",
+        maxBudget: null,
+        minYear: null,
+        maxMileage: null,
+        location: "98366"
+      },
+      vehicles: [
+        { id: 1, year: 2022, make: "Toyota", model: "RAV4", type: "suv", price: 32500, mileage: 28000, mpg: 30, features: ["AWD", "Apple CarPlay", "Safety Sense", "Backup Camera"], baseMatch: 95 },
+        { id: 2, year: 2021, make: "Honda", model: "CR-V", type: "suv", price: 29800, mileage: 35000, mpg: 28, features: ["Honda Sensing", "Sunroof", "Heated Seats", "Android Auto"], baseMatch: 92 },
+        { id: 3, year: 2023, make: "Mazda", model: "CX-5", type: "suv", price: 34200, mileage: 15000, mpg: 26, features: ["Leather", "Premium Audio", "Navigation", "AWD"], baseMatch: 88 },
+        { id: 4, year: 2022, make: "Ford", model: "Explorer", type: "suv", price: 42000, mileage: 22000, mpg: 24, features: ["3rd Row", "4WD", "Tow Package", "Co-Pilot360"], baseMatch: 85 },
+        { id: 5, year: 2021, make: "Subaru", model: "Outback", type: "suv", price: 28900, mileage: 31000, mpg: 29, features: ["AWD", "EyeSight", "Roof Rails", "StarLink"], baseMatch: 90 },
+        { id: 6, year: 2023, make: "Hyundai", model: "Tucson", type: "suv", price: 31500, mileage: 12000, mpg: 31, features: ["Hybrid", "SmartSense", "Wireless Charging", "Panoramic Roof"], baseMatch: 93 },
+        { id: 7, year: 2022, make: "Tesla", model: "Model 3", type: "electric", price: 37900, mileage: 26000, mpg: 120, features: ["Autopilot", "OTA Updates", "Heat Pump", "Fast Charge"], baseMatch: 89 },
+        { id: 8, year: 2020, make: "Toyota", model: "Camry", type: "sedan", price: 24400, mileage: 42000, mpg: 34, features: ["Adaptive Cruise", "Lane Keep", "Backup Camera", "CarPlay"], baseMatch: 87 }
+      ],
+      filtered: []
+    };
+
+    const STRATEGIES = {
+      market: "Show 3-5 local comparables and anchor at their average. Ask for a match, then pause.",
+      days: "Use days-on-lot as leverage: older inventory costs dealers money each week.",
+      cash: "Cash or pre-approved financing reduces friction. Trade speed for a lower price.",
+      endmonth: "Time offers in the final week of month-end to align with quota pressure.",
+      tradeoff: "Offer price flexibility only if dealer removes add-ons and inflated doc fees."
+    };
+
+    const WARRANTY = {
+      factory: {
+        name: "Factory Warranty",
+        brief: "Original manufacturer coverage for new vehicles",
+        coverage: ["Included with new vehicle", "Strong bumper-to-bumper baseline", "Nationwide dealer service network"],
+        pros: ["No extra cost up front", "High claim confidence", "Strong resale impact"],
+        cons: ["Limited term", "Strict maintenance schedule"],
+        recommendation: "Best option if coverage is still active. Verify exact in-service date and transfer rules."
+      },
+      cpo: {
+        name: "CPO Warranty",
+        brief: "Manufacturer-backed protection for certified used cars",
+        coverage: ["Inspection-based eligibility", "Extended powertrain and limited comprehensive coverage", "Often includes roadside help"],
+        pros: ["Good reliability-to-price balance", "Dealer-backed repairs"],
+        cons: ["Higher purchase price", "Limited inventory"],
+        recommendation: "Strong value for 2-5 year old vehicles when the CPO premium is reasonable."
+      },
+      extended: {
+        name: "Extended Warranty",
+        brief: "Third-party plans after factory warranty",
+        coverage: ["Flexible terms and deductibles", "Broad coverage tiers", "Available for higher-mile vehicles"],
+        pros: ["Customizable", "Useful on longer ownership horizon"],
+        cons: ["Provider quality varies", "Claims handling can differ widely"],
+        recommendation: "Compare contract exclusions and payout caps before buying. Cheapest quote is rarely best."
+      },
+      powertrain: {
+        name: "Powertrain Warranty",
+        brief: "Engine, transmission, drivetrain focus",
+        coverage: ["Core mechanical components", "Lower cost than full coverage", "Useful catastrophic-repair guard"],
+        pros: ["Affordable", "Protects major repair risk"],
+        cons: ["Does not cover many electronics and comfort systems", "Limited day-to-day repair value"],
+        recommendation: "Choose this when budget is tight but you still want protection from major failures."
+      }
+    };
+
+    const byId = (id) => document.getElementById(id);
+    const fmtMoney = (n) => `$${Math.round(n).toLocaleString()}`;
+
+    function escapeHtml(str) {
+      const div = document.createElement("div");
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function updatePreferencesFromForm() {
+      const zip = byId("location").value.trim();
+      state.preferences.vehicleType = byId("vehicleType").value;
+      state.preferences.maxBudget = parseInt(byId("maxBudget").value, 10) || null;
+      state.preferences.minYear = parseInt(byId("minYear").value, 10) || null;
+      state.preferences.maxMileage = parseInt(byId("maxMileage").value, 10) || null;
+      state.preferences.location = /^\d{5}$/.test(zip) ? zip : "98366";
+      byId("headerZip").textContent = state.preferences.location;
+    }
+
+    function addChatMessage(role, text) {
+      const wrap = byId("chatMessages");
+      const msg = document.createElement("div");
+      msg.className = `message ${role}`;
+      msg.innerHTML = `<div class="label">${role === "user" ? "You" : "Agent"}</div><div>${escapeHtml(text)}</div>`;
+      wrap.appendChild(msg);
+      wrap.scrollTop = wrap.scrollHeight;
+    }
+
+    function scoreVehicle(v) {
+      const p = state.preferences;
+      let score = v.baseMatch;
+      if (p.vehicleType && v.type !== p.vehicleType) score -= 28;
+      if (p.maxBudget && v.price > p.maxBudget) score -= Math.min(25, Math.round((v.price - p.maxBudget) / 1000));
+      if (p.minYear && v.year < p.minYear) score -= (p.minYear - v.year) * 3;
+      if (p.maxMileage && v.mileage > p.maxMileage) score -= Math.min(20, Math.round((v.mileage - p.maxMileage) / 4000));
+      return Math.max(1, Math.min(99, score));
+    }
+
+    function filterVehicles() {
+      const p = state.preferences;
+      return state.vehicles
+        .map((v) => ({ ...v, matchScore: scoreVehicle(v) }))
+        .filter((v) => {
+          if (p.vehicleType && v.type !== p.vehicleType) return false;
+          if (p.maxBudget && v.price > p.maxBudget) return false;
+          if (p.minYear && v.year < p.minYear) return false;
+          if (p.maxMileage && v.mileage > p.maxMileage) return false;
+          return true;
+        })
+        .sort((a, b) => b.matchScore - a.matchScore);
+    }
+
+    function renderResults() {
+      const root = byId("results");
+      updatePreferencesFromForm();
+      state.filtered = filterVehicles();
+      root.innerHTML = "";
+
+      if (!state.filtered.length) {
+        root.innerHTML = `<div class="empty">No vehicles match your filters. Loosen one constraint and rerun search.</div>`;
+        byId("matchCount").textContent = "0";
+        byId("avgPrice").textContent = "$0";
+        return;
+      }
+
+      const avgPrice = state.filtered.reduce((sum, v) => sum + v.price, 0) / state.filtered.length;
+      byId("matchCount").textContent = String(state.filtered.length);
+      byId("avgPrice").textContent = fmtMoney(avgPrice);
+
+      const fragment = document.createDocumentFragment();
+      state.filtered.forEach((v, i) => {
+        const card = document.createElement("article");
+        card.className = "card";
+        card.style.animationDelay = `${Math.min(i * 30, 260)}ms`;
+        const topMatch = v.matchScore >= 90;
+        const valuePick = v.price < 32000;
+        card.innerHTML = `
+          <div class="card-art" aria-hidden="true">🚘</div>
+          <div class="card-body">
+            <div class="badges">
+              ${topMatch ? '<span class="badge badge-match">Top Match</span>' : ""}
+              ${valuePick ? '<span class="badge badge-value">Value Pick</span>' : ""}
+            </div>
+            <h3 class="vehicle-title">${v.year} ${escapeHtml(v.make)} ${escapeHtml(v.model)}</h3>
+            <p class="vehicle-meta">${v.mileage.toLocaleString()} miles • ${v.mpg} MPG • Match ${v.matchScore}/100</p>
+            <p class="vehicle-price">${fmtMoney(v.price)}</p>
+            <ul class="feature-list">${v.features.map((f) => `<li>${escapeHtml(f)}</li>`).join("")}</ul>
+            <div class="card-actions">
+              <button class="btn btn-secondary" type="button" data-action="details" data-id="${v.id}">Details</button>
+              <button class="btn btn-primary" type="button" data-action="contact" data-id="${v.id}">Contact</button>
+            </div>
+          </div>
+        `;
+        fragment.appendChild(card);
+      });
+      root.appendChild(fragment);
+    }
+
+    function inferIntent(message) {
+      const m = message.toLowerCase();
+      const result = { reply: "I refined the search using your request. Results are updated below.", runSearch: true };
+
+      if (/family|kids|suv/.test(m)) state.preferences.vehicleType = "suv";
+      if (/electric|ev|tesla/.test(m)) state.preferences.vehicleType = "electric";
+      if (/sedan/.test(m)) state.preferences.vehicleType = "sedan";
+
+      const budgetMatch = m.match(/\$?\s?(\d{2,3})\s?k\b/);
+      if (budgetMatch) state.preferences.maxBudget = Number(budgetMatch[1]) * 1000;
+
+      const yearMatch = m.match(/\b(20\d{2})\b/);
+      if (yearMatch) state.preferences.minYear = Number(yearMatch[1]);
+
+      if (/mpg|fuel|gas/.test(m)) {
+        result.reply = "For fuel efficiency, I boosted high-MPG options. Check Tucson Hybrid, RAV4, and Camry first.";
+      } else if (/budget|cheap|affordable/.test(m)) {
+        result.reply = "I prioritized value picks within your budget and lowered-cost ownership options.";
+      } else if (/compare/.test(m)) {
+        result.reply = "I sorted by overall match score so you can compare price, mileage, and features quickly.";
+      } else if (/hello|hi|hey/.test(m)) {
+        result.reply = "Share your target budget, vehicle type, and must-have features and I will narrow options fast.";
+        result.runSearch = false;
+      }
+      return result;
+    }
+
+    function syncFormFromPreferences() {
+      byId("vehicleType").value = state.preferences.vehicleType || "";
+      byId("maxBudget").value = state.preferences.maxBudget || "";
+      byId("minYear").value = state.preferences.minYear || "";
+      byId("maxMileage").value = state.preferences.maxMileage || "";
+      byId("location").value = state.preferences.location || "98366";
+      byId("headerZip").textContent = state.preferences.location || "98366";
+    }
+
+    function handleSendMessage() {
+      const input = byId("userInput");
+      const text = input.value.trim();
+      if (!text) return;
+      addChatMessage("user", text);
+      input.value = "";
+
+      const intent = inferIntent(text);
+      syncFormFromPreferences();
+
+      window.setTimeout(() => {
+        addChatMessage("agent", intent.reply);
+        if (intent.runSearch) renderResults();
+      }, 260);
+    }
+
+    function findTopVehicle() {
+      if (!state.filtered.length) renderResults();
+      return state.filtered[0] || null;
+    }
+
+    function openModal(id) {
+      const modal = byId(id);
+      modal.classList.add("active");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeModal(id) {
+      const modal = byId(id);
+      modal.classList.remove("active");
+      modal.setAttribute("aria-hidden", "true");
+      if (![...document.querySelectorAll(".modal.active")].length) {
+        document.body.style.overflow = "";
+      }
+    }
+
+    function initStrategyChips() {
+      const root = byId("strategyChips");
+      root.innerHTML = Object.entries(STRATEGIES).map(([key, text]) =>
+        `<button class="chip" type="button" data-strategy="${key}" title="${escapeHtml(text)}">${escapeHtml(key.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, (c) => c.toUpperCase()))}</button>`
+      ).join("");
+    }
+
+    function addNegMsg(role, text) {
+      const wrap = byId("negChat");
+      const node = document.createElement("div");
+      node.className = `neg-msg ${role}`;
+      node.textContent = text;
+      wrap.appendChild(node);
+      wrap.scrollTop = wrap.scrollHeight;
+    }
+
+    function openNegotiator() {
+      const top = findTopVehicle();
+      if (!top) {
+        addChatMessage("agent", "Run Smart Search first so I can prepare negotiation numbers.");
+        return;
+      }
+
+      const fair = Math.round(top.price * 0.93);
+      const save = top.price - fair;
+      byId("dealerPrice").textContent = fmtMoney(top.price);
+      byId("fairPrice").textContent = fmtMoney(fair);
+      byId("savePrice").textContent = fmtMoney(save);
+      byId("negChat").innerHTML = "";
+      addNegMsg("agent", `I found comps for ${top.year} ${top.make} ${top.model}. Start near ${fmtMoney(fair - 400)} and settle around ${fmtMoney(fair)} if dealer includes clean fees.`);
+      openModal("negotiationModal");
+    }
+
+    function handleNegSend() {
+      const input = byId("negInput");
+      const text = input.value.trim();
+      if (!text) return;
+      addNegMsg("user", text);
+      input.value = "";
+
+      const m = text.toLowerCase();
+      let reply = "Use calm pacing: anchor low, justify with comps, then ask for line-item fee breakdown.";
+      if (/offer|price|start/.test(m)) reply = "Opening offer: 8-10% below ask if comps support it. Keep one clear number and justify with local listings.";
+      if (/counter|respond/.test(m)) reply = "On counteroffers, split the difference only if fees are reduced and accessories are removed.";
+      if (/fee|doc|addon/.test(m)) reply = "Request an out-the-door breakdown. Push back on nitrogen, paint sealant, and inflated doc fees.";
+
+      window.setTimeout(() => addNegMsg("agent", reply), 240);
+    }
+
+    function initWarrantyCards() {
+      const root = byId("warrantyCards");
+      root.innerHTML = Object.entries(WARRANTY).map(([key, item]) => `
+        <button class="warranty-card" type="button" data-warranty="${key}">
+          <h4>${escapeHtml(item.name)}</h4>
+          <p>${escapeHtml(item.brief)}</p>
+        </button>
+      `).join("");
+    }
+
+    function renderWarrantyAnalysis(key) {
+      const w = WARRANTY[key];
+      if (!w) return;
+      byId("warrantyAnalysis").innerHTML = `
+        <h4>${escapeHtml(w.name)}</h4>
+        <div><strong>Coverage</strong><ul class="mini-list">${w.coverage.map((c) => `<li>${escapeHtml(c)}</li>`).join("")}</ul></div>
+        <div class="pros-cons">
+          <div><strong style="color: var(--success);">Pros</strong><ul class="mini-list">${w.pros.map((p) => `<li>${escapeHtml(p)}</li>`).join("")}</ul></div>
+          <div><strong style="color: var(--danger);">Cons</strong><ul class="mini-list">${w.cons.map((c) => `<li>${escapeHtml(c)}</li>`).join("")}</ul></div>
+        </div>
+        <div style="margin-top: 10px;"><strong>AI recommendation:</strong> ${escapeHtml(w.recommendation)}</div>
+      `;
+    }
+
+    function generateQuotes() {
+      const term = byId("coverageTerm").value;
+      const level = byId("coverageLevel").value;
+      const deductible = parseInt(byId("deductible").value, 10);
+
+      const base = level === "exclusionary" ? 3200 : level === "stated" ? 2400 : 1600;
+      const termMultiplier = term === "10/150" ? 1.4 : term === "7/100" ? 1 : term === "5/60" ? 0.8 : 0.6;
+      const deductibleCut = deductible / 100 * 0.15;
+
+      const list = [
+        { provider: "Endurance", score: 94, ratio: 0.95, rating: 4.7, reviews: 12840 },
+        { provider: "CARCHEX", score: 91, ratio: 0.98, rating: 4.6, reviews: 8920 },
+        { provider: "Olive", score: 88, ratio: 1.02, rating: 4.5, reviews: 6230 },
+        { provider: "CarShield", score: 82, ratio: 1.08, rating: 4.2, reviews: 15600 }
+      ].map((p) => {
+        const total = Math.round(base * termMultiplier * (1 - deductibleCut) * p.ratio);
+        return { ...p, total, monthly: Math.round(total / 36) };
+      }).sort((a, b) => a.total - b.total);
+
+      byId("quotes").innerHTML = list.map((q, idx) => `
+        <article class="quote ${idx === 0 ? "reco" : ""}">
+          <div class="quote-head">
+            <div>
+              <div style="font-weight: 800;">${escapeHtml(q.provider)} ${idx === 0 ? '<span class="badge badge-match">Best Value</span>' : ""}</div>
+              <div style="font-size: 0.82rem; color: var(--muted);">Estimated total contract cost</div>
+            </div>
+            <strong>${fmtMoney(q.total)}</strong>
+          </div>
+          <div class="quote-meta">
+            <span>${fmtMoney(q.monthly)}/mo</span>
+            <span>Claims rating ${q.rating}/5</span>
+            <span>${q.reviews.toLocaleString()} reviews</span>
+            <span>AI score ${q.score}</span>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function resetAll() {
+      state.preferences = { vehicleType: "", maxBudget: null, minYear: null, maxMileage: null, location: "98366" };
+      syncFormFromPreferences();
+      byId("quotes").innerHTML = "";
+      byId("warrantyAnalysis").textContent = "Select a warranty type to see coverage, pros, cons, and recommendation.";
+      addChatMessage("agent", "Preferences reset. Tell me your target budget and vehicle type to restart.");
+      renderResults();
+    }
+
+    function handleCardAction(e) {
+      const btn = e.target.closest("button[data-action]");
+      if (!btn) return;
+      const id = Number(btn.dataset.id);
+      const car = state.vehicles.find((v) => v.id === id);
+      if (!car) return;
+      if (btn.dataset.action === "details") {
+        addChatMessage("agent", `${car.year} ${car.make} ${car.model}: strong reliability profile, good resale, and useful feature mix. Want alternatives around the same price?`);
+      }
+      if (btn.dataset.action === "contact") {
+        addChatMessage("agent", `Next steps for ${car.make} ${car.model}: verify local inventory, request out-the-door quote, and compare at least 3 dealers before committing.`);
+      }
+    }
+
+    function bindEvents() {
+      byId("sendMessageBtn").addEventListener("click", handleSendMessage);
+      byId("userInput").addEventListener("keydown", (e) => e.key === "Enter" && handleSendMessage());
+      byId("smartSearchBtn").addEventListener("click", () => {
+        renderResults();
+        addChatMessage("agent", `Smart search complete. Found ${state.filtered.length} matches in ZIP ${state.preferences.location}.`);
+      });
+      byId("openNegotiatorBtn").addEventListener("click", openNegotiator);
+      byId("openWarrantyBtn").addEventListener("click", () => openModal("warrantyModal"));
+      byId("resetBtn").addEventListener("click", resetAll);
+      byId("results").addEventListener("click", handleCardAction);
+      byId("sendNegBtn").addEventListener("click", handleNegSend);
+      byId("negInput").addEventListener("keydown", (e) => e.key === "Enter" && handleNegSend());
+      byId("offerLetterBtn").addEventListener("click", () => {
+        addChatMessage("agent", "Generated: offer letter with opening bid, comp summary, and fee guardrails.");
+        closeModal("negotiationModal");
+      });
+      byId("quoteBtn").addEventListener("click", generateQuotes);
+      byId("contactProviderBtn").addEventListener("click", () => {
+        addChatMessage("agent", "Connected you with the top-ranked provider quote and prepared your intake info.");
+        closeModal("warrantyModal");
+      });
+
+      document.addEventListener("input", (e) => {
+        if (e.target.matches("#location, #maxBudget, #minYear, #maxMileage, #vehicleType")) updatePreferencesFromForm();
+      });
+
+      document.addEventListener("click", (e) => {
+        const close = e.target.closest("[data-close-modal]");
+        if (close) closeModal(close.dataset.closeModal);
+
+        if (e.target.matches(".modal")) closeModal(e.target.id);
+
+        const strategy = e.target.closest("[data-strategy]");
+        if (strategy) addNegMsg("agent", STRATEGIES[strategy.dataset.strategy] || "");
+
+        const warranty = e.target.closest("[data-warranty]");
+        if (warranty) renderWarrantyAnalysis(warranty.dataset.warranty);
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          document.querySelectorAll(".modal.active").forEach((m) => closeModal(m.id));
+        }
+      });
+    }
+
+    function init() {
+      initStrategyChips();
+      initWarrantyCards();
+      syncFormFromPreferences();
+      bindEvents();
+      renderResults();
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,73 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R /F2 5 0 R >> >> /Contents 6 0 R >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>
+endobj
+6 0 obj
+<< /Length 3351 >>
+stream
+BT /F2 14 Tf 48 758 Td (OPTIONS RESEARCH DISCIPLINE - ONE PAGE SUMMARY) Tj ET
+BT /F1 9 Tf 48 740 Td (Based only on repository evidence) Tj ET
+BT /F2 11 Tf 48 724 Td (WHAT IT IS) Tj ET
+BT /F1 9 Tf 48 710 Td (A personal, rule-based options research system with a Next.js interface and shared TypeScript engines.) Tj ET
+BT /F1 9 Tf 48 699 Td (The UI frames outputs as research-only approximations and not trade recommendations.) Tj ET
+BT /F2 11 Tf 48 684 Td (WHO IT IS FOR) Tj ET
+BT /F1 9 Tf 48 670 Td (Primary persona: a self-directed options trader focused on disciplined paper trading and behavior) Tj ET
+BT /F1 9 Tf 58 659 Td (review.) Tj ET
+BT /F2 11 Tf 48 644 Td (WHAT IT DOES) Tj ET
+BT /F1 9 Tf 48 630 Td (- Dashboard links Rules, Strategy Lab, Backtests, Gatekeeper, Paper Portfolio, Journal, and Behavior) Tj ET
+BT /F1 9 Tf 58 619 Td (Insights.) Tj ET
+BT /F1 9 Tf 48 608 Td (- Defines risk limits: max risk/trade, max positions, daily loss, cooldown, ticker and strategy) Tj ET
+BT /F1 9 Tf 58 597 Td (concentration.) Tj ET
+BT /F1 9 Tf 48 586 Td (- Evaluates candidate trades with ALLOWED/WARNINGS/BLOCKED status and compliance scores.) Tj ET
+BT /F1 9 Tf 48 575 Td (- Builds strategy templates using trend and volatility filters \(SMA, RSI, breakout, realized) Tj ET
+BT /F1 9 Tf 58 564 Td (volatility\).) Tj ET
+BT /F1 9 Tf 48 553 Td (- Runs approximate backtests with equity curve, drawdown, win rate, loss streaks, and violation) Tj ET
+BT /F1 9 Tf 58 542 Td (pressure.) Tj ET
+BT /F1 9 Tf 48 531 Td (- Tracks simulated positions and exposure analytics by ticker, strategy, and expiration clustering.) Tj ET
+BT /F1 9 Tf 48 520 Td (- Supports credentials auth plus Prisma models for users, rules, strategies, runs, trades, positions,) Tj ET
+BT /F1 9 Tf 58 509 Td (and logs.) Tj ET
+BT /F2 11 Tf 48 494 Td (HOW IT WORKS \(REPO-EVIDENCED ARCHITECTURE\)) Tj ET
+BT /F1 9 Tf 48 480 Td (- Web UI: Next.js app in apps/web \(App Router pages under src/app\).) Tj ET
+BT /F1 9 Tf 48 469 Td (- Auth: NextAuth credentials provider with scrypt password verification.) Tj ET
+BT /F1 9 Tf 48 458 Td (- Data: Prisma client in web app and PostgreSQL schema in prisma/schema.prisma.) Tj ET
+BT /F1 9 Tf 48 447 Td (- Domain logic: packages/core \(rule engine, compliance scoring, portfolio exposure helpers\).) Tj ET
+BT /F1 9 Tf 48 436 Td (- Research logic: packages/research \(Yahoo OHLCV fetch, indicators, candidate generation, backtest) Tj ET
+BT /F1 9 Tf 58 425 Td (runner\).) Tj ET
+BT /F1 9 Tf 48 414 Td (- Data flow: market bars -> strategy candidates -> rule checks -> simulated fills/backtest metrics ->) Tj ET
+BT /F1 9 Tf 58 403 Td (persisted entities/logs.) Tj ET
+BT /F1 9 Tf 48 392 Td (- API route handlers wiring pages to packages: Not found in repo.) Tj ET
+BT /F2 11 Tf 48 377 Td (HOW TO RUN \(MINIMAL GETTING STARTED\)) Tj ET
+BT /F1 9 Tf 48 363 Td (- Install dependencies: npm install) Tj ET
+BT /F1 9 Tf 48 352 Td (- Configure database: set DATABASE_URL \(required by Prisma datasource\).) Tj ET
+BT /F1 9 Tf 48 341 Td (- Generate Prisma client: npx prisma generate) Tj ET
+BT /F1 9 Tf 48 330 Td (- Start the web app: npm run dev, then open http://localhost:3000) Tj ET
+BT /F1 9 Tf 48 319 Td (- Migration/seed instructions and production deployment guide: Not found in repo.) Tj ET
+BT /F1 8 Tf 48 28 Td (Generated in workspace without external sources) Tj ET
+endstream
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000251 00000 n 
+0000000321 00000 n 
+0000000396 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+3799
+%%EOF

@@ -1,49 +1,55 @@
 import { NextRequest, NextResponse } from "next/server";
-import { errorJson } from "@/lib/server/http";
-import {
-  exchangePublicTokenAndSync,
-  getPlaidConfigError,
-  getPlaidConnectionStatus
-} from "@/lib/server/plaid";
-import { getPlaidErrorMessage } from "@/lib/server/plaidErrors";
+import { exchangePublicToken } from "@/lib/plaid/service";
+import { shouldUseMockPlaid } from "@/lib/plaid/config";
 import { resolveActiveUserId } from "@/lib/server/user";
+import { exchangePublicTokenAndSync } from "@/lib/server/plaid";
+import { getPlaidErrorMessage } from "@/lib/server/plaidErrors";
+import { isDbUnavailableError } from "@/lib/server/moneyCopilotFallback";
+import { authRequiredJson } from "@/lib/server/http";
+import { isAuthRequiredError } from "@/lib/server/user";
 
 type ExchangePayload = {
   publicToken?: string;
   institutionName?: string | null;
 };
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const configError = getPlaidConfigError();
-    if (configError) {
-      return errorJson(`Plaid is not configured: ${configError}`, 503);
-    }
+    const body = (await request.json()) as ExchangePayload;
 
-    let payload: ExchangePayload;
-    try {
-      payload = (await req.json()) as ExchangePayload;
-    } catch {
-      return errorJson("Invalid request body", 400);
-    }
-
-    if (!payload.publicToken || typeof payload.publicToken !== "string") {
-      return errorJson("Missing publicToken", 400);
+    if (!body.publicToken) {
+      return NextResponse.json({ error: "Missing publicToken" }, { status: 400 });
     }
 
     const userId = await resolveActiveUserId();
-    const result = await exchangePublicTokenAndSync(
-      userId,
-      payload.publicToken,
-      payload.institutionName
-    );
-    const status = await getPlaidConnectionStatus(userId);
+
+    if (shouldUseMockPlaid()) {
+      const result = await exchangePublicToken(body.publicToken, body.institutionName);
+      return NextResponse.json(result);
+    }
+
+    const result = await exchangePublicTokenAndSync(userId, body.publicToken, body.institutionName);
 
     return NextResponse.json({
-      ...result,
-      ...status
+      itemId: result.plaidItemId,
+      importedAccounts: result.importedAccounts,
+      importedTransactions: result.importedTransactions,
+      transactionsReady: result.transactionsReady,
+      pendingItems: result.transactionsReady ? 0 : 1,
+      mockMode: false
     });
   } catch (error) {
-    return errorJson(getPlaidErrorMessage(error, "Failed to exchange public token"), 500);
+    if (isAuthRequiredError(error)) {
+      return authRequiredJson("Please sign in before saving a bank connection.");
+    }
+
+    if (isDbUnavailableError(error)) {
+      return NextResponse.json({ error: "Database unavailable. Start the app database before syncing Plaid data." }, { status: 503 });
+    }
+
+    return NextResponse.json(
+      { error: getPlaidErrorMessage(error, "Failed to exchange Plaid public token") },
+      { status: 500 }
+    );
   }
 }

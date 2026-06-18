@@ -173,6 +173,13 @@ model MoneyCopilotAccount {
   currency          String   @default("USD")
   currentBalance    Float
   availableBalance  Float?
+  accountMask       String?
+  routingNumberSuffix String?
+  bankVerificationStatus String?
+  verificationName  String?
+  persistentAccountId String?
+  holderCategory    String?
+  isTokenizedAccountNumber Boolean @default(false)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -180,6 +187,7 @@ model MoneyCopilotAccount {
   transactions MoneyCopilotTransaction[]
 
   @@index([userId, type])
+  @@index([userId, bankVerificationStatus])
 }
 
 model MoneyCopilotTransaction {
@@ -209,6 +217,7 @@ model PlaidItem {
   plaidItemId     String
   accessToken     String
   institutionName String?
+  authMethod      String?
   lastSyncedAt    DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt

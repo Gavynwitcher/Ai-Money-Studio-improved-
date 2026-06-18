@@ -1,37 +1,90 @@
 import { NextResponse } from "next/server";
-import { errorJson } from "@/lib/server/http";
-import { getPlaidConfigError, getPlaidConnectionStatus } from "@/lib/server/plaid";
-import { resolveActiveUserId } from "@/lib/server/user";
-
-export const dynamic = "force-dynamic";
+import { getPlaidConfig, shouldUseMockPlaid } from "@/lib/plaid/config";
+import { fetchLinkedAccounts, fetchLinkedInstitutions } from "@/lib/plaid/service";
+import {
+  ensurePlaidItemsMatchEnvironment,
+  getPlaidConfigError,
+  getPlaidConnectionStatus,
+  isPlaidConfigured
+} from "@/lib/server/plaid";
+import { isAuthRequiredError, resolveActiveUserId } from "@/lib/server/user";
+import { isDbUnavailableError } from "@/lib/server/moneyCopilotFallback";
+import { authRequiredJson } from "@/lib/server/http";
 
 export async function GET() {
   try {
-    const configError = getPlaidConfigError();
-    if (configError) {
+    const config = getPlaidConfig();
+    const userId = await resolveActiveUserId();
+
+    if (shouldUseMockPlaid()) {
+      const [institutions, accounts] = await Promise.all([fetchLinkedInstitutions(), fetchLinkedAccounts()]);
+
       return NextResponse.json({
-        configured: false,
-        configError,
-        connected: false,
-        connectedItems: 0,
-        institutions: [],
+        configured: true,
+        configError: null,
+        mockMode: true,
+        environment: config.environment,
+        products: config.products,
+        connected: institutions.length > 0,
+        connectedItems: institutions.length,
+        institutions: institutions.map((institution) => institution.institutionName),
         lastSyncedAt: null,
-        linkedAccounts: 0,
+        linkedAccounts: accounts.length,
         importedTransactions: 0,
         coverageStart: null,
-        coverageEnd: null
+        coverageEnd: null,
+        verifiedBankAccounts: 0,
+        pendingBankAccounts: 0,
+        tokenizedBankAccounts: 0,
+        authMethods: []
       });
     }
 
-    const userId = await resolveActiveUserId();
+    const reset = await ensurePlaidItemsMatchEnvironment(userId);
     const status = await getPlaidConnectionStatus(userId);
 
     return NextResponse.json({
-      configured: true,
-      configError: null,
+      configured: isPlaidConfigured(),
+      configError: getPlaidConfigError(),
+      mockMode: false,
+      environment: config.environment,
+      products: config.products,
+      resetRequired: Boolean(reset?.resetRequired),
+      resetMessage: reset?.resetRequired
+        ? `We cleared ${reset.removedItems} older sandbox connection${reset.removedItems === 1 ? "" : "s"} so this workspace matches Plaid production. Reconnect your bank to continue.`
+        : null,
       ...status
     });
   } catch (error) {
-    return errorJson(error instanceof Error ? error.message : "Failed to load Plaid status", 500);
+    if (isAuthRequiredError(error)) {
+      return authRequiredJson("Please sign in to view bank connection status.");
+    }
+
+    if (isDbUnavailableError(error)) {
+      return NextResponse.json(
+        {
+          configured: false,
+          configError: "Database unavailable. Start the app database before using live Plaid.",
+          mockMode: false,
+          environment: getPlaidConfig().environment,
+          products: getPlaidConfig().products,
+          connected: false,
+          connectedItems: 0,
+          institutions: [],
+          lastSyncedAt: null,
+          linkedAccounts: 0,
+          importedTransactions: 0,
+          coverageStart: null,
+          coverageEnd: null,
+          verifiedBankAccounts: 0,
+          pendingBankAccounts: 0,
+          tokenizedBankAccounts: 0,
+          authMethods: []
+        },
+        { status: 503 }
+      );
+    }
+
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Failed to load Plaid status" }, { status: 500 });
   }
 }

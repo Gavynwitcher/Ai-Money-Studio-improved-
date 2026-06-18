@@ -8,6 +8,7 @@ type RegisterPayload = {
   email?: string;
   password?: string;
   name?: string;
+  acceptedTerms?: boolean;
 };
 
 function normalizeEmail(value: string) {
@@ -29,6 +30,9 @@ export async function POST(req: NextRequest) {
     }
     if (password.length < 8) {
       return errorJson("Password must be at least 8 characters.", 400);
+    }
+    if (!payload.acceptedTerms) {
+      return errorJson("You must accept the Terms of Service and Privacy Policy to create a Northline account.", 400);
     }
 
     const existing = await prisma.user.findUnique({
@@ -56,4 +60,3 @@ export async function POST(req: NextRequest) {
     return errorJson(error instanceof Error ? error.message : "Failed to register account.", 500);
   }
 }
-

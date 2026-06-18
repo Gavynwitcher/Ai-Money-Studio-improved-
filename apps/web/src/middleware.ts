@@ -2,8 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
 const protectedApiPrefixes = [
-  "/api/money-copilot",
+  "/api/assistant",
   "/api/plaid",
+  "/api/money-copilot",
   "/api/ollama",
   "/api/dashboard",
   "/api/backtests",
@@ -15,12 +16,26 @@ const protectedApiPrefixes = [
   "/api/trade-journal"
 ];
 
+const stagedPagePrefixes = [
+  "/accounting",
+  "/assets",
+  "/credit",
+  "/heloc-application",
+  "/liabilities",
+  "/marketpilot",
+  "/marketing-os"
+];
+
 const protectedPagePrefixes = [
-  "/dashboard",
-  "/transactions",
+  "/account",
   "/goals-debt",
   "/actions",
   "/assistant",
+  "/dashboard",
+  "/accounts",
+  "/transactions",
+  "/cash-flow",
+  "/insights",
   "/scenarios",
   "/settings",
   "/operations-dashboard",
@@ -38,12 +53,22 @@ function hasProtectedPrefix(pathname: string, prefixes: string[]) {
 }
 
 export async function middleware(req: NextRequest) {
+  const pathname = req.nextUrl.pathname;
+  if (pathname === "/api/plaid/webhook") {
+    return NextResponse.next();
+  }
+
+  if (hasProtectedPrefix(pathname, stagedPagePrefixes)) {
+    const stagedUrl = new URL("/features", req.url);
+    stagedUrl.searchParams.set("status", "planned");
+    return NextResponse.redirect(stagedUrl);
+  }
+
   const requireSignin = process.env.REQUIRE_SIGNIN !== "false";
   if (!requireSignin) {
     return NextResponse.next();
   }
 
-  const pathname = req.nextUrl.pathname;
   const isProtectedApi = hasProtectedPrefix(pathname, protectedApiPrefixes);
   const isProtectedPage = hasProtectedPrefix(pathname, protectedPagePrefixes);
 
@@ -68,8 +93,9 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     "/api/money-copilot/:path*",
-    "/api/plaid/:path*",
+    "/api/assistant/:path*",
     "/api/ollama/:path*",
+    "/api/plaid/:path*",
     "/api/dashboard",
     "/api/backtests",
     "/api/behavior-insights",
@@ -78,11 +104,22 @@ export const config = {
     "/api/strategies",
     "/api/trade-gatekeeper",
     "/api/trade-journal",
-    "/dashboard/:path*",
-    "/transactions/:path*",
+    "/account/:path*",
+    "/accounting/:path*",
+    "/assets/:path*",
+    "/credit/:path*",
+    "/heloc-application/:path*",
+    "/liabilities/:path*",
+    "/marketpilot/:path*",
+    "/marketing-os/:path*",
     "/goals-debt/:path*",
     "/actions/:path*",
     "/assistant/:path*",
+    "/dashboard/:path*",
+    "/accounts/:path*",
+    "/transactions/:path*",
+    "/cash-flow/:path*",
+    "/insights/:path*",
     "/scenarios/:path*",
     "/settings/:path*",
     "/operations-dashboard/:path*",

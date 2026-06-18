@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "npm --workspace apps/web run dev",
     "build": "npm --workspace apps/web run build",
+    "vercel-build": "next build apps/web --no-lint",
     "lint": "npm --workspace apps/web run lint",
     "test": "npm --workspace packages/core run test",
     "bot:purchase:auth": "node ./scripts/purchase-bot/save-auth-state.mjs",

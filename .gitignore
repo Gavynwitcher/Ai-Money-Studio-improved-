@@ -13,7 +13,9 @@ data.db
 node_modules/
 apps/web/.next/
 apps/web/.next_stale_*/
+apps/web/.runtime/
 prisma/*.db
 scripts/purchase-bot/config.json
 scripts/purchase-bot/auth-state.json
 output/playwright/purchase-bot/
+.env*

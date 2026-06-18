@@ -230,8 +230,11 @@ export async function getDashboardPayload(userId: string) {
     })
   ]);
 
-  const uniqueRecommendations = uniqBy(recommendations, (row) => row.title).slice(0, 6);
-  const uniqueUpcomingBills = uniqBy(
+  const uniqueRecommendations = uniqBy<(typeof recommendations)[number]>(
+    recommendations,
+    (row) => row.title
+  ).slice(0, 6);
+  const uniqueUpcomingBills = uniqBy<(typeof upcomingBills)[number]>(
     upcomingBills,
     (row) => `${row.serviceName}-${row.nextExpectedDate.toISOString().slice(0, 10)}-${row.expectedAmount}`
   ).slice(0, 8);
@@ -337,7 +340,7 @@ export async function getTransactionsPayload(userId: string, limit = 200) {
     orderBy: { postedAt: "desc" },
     take: safeLimit * 2
   });
-  const dedupedTxns = uniqBy(
+  const dedupedTxns = uniqBy<(typeof txns)[number]>(
     txns,
     (txn) =>
       `${txn.postedAt.toISOString().slice(0, 10)}-${txn.merchantRaw}-${txn.amount}-${txn.accountId ?? "unlinked"}`
@@ -412,7 +415,10 @@ export async function getActionsPayload(userId: string) {
     orderBy: [{ createdAt: "desc" }],
     take: 100
   });
-  const dedupedRows = uniqBy(rows, (row) => `${row.actionType}-${row.expectedOutcome}`);
+  const dedupedRows = uniqBy<(typeof rows)[number]>(
+    rows,
+    (row) => `${row.actionType}-${row.expectedOutcome}`
+  );
 
   return {
     actions: dedupedRows.map((row) => ({

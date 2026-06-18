@@ -1,32 +1,50 @@
 import { NextResponse } from "next/server";
-import { errorJson } from "@/lib/server/http";
-import {
-  createPlaidLinkToken,
-  getPlaidConfigError,
-  getPlaidConnectionStatus
-} from "@/lib/server/plaid";
-import { getPlaidErrorMessage } from "@/lib/server/plaidErrors";
+import { createLinkToken } from "@/lib/plaid/service";
 import { resolveActiveUserId } from "@/lib/server/user";
+import { createPlaidLinkToken, getPlaidConfigError, resolveConfiguredProducts } from "@/lib/server/plaid";
+import { getPlaidErrorMessage } from "@/lib/server/plaidErrors";
+import { isDbUnavailableError } from "@/lib/server/moneyCopilotFallback";
+import { shouldUseMockPlaid } from "@/lib/plaid/config";
+import { authRequiredJson } from "@/lib/server/http";
+import { isAuthRequiredError } from "@/lib/server/user";
 
 export async function POST() {
   try {
-    const configError = getPlaidConfigError();
-    if (configError) {
-      return errorJson(`Plaid is not configured: ${configError}`, 503);
+    const userId = await resolveActiveUserId();
+
+    if (shouldUseMockPlaid()) {
+      const result = await createLinkToken(userId);
+      return NextResponse.json(result);
     }
 
-    const userId = await resolveActiveUserId();
-    const [linkToken, status] = await Promise.all([
-      createPlaidLinkToken(userId),
-      getPlaidConnectionStatus(userId)
-    ]);
+    const configError = getPlaidConfigError();
+    if (configError) {
+      return NextResponse.json({ error: configError }, { status: 400 });
+    }
+
+    const result = await createPlaidLinkToken(userId);
 
     return NextResponse.json({
-      linkToken: linkToken.link_token,
-      expiration: linkToken.expiration,
-      ...status
+      linkToken: result.link_token,
+      expiration: result.expiration,
+      environment: process.env.PLAID_ENV || "sandbox",
+      mockMode: false,
+      clientName: "Northline",
+      products: resolveConfiguredProducts().map((product) => product.toString()),
+      countryCodes: ["US"]
     });
   } catch (error) {
-    return errorJson(getPlaidErrorMessage(error, "Failed to create Plaid link token"), 500);
+    if (isAuthRequiredError(error)) {
+      return authRequiredJson("Please sign in before connecting a bank account.");
+    }
+
+    if (isDbUnavailableError(error)) {
+      return NextResponse.json({ error: "Database unavailable. Start the app database before connecting Plaid." }, { status: 503 });
+    }
+
+    return NextResponse.json(
+      { error: getPlaidErrorMessage(error, "Failed to create Plaid link token") },
+      { status: 500 }
+    );
   }
 }

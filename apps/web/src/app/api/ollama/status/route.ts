@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
-import { getOllamaStatus } from "@/lib/server/ollama";
 
 export async function GET() {
-  const status = await getOllamaStatus();
-  return NextResponse.json(status);
+  return NextResponse.json(
+    {
+      provider: "disabled",
+      available: false,
+      message: "Northline AI uses OpenAI only. Legacy local model endpoints are disabled for v1."
+    },
+    { status: 410 }
+  );
 }

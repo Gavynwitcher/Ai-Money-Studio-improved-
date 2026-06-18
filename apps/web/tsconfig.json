@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "jsx": "preserve",
     "incremental": true,
@@ -7,12 +7,6 @@
     "paths": {
       "@/*": [
         "src/*"
-      ],
-      "@options/core": [
-        "../../packages/core/src/index.ts"
-      ],
-      "@options/research": [
-        "../../packages/research/src/index.ts"
       ]
     },
     "allowJs": true,
